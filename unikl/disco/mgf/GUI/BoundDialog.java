@@ -84,7 +84,7 @@ public class BoundDialog extends JDialog {
 		granPanel.setLayout(new GridLayout(0,2));
 		
 		//Creates the spinners for choosing the granularities
-		JLabel hoelderLabel = new JLabel("Hölder-Granularity");
+		JLabel hoelderLabel = new JLabel("HÃ¶lder-Granularity");
 		granPanel.add(hoelderLabel);
 		
 		SpinnerNumberModel hoeldermodel = new SpinnerNumberModel(0.01, 0, 1, 0.001);
