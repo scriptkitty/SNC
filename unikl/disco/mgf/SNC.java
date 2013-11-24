@@ -19,6 +19,7 @@ import unikl.disco.mgf.network.Flow;
 import unikl.disco.mgf.network.Network;
 import unikl.disco.mgf.network.SimpleAnalysis;
 import unikl.disco.mgf.network.Vertex;
+import unikl.disco.mgf.optimization.SimpleGradient;
 import unikl.disco.mgf.optimization.SimpleOptimizer;
 
 /**
@@ -45,7 +46,7 @@ public class SNC {
 		
 		GRADIENT_OPT{
 			public String toString(){
-				return "Gradient Heuristic (not implemented yet)";
+				return "Gradient Heuristic";
 			}
 		}
 	};
@@ -343,7 +344,16 @@ public class SNC {
 				break;
 			
 			case GRADIENT_OPT:
-				System.out.println("The gradient heuristic is not implemented yet");
+				SimpleGradient gradient = new SimpleGradient(bound, boundtype);
+				try{
+					probability = gradient.Bound(bound, boundtype, value, thetaGran, hoelderGran);
+				} catch (ThetaOutOfBoundException e) {
+					e.printStackTrace();
+				} catch (ParameterMismatchException e) {
+					e.printStackTrace();
+				} catch (ServerOverloadException e) {
+					e.printStackTrace();
+				}
 				break;
 			
 			default:
@@ -433,7 +443,16 @@ public class SNC {
 				break;
 			
 			case GRADIENT_OPT:
-				System.out.println("The gradient heuristic is not implemented yet");
+				SimpleGradient gradient = new SimpleGradient(bound, boundtype);
+				try {
+					value = gradient.ReverseBound(bound, boundtype, probability, thetaGran, hoelderGran);
+				} catch (ThetaOutOfBoundException e) {
+					e.printStackTrace();
+				} catch (ParameterMismatchException e) {
+					e.printStackTrace();
+				} catch (ServerOverloadException e) {
+					e.printStackTrace();
+				}
 				break;
 				
 			default:
