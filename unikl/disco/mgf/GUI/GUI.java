@@ -265,7 +265,7 @@ public class GUI implements Runnable {
 				AnalyzeDialog dialog = new AnalyzeDialog("Analyze Network", caller.getFlows(), caller.getVertices());
 				int output = dialog.showAnalyzeDialog();
 				if(output == BoundDialog.APPROVE_OPTION){
-					analyzeNetwork(dialog.getSelectedFlow(), dialog.getSelectedVertex(), dialog.getAnalyzer(), dialog.getBoundtype());
+					analyzeNetwork(dialog.getSelectedFlow(), dialog.getSelectedVertex(), dialog.getSelectedSecondVertex(), dialog.getAnalyzer(), dialog.getBoundtype());
 				}
 			}
 			
@@ -287,7 +287,7 @@ public class GUI implements Runnable {
 				BoundDialog dialog = new BoundDialog("Calculate Bound", caller.getFlows(), caller.getVertices());
 				int output = dialog.showBoundDialog();
 				if(output == BoundDialog.APPROVE_OPTION){
-					calculateBound(dialog.getSelectedFlow(), dialog.getSelectedVertex(), dialog.getThetaGranularity(), 
+					calculateBound(dialog.getSelectedFlow(), dialog.getSelectedVertex(), dialog.getSelectedSecondVertex(), dialog.getThetaGranularity(), 
 							dialog.getHoelderGranularity(), dialog.getAnalyzer(), dialog.getOptimizer(), dialog.getBoundtype(), 
 							dialog.getValue());
 				}
@@ -311,7 +311,7 @@ public class GUI implements Runnable {
 				InverseBoundDialog dialog = new InverseBoundDialog("Calculate Inverse Bound", caller.getFlows(), caller.getVertices());
 				int output = dialog.showInverseBoundDialog();
 				if(output == BoundDialog.APPROVE_OPTION){
-					calculateInverseBound(dialog.getSelectedFlow(), dialog.getSelectedVertex(), dialog.getThetaGranularity(), 
+					calculateInverseBound(dialog.getSelectedFlow(), dialog.getSelectedVertex(), dialog.getSelectedSecondVertex(), dialog.getThetaGranularity(), 
 							dialog.getHoelderGranularity(), dialog.getBoundGranularity(), dialog.getAnalyzer(), 
 							dialog.getOptimizer(), dialog.getBoundtype(), dialog.getProbability());
 				}
@@ -609,27 +609,27 @@ public class GUI implements Runnable {
 	}
 	
 	//Calculating bounds
-	private void calculateBound(Flow selectedFlow, Vertex selectedVertex,
+	private void calculateBound(Flow selectedFlow, Vertex selectedVertex, Vertex selectedSecondVertex,
 			double thetaGranularity, double hoelderGranularity,
 			SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value) {
 		System.out.println("Bound is being calculated...");
-		double probability = caller.calculateBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
+		double probability = caller.calculateBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, 
 				analyzer, optimizer, boundtype, value);
 		System.out.println("The probability for the asked bound being broken is smaller than: "+probability);
 	}
 	
-	private void calculateInverseBound(Flow selectedFlow, Vertex selectedVertex, double thetaGranularity, 
+	private void calculateInverseBound(Flow selectedFlow, Vertex selectedVertex, Vertex selectedSecondVertex, double thetaGranularity, 
 			double hoelderGranularity, double boundGranularity, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, 
 			AbstractAnalysis.Boundtype boundtype, double probability){
 		System.out.println("Inverse Bound is being calculated...");
-		double value = caller.calculateInverseBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
+		double value = caller.calculateInverseBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, 
 				boundGranularity, analyzer, optimizer, boundtype, probability);
 		System.out.println("The best calculated bound for the asked probability is: "+value);
 	}
 	
-	private void analyzeNetwork(Flow selectedFlow, Vertex selectedVertex, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype){
+	private void analyzeNetwork(Flow selectedFlow, Vertex selectedVertex, Vertex selectedSecondVertex, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype){
 		System.out.println("Network is being analyzed...");
-		Arrival bound = caller.analyzeNetwork(selectedFlow, selectedVertex, analyzer, boundtype);
+		Arrival bound = caller.analyzeNetwork(selectedFlow, selectedVertex, selectedSecondVertex, analyzer, boundtype);
 		System.out.println("The bound in arrival-representation equals: "+bound.toString());
 	}
 

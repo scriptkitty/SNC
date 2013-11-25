@@ -53,6 +53,7 @@ public class AnalyzeDialog extends JDialog {
 	private int output;
 	private Flow flow; 
 	private Vertex vertex;
+        private Vertex vertex2;
 	private SNC.AnalysisType anaType;
 	private AbstractAnalysis.Boundtype boundtype;
 	
@@ -73,9 +74,7 @@ public class AnalyzeDialog extends JDialog {
 		JPanel leftPanel = new JPanel();
 		leftPanel.setLayout(new GridLayout(0,2));
 		
-		leftPanel.add(new JLabel("Select the type of bound: "));
-		final JComboBox<Object> typeBox = new JComboBox<Object>(AbstractAnalysis.Boundtype.values());
-		leftPanel.add(typeBox);
+		
 		
 		JLabel FOILabel = new JLabel("Flow of interest:");
 		leftPanel.add(FOILabel);
@@ -105,6 +104,9 @@ public class AnalyzeDialog extends JDialog {
 		
 		JLabel VOILabel = new JLabel("Vertex of interest:");
 		rightPanel.add(VOILabel);
+                
+                JLabel VOI2Label = new JLabel("Vertex2 of interest:");
+                rightPanel.add(VOI2Label);
 		
 		final HashMap<Integer, String> vertexAliases = new HashMap<Integer, String>();
 		for(Entry<Integer, Vertex> entry : vertices.entrySet()){
@@ -112,8 +114,26 @@ public class AnalyzeDialog extends JDialog {
 			else vertexAliases.put(entry.getValue().getVertexID(), "ID "+entry.getValue().getVertexID());
 		}
 		final JComboBox<String> VOIBox = new JComboBox<String>(vertexAliases.values().toArray(new String[0]));
+                final JComboBox<String> VOIBox2 = new JComboBox<String>(vertexAliases.values().toArray(new String[0]));
+                VOIBox2.setEnabled(false);
 		rightPanel.add(VOIBox);
-		
+		rightPanel.add(VOIBox2);
+                
+                leftPanel.add(new JLabel("Select the type of bound: "));
+		final JComboBox<Object> typeBox = new JComboBox<Object>(AbstractAnalysis.Boundtype.values());
+                typeBox.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        if(typeBox.getSelectedItem() == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
+                            VOIBox2.setEnabled(true);
+                        } else {
+                            VOIBox2.setEnabled(false);
+                        }
+                    }
+                });
+		leftPanel.add(typeBox);
+                
 		add(rightPanel);
 		
 		//*************************
@@ -138,15 +158,23 @@ public class AnalyzeDialog extends JDialog {
 				flow = flows.get(flowID);
 				
 				String vertexName = (String)VOIBox.getSelectedItem();
+                                String vertex2Name = (String)VOIBox2.getSelectedItem();
 				int vertexID = -1;
+                                int vertexID2 = -1;
 				for(Entry<Integer, String> entry : vertexAliases.entrySet()){
 					if(entry.getValue() == vertexName) vertexID = entry.getKey();
+                                        if(entry.getValue() == vertex2Name) vertexID2 = entry.getKey();
 				}
 				vertex = vertices.get(vertexID);
+                                vertex2 = vertices.get(vertexID2);
 				
 				anaType = (SNC.AnalysisType)analyBox.getSelectedItem();
 				
 				boundtype = (AbstractAnalysis.Boundtype)typeBox.getSelectedItem();
+                                if(vertexID == vertexID2 && boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
+                                    System.out.println("Vertices are the same.");
+                                    output = CANCEL_OPTION;
+                                }
 				
 				dispose();
 			}
@@ -190,6 +218,10 @@ public class AnalyzeDialog extends JDialog {
 	public Vertex getSelectedVertex(){
 		return vertex;
 	}
+        
+        public Vertex getSelectedSecondVertex() {
+            return vertex2;
+        }
 	
 	public SNC.AnalysisType getAnalyzer(){
 		return anaType;

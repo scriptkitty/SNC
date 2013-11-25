@@ -54,6 +54,7 @@ public class BoundDialog extends JDialog {
 	private int output;
 	private Flow flow; 
 	private Vertex vertex;
+        private Vertex vertex2;
 	private double thetaGran;
 	private double hoelderGran;
 	private SNC.OptimizationType optType;
@@ -142,6 +143,9 @@ public class BoundDialog extends JDialog {
 		
 		JLabel VOILabel = new JLabel("Vertex of interest:");
 		rightPanel.add(VOILabel);
+                
+                JLabel VOILabel2 = new JLabel("Second vertex of interest:");
+                rightPanel.add(VOILabel2);
 		
 		final HashMap<Integer, String> vertexAliases = new HashMap<Integer, String>();
 		for(Entry<Integer, Vertex> entry : vertices.entrySet()){
@@ -149,7 +153,10 @@ public class BoundDialog extends JDialog {
 			else vertexAliases.put(entry.getValue().getVertexID(), "ID "+entry.getValue().getVertexID());
 		}
 		final JComboBox<String> VOIBox = new JComboBox<String>(vertexAliases.values().toArray(new String[0]));
+                final JComboBox<String> VOIBox2 = new JComboBox<String>(vertexAliases.values().toArray(new String[0]));
+                VOIBox2.setEnabled(false);
 		rightPanel.add(VOIBox);
+                rightPanel.add(VOIBox2);
 		
 		add(rightPanel);
 		
@@ -162,6 +169,17 @@ public class BoundDialog extends JDialog {
 		
 		boundPanel.add(new JLabel("Select the type of bound: "));
 		final JComboBox<Object> typeBox = new JComboBox<Object>(AbstractAnalysis.Boundtype.values());
+                typeBox.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        if(typeBox.getSelectedItem() == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
+                            VOIBox2.setEnabled(true);
+                        } else {
+                            VOIBox2.setEnabled(false);
+                        }
+                    }
+                });
 		boundPanel.add(typeBox);
 		
 		boundPanel.add(new JLabel("Give the Delay or Backlog bound: "));
@@ -187,7 +205,8 @@ public class BoundDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				output = APPROVE_OPTION;
-				
+                                boundtype = (AbstractAnalysis.Boundtype)typeBox.getSelectedItem();
+
 				String flowName = (String)FOIBox.getSelectedItem();
 				int flowID = -1;
 				for(Entry<Integer, String> entry : flowAliases.entrySet()){
@@ -196,11 +215,21 @@ public class BoundDialog extends JDialog {
 				flow = flows.get(flowID);
 				
 				String vertexName = (String)VOIBox.getSelectedItem();
+                                String vertex2Name = (String)VOIBox.getSelectedItem();
 				int vertexID = -1;
+                                // TODO: -1 equals no such vertex?
+                                int vertex2ID = -1;
 				for(Entry<Integer, String> entry : vertexAliases.entrySet()){
 					if(entry.getValue() == vertexName) vertexID = entry.getKey();
+                                        if(entry.getValue() == vertex2Name) vertex2ID = entry.getKey();
 				}
 				vertex = vertices.get(vertexID);
+                                // Returns null if there is no vertex 2
+                                vertex2 = vertices.get(vertex2ID);
+                                if(vertexID == vertex2ID && boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
+                                    System.out.println("Vertices are the same.");
+                                    output = CANCEL_OPTION;
+                                }
 				
 				optType = (SNC.OptimizationType)optiBox.getSelectedItem();
 				anaType = (SNC.AnalysisType)analyBox.getSelectedItem();
@@ -218,7 +247,6 @@ public class BoundDialog extends JDialog {
 					System.out.println(exc.getMessage());
 					output = CANCEL_OPTION;
 				}
-				boundtype = (AbstractAnalysis.Boundtype)typeBox.getSelectedItem();
 				try{
 					value = Double.parseDouble(valueField.getText());
 				}
@@ -268,6 +296,10 @@ public class BoundDialog extends JDialog {
 	public Vertex getSelectedVertex(){
 		return vertex;
 	}
+        
+        public Vertex getSelectedSecondVertex() {
+            return vertex2;
+        }
 	
 	public double getThetaGranularity(){
 		return thetaGran;

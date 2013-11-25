@@ -171,7 +171,7 @@ public class Vertex implements Serializable {
 	//leftover service is calculated and written into service. The served flow is removed from
 	//the priority and established_flows HashMaps. Further the next flow to be served is determined.
 	//Invoking serve() without any flows in established_incoming will result in an error.
-	//Further the invoking analysis is informed via newHoelderCoefficient about new Hölder coefficients
+	//Further the invoking analysis is informed via newHoelderCoefficient about new HÃ¶lder coefficients
 	// rising. Also the dependency sets of service and the involved arrivals are updated.
 	
 	/**

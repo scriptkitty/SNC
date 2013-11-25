@@ -51,7 +51,7 @@ public abstract class AbstractAnalysis {
 	protected int vertex_of_interest;
 	
 	public enum Boundtype{
-		BACKLOG, DELAY, OUTPUT
+		BACKLOG, DELAY, OUTPUT, END_TO_END_DELAY
 	};
 	protected Boundtype boundtype;
 	

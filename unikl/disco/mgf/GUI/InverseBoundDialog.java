@@ -53,6 +53,7 @@ public class InverseBoundDialog extends JDialog {
 	private int output;
 	private Flow flow; 
 	private Vertex vertex;
+        private Vertex vertex2;
 	private double thetaGran;
 	private double hoelderGran;
 	private double boundGran;
@@ -154,6 +155,9 @@ public class InverseBoundDialog extends JDialog {
 		
 		JLabel VOILabel = new JLabel("Vertex of interest:");
 		rightPanel.add(VOILabel);
+                
+                JLabel VOILabel2 = new JLabel("Second vertex of interest:");
+                rightPanel.add(VOILabel2);
 		
 		final HashMap<Integer, String> vertexAliases = new HashMap<Integer, String>();
 		for(Entry<Integer, Vertex> entry : vertices.entrySet()){
@@ -161,7 +165,10 @@ public class InverseBoundDialog extends JDialog {
 			else vertexAliases.put(entry.getValue().getVertexID(), "ID "+entry.getValue().getVertexID());
 		}
 		final JComboBox<String> VOIBox = new JComboBox<String>(vertexAliases.values().toArray(new String[0]));
+                final JComboBox<String> VOIBox2 = new JComboBox<String>(vertexAliases.values().toArray(new String[0]));
+                VOIBox2.setEnabled(false);
 		rightPanel.add(VOIBox);
+                rightPanel.add(VOIBox2);
 		
 		add(rightPanel);
 		
@@ -174,6 +181,17 @@ public class InverseBoundDialog extends JDialog {
 		
 		boundPanel.add(new JLabel("Select the type of bound: "));
 		final JComboBox<Object> typeBox = new JComboBox<Object>(AbstractAnalysis.Boundtype.values());
+                typeBox.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        if(typeBox.getSelectedItem() == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
+                            VOIBox2.setEnabled(true);
+                        } else {
+                            VOIBox2.setEnabled(false);
+                        }
+                    }
+                });
 		boundPanel.add(typeBox);
 		
 		boundPanel.add(new JLabel("Give the maximal violation probability: "));
@@ -207,11 +225,15 @@ public class InverseBoundDialog extends JDialog {
 				flow = flows.get(flowID);
 				
 				String vertexName = (String)VOIBox.getSelectedItem();
+                                String vertex2Name = (String)VOIBox.getSelectedItem();
 				int vertexID = -1;
+                                int vertex2ID = -1;
 				for(Entry<Integer, String> entry : vertexAliases.entrySet()){
 					if(entry.getValue() == vertexName) vertexID = entry.getKey();
+                                        if(entry.getValue() == vertex2Name) vertex2ID = entry.getKey();
 				}
 				vertex = vertices.get(vertexID);
+                                vertex2 = vertices.get(vertex2ID);
 				
 				optType = (SNC.OptimizationType)optiBox.getSelectedItem();
 				anaType = (SNC.AnalysisType)analyBox.getSelectedItem();
@@ -238,6 +260,10 @@ public class InverseBoundDialog extends JDialog {
 				}
 				
 				boundtype = (AbstractAnalysis.Boundtype)typeBox.getSelectedItem();
+                                if(vertexID == vertex2ID && boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
+                                    System.out.println("Vertices are the same.");
+                                    output = CANCEL_OPTION;
+                                }
 				try{
 					probability = Double.parseDouble(probabilityField.getText());
 				}
@@ -287,6 +313,10 @@ public class InverseBoundDialog extends JDialog {
 	public Vertex getSelectedVertex(){
 		return vertex;
 	}
+        
+        public Vertex getSelectedSecondVertex() {
+            return vertex2;
+        }
 	
 	public double getThetaGranularity(){
 		return thetaGran;

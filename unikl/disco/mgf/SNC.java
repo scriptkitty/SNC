@@ -229,7 +229,7 @@ public class SNC {
 	 * @param boundtype the type of bound, which needs to be computed.
 	 * @return the result of the analysis in arrival-representation.
 	 */
-	public Arrival analyzeNetwork(Flow flow, Vertex vertex, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype){
+	public Arrival analyzeNetwork(Flow flow, Vertex vertex, Vertex vertex2, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype){
 		
 		//Preparations
 		Arrival bound = null;
@@ -290,7 +290,7 @@ public class SNC {
 	 * @param value the value of the delay or backlog bound
 	 * @return the best probability found for the given delay or backlog bound
 	 */
-	public double calculateBound(Flow flow, Vertex vertex, double thetaGran, 
+	public double calculateBound(Flow flow, Vertex vertex, Vertex vertex2, double thetaGran, 
 			double hoelderGran, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value){
 
 		//Preparations
@@ -393,7 +393,7 @@ public class SNC {
 	 * @return the best value of delay or backlog found, which still suffices the 
 	 * given probability.
 	 */
-	public double calculateInverseBound(Flow flow, Vertex vertex, double thetaGran, 
+	public double calculateInverseBound(Flow flow, Vertex vertex, Vertex vertex2, double thetaGran, 
 			double hoelderGran, double boundGran, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, 
 			AbstractAnalysis.Boundtype boundtype, double probability){
 
