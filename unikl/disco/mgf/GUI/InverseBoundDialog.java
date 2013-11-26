@@ -225,7 +225,7 @@ public class InverseBoundDialog extends JDialog {
 				flow = flows.get(flowID);
 				
 				String vertexName = (String)VOIBox.getSelectedItem();
-                                String vertex2Name = (String)VOIBox.getSelectedItem();
+                                String vertex2Name = (String)VOIBox2.getSelectedItem();
 				int vertexID = -1;
                                 int vertex2ID = -1;
 				for(Entry<Integer, String> entry : vertexAliases.entrySet()){

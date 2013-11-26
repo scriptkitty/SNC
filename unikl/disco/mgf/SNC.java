@@ -6,7 +6,9 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.SwingUtilities;
@@ -38,17 +40,17 @@ public class SNC {
 	private static HashMap<Integer, Vertex> vertices;
 	
 	public enum OptimizationType{
+            	GRADIENT_OPT{
+			public String toString(){
+				return "Gradient Heuristic";
+			}
+		},
 		SIMPLE_OPT{
 			public String toString(){
 				return "Simple Optimization";
 			}
-		},
-		
-		GRADIENT_OPT{
-			public String toString(){
-				return "Gradient Heuristic";
-			}
 		}
+		
 	};
 	
 	public enum AnalysisType{
@@ -229,7 +231,7 @@ public class SNC {
 	 * @param boundtype the type of bound, which needs to be computed.
 	 * @return the result of the analysis in arrival-representation.
 	 */
-	public Arrival analyzeNetwork(Flow flow, Vertex vertex, Vertex vertex2, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype){
+	public Arrival analyzeNetwork(Flow flow, Vertex vertex, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype){
 		
 		//Preparations
 		Arrival bound = null;
@@ -290,7 +292,7 @@ public class SNC {
 	 * @param value the value of the delay or backlog bound
 	 * @return the best probability found for the given delay or backlog bound
 	 */
-	public double calculateBound(Flow flow, Vertex vertex, Vertex vertex2, double thetaGran, 
+	public double calculateBound(Flow flow, Vertex vertex, double thetaGran, 
 			double hoelderGran, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value){
 
 		//Preparations
@@ -374,6 +376,41 @@ public class SNC {
 		
 		return probability;
 	}
+        
+        /**
+         * Computes the End-to-End Delay bound for the given flow from vertex1 to vertex2. Temporary solution.
+         * @param flow
+         * @param vertex1
+         * @param vertex2
+         * @param thetaGran
+         * @param hoelderGran
+         * @param analyzer
+         * @param optimizer
+         * @param value
+         * @return the probability, that the E2E exceeds the parameter "value"
+         */
+        public double calculateE2EBound(Flow flow, Vertex vertex1, Vertex vertex2, double thetaGran, double hoelderGran, AnalysisType analyzer, OptimizationType optimizer, double value) {
+            double probability = 0;
+            
+            // For every node in between vertex1 and vertex2 along the flow, compute the bound and return the sum
+            // TODO: Introduce Error Handling
+            List<Integer> vlist = flow.getVerticeIDs();
+            int pos1 = vlist.indexOf(vertex1.getVertexID());
+            int pos2 = vlist.indexOf(vertex2.getVertexID());
+            System.out.println("E2E Pos Beginning - End:" + pos1 + " - " + pos2);
+            if(pos1 > pos2) {
+                int tmp = pos1;
+                pos1 = pos2;
+                pos2 = tmp;
+            }
+            vlist = vlist.subList(pos1, pos2 > vlist.size() ? vlist.size() : pos2 + 1);
+            
+            int len = vlist.size();
+            for (Integer vid : vlist) {
+                probability += calculateBound(flow, vertices.get(vid), thetaGran, hoelderGran, analyzer, optimizer, AbstractAnalysis.Boundtype.DELAY, value/len);
+            }
+            return probability;
+        }
 	
 	/**
 	 * This relays the command of calculating a numerical (to some extent optimized) 
@@ -393,7 +430,7 @@ public class SNC {
 	 * @return the best value of delay or backlog found, which still suffices the 
 	 * given probability.
 	 */
-	public double calculateInverseBound(Flow flow, Vertex vertex, Vertex vertex2, double thetaGran, 
+	public double calculateInverseBound(Flow flow, Vertex vertex, double thetaGran, 
 			double hoelderGran, double boundGran, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, 
 			AbstractAnalysis.Boundtype boundtype, double probability){
 

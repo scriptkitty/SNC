@@ -215,7 +215,7 @@ public class BoundDialog extends JDialog {
 				flow = flows.get(flowID);
 				
 				String vertexName = (String)VOIBox.getSelectedItem();
-                                String vertex2Name = (String)VOIBox.getSelectedItem();
+                                String vertex2Name = (String)VOIBox2.getSelectedItem();
 				int vertexID = -1;
                                 // TODO: -1 equals no such vertex?
                                 int vertex2ID = -1;

@@ -35,6 +35,7 @@ import java.util.HashMap;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.SNC;
@@ -613,8 +614,14 @@ public class GUI implements Runnable {
 			double thetaGranularity, double hoelderGranularity,
 			SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value) {
 		System.out.println("Bound is being calculated...");
-		double probability = caller.calculateBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, 
+                System.out.println("Boundtype:" + boundtype.toString());
+                double probability = -1;
+                if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
+                    probability = caller.calculateE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, analyzer, optimizer, value);
+                } else {
+                    probability = caller.calculateBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
 				analyzer, optimizer, boundtype, value);
+                }
 		System.out.println("The probability for the asked bound being broken is smaller than: "+probability);
 	}
 	
@@ -622,14 +629,24 @@ public class GUI implements Runnable {
 			double hoelderGranularity, double boundGranularity, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, 
 			AbstractAnalysis.Boundtype boundtype, double probability){
 		System.out.println("Inverse Bound is being calculated...");
-		double value = caller.calculateInverseBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, 
+                double value = 0;
+                if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
+                    throw new NotImplementedException();
+                } else {
+                    value = caller.calculateInverseBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
 				boundGranularity, analyzer, optimizer, boundtype, probability);
+                }
 		System.out.println("The best calculated bound for the asked probability is: "+value);
 	}
 	
 	private void analyzeNetwork(Flow selectedFlow, Vertex selectedVertex, Vertex selectedSecondVertex, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype){
 		System.out.println("Network is being analyzed...");
-		Arrival bound = caller.analyzeNetwork(selectedFlow, selectedVertex, selectedSecondVertex, analyzer, boundtype);
+                Arrival bound = null;
+                if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
+                    throw new NotImplementedException();
+                } else {
+                    bound = caller.analyzeNetwork(selectedFlow, selectedVertex, analyzer, boundtype);
+                }
 		System.out.println("The bound in arrival-representation equals: "+bound.toString());
 	}
 
