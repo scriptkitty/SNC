@@ -856,6 +856,7 @@ public class Network {
 	
 	public static void setVertices(HashMap<Integer, Vertex> newVertices){
 		Network.vertices = newVertices;
+                Network.resetVERTEX_ID(newVertices.size() + 1);
 	}
 	
 	public static HashMap<Integer, Flow> getFlows(){
@@ -864,6 +865,7 @@ public class Network {
 	
 	public static void setFlows(HashMap<Integer, Flow> newFlows){
 		Network.flows = newFlows;
+                Network.resetFLOW_ID(newFlows.size() + 1);
 	}
 	
 	public static HashMap<Integer, Hoelder> getHoelders(){
@@ -872,6 +874,7 @@ public class Network {
 	
 	public static void setHoelders(HashMap<Integer, Hoelder> newHoelders){
 		Network.hoelders = newHoelders;
+                Network.resetHOELDER_ID(newHoelders.size() + 1);
 	}
 
 }
