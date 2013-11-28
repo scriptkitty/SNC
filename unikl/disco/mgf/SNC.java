@@ -411,6 +411,34 @@ public class SNC {
             }
             return probability;
         }
+        
+        /**
+         * Computes the End-To-End Reverse Delay bound, i.e. a concrete value for the delay.
+         * CAUTION: At the moment the returned value may not be correct!
+         */
+        
+        public double calculateInverseE2EBound(Flow flow, Vertex vertex1, Vertex vertex2, double thetaGran, double hoelderGran, double boundGran, AnalysisType analyzer, OptimizationType optimizer, double probability) {
+            double value = 0;
+            // For every node in between vertex1 and vertex2 along the flow, compute the bound and return the sum
+            // TODO: Introduce Error Handling
+            List<Integer> vlist = flow.getVerticeIDs();
+            int pos1 = vlist.indexOf(vertex1.getVertexID());
+            int pos2 = vlist.indexOf(vertex2.getVertexID());
+            System.out.println("InverseE2E Pos Beginning - End:" + pos1 + " - " + pos2);
+            if(pos1 > pos2) {
+                int tmp = pos1;
+                pos1 = pos2;
+                pos2 = tmp;
+            }
+            vlist = vlist.subList(pos1, pos2 > vlist.size() ? vlist.size() : pos2 + 1);
+            
+            int len = vlist.size();
+            for (Integer vid : vlist) {
+                value += calculateInverseBound(flow, vertices.get(vid), thetaGran, hoelderGran, boundGran, analyzer, optimizer, AbstractAnalysis.Boundtype.BACKLOG, probability);
+                
+            }
+            return value;
+        }
 	
 	/**
 	 * This relays the command of calculating a numerical (to some extent optimized) 

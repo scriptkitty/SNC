@@ -631,7 +631,7 @@ public class GUI implements Runnable {
 		System.out.println("Inverse Bound is being calculated...");
                 double value = 0;
                 if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
-                    throw new NotImplementedException();
+                    caller.calculateInverseE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, boundGranularity, analyzer, optimizer, probability);
                 } else {
                     value = caller.calculateInverseBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
 				boundGranularity, analyzer, optimizer, boundtype, probability);
