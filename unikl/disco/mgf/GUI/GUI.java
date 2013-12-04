@@ -631,7 +631,7 @@ public class GUI implements Runnable {
 		System.out.println("Inverse Bound is being calculated...");
                 double value = 0;
                 if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
-                    caller.calculateInverseE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, boundGranularity, analyzer, optimizer, probability);
+                    value = caller.calculateInverseE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, boundGranularity, analyzer, optimizer, probability);
                 } else {
                     value = caller.calculateInverseBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
 				boundGranularity, analyzer, optimizer, boundtype, probability);
@@ -643,7 +643,7 @@ public class GUI implements Runnable {
 		System.out.println("Network is being analyzed...");
                 Arrival bound = null;
                 if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
-                    throw new NotImplementedException();
+                    System.out.println("End-To-End Delay Analysis: No closed form available at the moment.");
                 } else {
                     bound = caller.analyzeNetwork(selectedFlow, selectedVertex, analyzer, boundtype);
                 }

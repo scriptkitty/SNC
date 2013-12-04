@@ -434,8 +434,7 @@ public class SNC {
             
             int len = vlist.size();
             for (Integer vid : vlist) {
-                value += calculateInverseBound(flow, vertices.get(vid), thetaGran, hoelderGran, boundGran, analyzer, optimizer, AbstractAnalysis.Boundtype.BACKLOG, probability);
-                
+                value += calculateInverseBound(flow, vertices.get(vid), thetaGran, hoelderGran, boundGran, analyzer, optimizer, AbstractAnalysis.Boundtype.BACKLOG, probability/len);
             }
             return value;
         }
