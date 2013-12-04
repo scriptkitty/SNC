@@ -23,6 +23,7 @@ package unikl.disco.mgf.optimization;
 
 import java.util.HashMap;
 import java.util.Map;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.Hoelder;
@@ -62,8 +63,316 @@ public class SimpleGradient extends AbstractOptimizer {
 	@Override
 	public double Bound(Arrival input, Boundtype boundtype, double bound, double thetagranularity, double hoeldergranularity)
 			throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		double result;
+		
+		//Initializes the list of Hoelder-Parameters...
+		HashMap<Integer, Hoelder> allparameters = new HashMap<Integer, Hoelder>(0);
+		allparameters.putAll(input.getSigma().getParameters());
+		allparameters.putAll(input.getRho().getParameters());
+			
+		//If needed, the parameter, which represents the backlog, must be separated from the other Hoelder parameters
+		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG){
+			allparameters.get(Network.getHOELDER_ID()-1).setPValue(bound);
+			allparameters.remove(Network.getHOELDER_ID()-1);
+		}
+		System.out.println("allparameters:"+ allparameters.toString());
+		for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
+			entry.getValue().setPValue(2);
+		}
+		
+		//Initializes theta
+		double max_theta = input.getThetastar();
+		double sigmapart;
+		double rhopart;
+		double theta = thetagranularity;
+		int changed_hoelder = Integer.MAX_VALUE;
+		boolean improved = true;
+		
+		Change change = SimpleGradient.Change.NOTHING;
+		
+		switch(boundtype){
+			case BACKLOG:
+				
+				//Computes initial value
+				double backlogprob;
+				double new_backlogprob;
+				try{
+					backlogprob = input.evaluate(theta, 0, 0);
+				}
+				catch(ServerOverloadException e){
+					backlogprob = Double.POSITIVE_INFINITY;
+				}
+				while(improved){
+					improved = false;
+					change = SimpleGradient.Change.NOTHING;
+					//Check if decreasing theta leads to a better result
+					if(theta > thetagranularity){
+						
+						theta = theta - thetagranularity;
+						try{
+							new_backlogprob = input.evaluate(theta, 0, 0);
+						}
+						catch(ServerOverloadException e){
+							new_backlogprob = Double.POSITIVE_INFINITY;
+						}
+						catch(ThetaOutOfBoundException e){
+							new_backlogprob = Double.POSITIVE_INFINITY;
+						}
+						if(backlogprob > new_backlogprob){
+							backlogprob = new_backlogprob;
+							change = SimpleGradient.Change.THETA_DEC;
+						}
+						
+						theta = theta + thetagranularity;
+					}
+					
+					//Check if increasing theta leads to a better result
+					if(theta < max_theta - thetagranularity){
+						theta = theta + thetagranularity;
+						try{
+							new_backlogprob = input.evaluate(theta, 0 , 0);
+						}
+						catch(ServerOverloadException e){
+							new_backlogprob = Double.POSITIVE_INFINITY;
+						}
+						catch(ThetaOutOfBoundException e){
+							new_backlogprob = Double.POSITIVE_INFINITY;
+						}
+						if(backlogprob > new_backlogprob){
+							backlogprob = new_backlogprob;
+							change = SimpleGradient.Change.THETA_INC;
+						}
+						
+						theta = theta - thetagranularity;
+					}
+					
+					//Check each neighbors resulting from decreasing the P-Value of Hoelder parameters
+					for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
+						double old_p_value = entry.getValue().getPValue();
+						if(entry.getValue().getPValue() < 2){
+							entry.getValue().setPValue(-hoeldergranularity + entry.getValue().getPValue());
+						}
+						else{
+							entry.getValue().setQValue(hoeldergranularity + entry.getValue().getQValue());
+						}
+						try{
+							new_backlogprob = input.evaluate(theta, 0, 0);
+						}
+						catch(ServerOverloadException e){
+							new_backlogprob = Double.POSITIVE_INFINITY;
+						}
+						catch(ThetaOutOfBoundException e){
+							new_backlogprob = Double.POSITIVE_INFINITY;
+						}
+						if(backlogprob > new_backlogprob){
+							backlogprob = new_backlogprob; 
+							changed_hoelder = entry.getKey();
+							change = SimpleGradient.Change.HOELDER_P;
+						}
+						
+						entry.getValue().setPValue(old_p_value);
+					}
+					
+					//Check each neighbor by decreasing the Q-Value of Hoelder parameters
+					for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
+						double old_q_value = entry.getValue().getQValue();
+						if(entry.getValue().getPValue() < 2){
+							entry.getValue().setPValue(hoeldergranularity + entry.getValue().getPValue());
+						}
+						else{
+							entry.getValue().setQValue(-hoeldergranularity + entry.getValue().getQValue());
+						}
+						entry.getValue().setQValue(-hoeldergranularity + entry.getValue().getQValue());
+						try{
+							new_backlogprob = input.evaluate(theta, 0 , 0);
+						}
+						catch(ServerOverloadException e){
+							new_backlogprob = Double.POSITIVE_INFINITY;
+						}
+						catch(ThetaOutOfBoundException e){
+							new_backlogprob = Double.POSITIVE_INFINITY;
+						}
+						if(backlogprob > new_backlogprob){
+							backlogprob = new_backlogprob; 
+							changed_hoelder = entry.getKey();
+							change = SimpleGradient.Change.HOELDER_Q;
+						}
+						
+						entry.getValue().setQValue(old_q_value);
+					}
+					
+					switch(change){
+					case THETA_INC:
+						theta = theta + thetagranularity;
+						improved = true;
+						break;
+					case THETA_DEC:
+						theta = theta - thetagranularity;
+						improved = true;
+						break;
+					case HOELDER_P:
+						allparameters.get(changed_hoelder).setPValue(allparameters.get(changed_hoelder).getPValue() - hoeldergranularity);
+						improved = true;
+						break;
+					case HOELDER_Q:
+						allparameters.get(changed_hoelder).setQValue(allparameters.get(changed_hoelder).getQValue() - hoeldergranularity);
+						improved = true;
+						break;
+					case NOTHING:
+						improved = false;
+						break;
+					default:
+						improved = false;
+						break;
+					}
+					System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+backlogprob);
+				}
+				
+				result = backlogprob;
+				
+				break;
+				
+			case DELAY:
+				
+				//Computes initial value
+                                int delay = (int)Math.round(Math.ceil(bound));
+				double delayprob;
+				double new_delayprob;
+				try{
+					delayprob = input.evaluate(theta, delay, 0);
+				}
+				catch(ServerOverloadException e){
+					delayprob = Double.POSITIVE_INFINITY;
+				}
+					
+				while(improved){
+					improved = false;
+					change = SimpleGradient.Change.NOTHING;
+					//Check if decreasing theta leads to a better result
+					if(theta > thetagranularity){
+						theta = theta - thetagranularity;
+						try{
+                                                    new_delayprob = input.evaluate(theta, delay, 0);
+						}
+						catch(ServerOverloadException e){
+							new_delayprob = Double.POSITIVE_INFINITY;
+						}
+						if(delayprob > new_delayprob){
+							delayprob = new_delayprob;
+							change = SimpleGradient.Change.THETA_DEC;
+						}
+						theta = theta + thetagranularity;
+					}
+					
+					//Check if increasing theta leads to a better result
+					if(theta < max_theta - thetagranularity){
+						theta = theta + thetagranularity;
+						try{
+							new_delayprob = input.evaluate(theta, delay, 0);
+						}
+						catch(ServerOverloadException e){
+							new_delayprob = Double.POSITIVE_INFINITY;
+						}
+						if(delayprob > new_delayprob){
+							delayprob = new_delayprob;
+							change = SimpleGradient.Change.THETA_INC;
+						}
+						theta = theta - thetagranularity;
+					}
+					
+					//Check each neighbor by decreasing the P-Value of Hoelder parameters
+					for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
+						double old_p_value = entry.getValue().getPValue();
+						if(entry.getValue().getPValue() < 2){
+							entry.getValue().setPValue(-hoeldergranularity + entry.getValue().getPValue());
+						}
+						else{
+							entry.getValue().setQValue(hoeldergranularity + entry.getValue().getQValue());
+						}
+						try{
+							new_delayprob = input.evaluate(theta, delay, 0);
+						}
+						catch(ServerOverloadException e){
+							new_delayprob = Double.POSITIVE_INFINITY;
+						}
+						catch(ThetaOutOfBoundException e){
+							new_delayprob = Double.POSITIVE_INFINITY;
+						}
+						if(delayprob > new_delayprob){
+							delayprob = new_delayprob;
+							changed_hoelder = entry.getKey();
+							change = SimpleGradient.Change.HOELDER_P;
+						}
+						entry.getValue().setPValue(old_p_value);
+					}
+					
+					//Check each neighbor by decreasing the Q-Value of Hoelder parameters
+					for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
+						double old_q_value = entry.getValue().getQValue();
+						if(entry.getValue().getPValue() < 2){
+							entry.getValue().setPValue(hoeldergranularity + entry.getValue().getPValue());
+						}
+						else{
+							entry.getValue().setQValue(-hoeldergranularity + entry.getValue().getQValue());
+						}
+						try{
+							new_delayprob = input.evaluate(theta, delay, 0);
+						}
+						catch(ServerOverloadException e){
+							new_delayprob = Double.POSITIVE_INFINITY;
+						}
+						catch(ThetaOutOfBoundException e){
+							new_delayprob = Double.POSITIVE_INFINITY;
+						}
+						if(delayprob > new_delayprob){
+							delayprob = new_delayprob;
+							changed_hoelder = entry.getKey();
+							change = SimpleGradient.Change.HOELDER_Q;
+						}
+						entry.getValue().setQValue(old_q_value);
+					}
+					
+					switch(change){
+					case THETA_INC:
+						theta = theta + thetagranularity;
+						improved = true;
+						break;
+					case THETA_DEC:
+						theta = theta - thetagranularity;
+						improved = true;
+						break;
+					case HOELDER_P:
+						allparameters.get(changed_hoelder).setPValue(allparameters.get(changed_hoelder).getPValue() + hoeldergranularity);
+						improved = true;
+						break;
+					case HOELDER_Q:
+						allparameters.get(changed_hoelder).setQValue(allparameters.get(changed_hoelder).getQValue() + hoeldergranularity);
+						improved = true;
+						break;
+					case NOTHING:
+						improved = false;
+						break;
+					default:
+						improved = false;
+						break;
+					}
+					System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+delayprob);
+				}
+				
+				result = delayprob;
+				
+				break;
+			case OUTPUT:
+				//In case of an output-bound no result is needed
+				result = Double.NaN;
+				break;
+			default:
+				result = 0;
+				break;
+		}
+		
+		return result;
 	}
 
 	@Override
