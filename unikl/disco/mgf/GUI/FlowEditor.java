@@ -52,19 +52,21 @@ public class FlowEditor extends JDialog {
 	static final int ERROR_OPTION = 2;
 	private int output = 0;
 	private Flow flow;
+        private final Network nw;
 	
 	private final JPanel topCardContainer = new JPanel();
 	private final JPanel bottomCardContainer = new JPanel();
 	
 	//Constructors
 	
-	public FlowEditor(String title, final HashMap<Integer, Vertex> vertices, Flow flow){
-		this(title, vertices);
+	public FlowEditor(String title, final HashMap<Integer, Vertex> vertices, Flow flow, Network nw){
+		this(title, vertices, nw);
 		this.flow = flow;
 	}
 	
-	public FlowEditor(String title, final HashMap<Integer, Vertex> vertices){
+	public FlowEditor(String title, final HashMap<Integer, Vertex> vertices, final Network nw){
 		
+                this.nw = nw;
 		//Constructs the dialog
 		this.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 		this.setTitle(title);
@@ -192,12 +194,12 @@ public class FlowEditor extends JDialog {
 						correct = false;
 					}
 					
-					Arrival arrival = new Arrival(new ZeroFunction(), rho);
+					Arrival arrival = new Arrival(new ZeroFunction(), rho, nw);
 					ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
 					arrivals.add(arrival);
 					
 					if(correct) {
-						flow = new Flow(-1, route, arrivals, priorities, aliasField.getText());
+						flow = new Flow(-1, route, arrivals, priorities, aliasField.getText(), nw);
 						flow.getInitialArrival().getArrivaldependencies().clear();
 					}
 					else flow = null;
@@ -217,12 +219,12 @@ public class FlowEditor extends JDialog {
 						correct = false;
 					}
 					
-					Arrival arrival = new Arrival(new ZeroFunction(), rho);
+					Arrival arrival = new Arrival(new ZeroFunction(), rho, nw);
 					ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
 					arrivals.add(arrival);
 					
 					if(correct) {
-						flow = new Flow(-1, route, arrivals, priorities, aliasField.getText());
+						flow = new Flow(-1, route, arrivals, priorities, aliasField.getText(), nw);
 						flow.getInitialArrival().getArrivaldependencies().clear();
 					}
 					
@@ -243,7 +245,7 @@ public class FlowEditor extends JDialog {
 					PoissonRho rho = null;
 					
 					if(correct){
-						FlowEditor dialog = new FlowEditor("Define Increment", vertices);
+						FlowEditor dialog = new FlowEditor("Define Increment", vertices, nw);
 						int output = dialog.showFlowEditor();
 						if(output == FlowEditor.APPROVE_OPTION){
 							if(dialog.getEditedFlow() != null) rho = new PoissonRho(dialog.getEditedFlow().getInitialArrival().getRho(), 
@@ -252,13 +254,13 @@ public class FlowEditor extends JDialog {
 						}
 					}
 					
-					Arrival arrival = new Arrival(sigma, rho);
+					Arrival arrival = new Arrival(sigma, rho, nw);
 					ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
 					arrivals.add(arrival);
 					
 					
 					if(correct){
-							flow = new Flow(-1, route, arrivals, priorities, aliasField.getText());
+							flow = new Flow(-1, route, arrivals, priorities, aliasField.getText(), nw);
 							flow.getInitialArrival().getArrivaldependencies().clear();
 					}
 					

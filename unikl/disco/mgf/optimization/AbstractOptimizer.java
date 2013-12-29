@@ -28,6 +28,7 @@ import unikl.disco.mgf.ParameterMismatchException;
 import unikl.disco.mgf.ServerOverloadException;
 import unikl.disco.mgf.ThetaOutOfBoundException;
 import unikl.disco.mgf.network.AbstractAnalysis;
+import unikl.disco.mgf.network.Network;
 
 /**
  * This performs the numerical part of optimizing the bound
@@ -47,13 +48,15 @@ public abstract class AbstractOptimizer {
 	protected HashMap<Integer, Hoelder> sigma_parameters;
 	protected HashMap<Integer, Hoelder> rho_parameters;
 	protected double max_theta;
+        protected Network nw;
 	
-	public AbstractOptimizer(Arrival input, AbstractAnalysis.Boundtype boundtype){
+	public AbstractOptimizer(Arrival input, AbstractAnalysis.Boundtype boundtype, Network nw){
 		this.input = input;
 		this.boundtype = boundtype;
 		this.sigma_parameters = input.getSigma().getParameters();
 		this.rho_parameters = input.getRho().getParameters();
 		this.max_theta = Math.min(input.getSigma().getmaxTheta(), input.getRho().getmaxTheta());
+                this.nw = nw;
 	}
 	
 	/**

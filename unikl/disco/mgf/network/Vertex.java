@@ -65,24 +65,26 @@ public class Vertex implements Serializable {
 	private HashMap<Integer, Integer> priorities;
 	private int highest_priority;
 	private HashMap<Integer, Arrival> incoming;
+        private Network nw;
 	
 	//Constructor
 	
 	/**
 	 * Creates an empty node.
 	 */
-	protected Vertex(int vertex_ID){
-		service = new Service();
+	protected Vertex(int vertex_ID, Network nw){
+		service = new Service(nw);
 		prioritized_flow_id = 0;
 		highest_priority = 0;
 		priorities = new HashMap<Integer, Integer>();
 		incoming = new HashMap<Integer, Arrival>();
 		this.vertex_ID = vertex_ID;
 		service.addServiceDependency(vertex_ID);
+                this.nw = nw;
 	}
 	
-	protected Vertex(int vertex_ID, String alias){
-		service = new Service();
+	protected Vertex(int vertex_ID, String alias, Network nw){
+		service = new Service(nw);
 		prioritized_flow_id = 0;
 		highest_priority = 0;
 		priorities = new HashMap<Integer, Integer>();
@@ -90,6 +92,7 @@ public class Vertex implements Serializable {
 		this.vertex_ID = vertex_ID;
 		service.addServiceDependency(vertex_ID);
 		this.setAlias(alias);
+                this.nw = nw;
 	}
 
 	/**
@@ -97,7 +100,7 @@ public class Vertex implements Serializable {
 	 * @param service the service, which is associated with this
 	 * node
 	 */
-	protected Vertex(int vertex_ID, Service service){
+	protected Vertex(int vertex_ID, Service service, Network nw){
 		this.service = service;
 		prioritized_flow_id = 0;
 		highest_priority = 0;
@@ -105,9 +108,10 @@ public class Vertex implements Serializable {
 		incoming = new HashMap<Integer, Arrival>();
 		this.vertex_ID = vertex_ID;
 		service.addServiceDependency(vertex_ID);
+                this.nw = nw;
 	}
 	
-	public Vertex(int vertex_ID, Service service, String alias){
+	public Vertex(int vertex_ID, Service service, String alias, Network nw){
 		this.service = service;
 		prioritized_flow_id = 0;
 		highest_priority = 0;
@@ -116,6 +120,7 @@ public class Vertex implements Serializable {
 		this.vertex_ID = vertex_ID;
 		service.addServiceDependency(vertex_ID);
 		this.setAlias(alias);
+                this.nw = nw;
 	}
 	
 	//Methods
@@ -261,7 +266,7 @@ public class Vertex implements Serializable {
 	//Copy-Operator
 	
 	public Vertex copy(){
-		Vertex copy = new Vertex(vertex_ID, service, alias);
+		Vertex copy = new Vertex(vertex_ID, service, alias, nw);
 		for(Entry<Integer, Integer> entry : priorities.entrySet()){
 			if(incoming.containsKey(entry.getKey())) copy.addArrival(entry.getValue(), entry.getKey(), incoming.get(entry.getKey()));
 			else copy.addUnknownArrival(entry.getValue(), entry.getKey());

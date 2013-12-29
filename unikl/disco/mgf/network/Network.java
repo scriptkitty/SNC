@@ -46,16 +46,23 @@ public class Network {
 	
 	//Members
 	
-	private static int FLOW_ID = 1;
-	private static int VERTEX_ID = 1;
-	private static int HOELDER_ID = 1;
-	private static HashMap<Integer,Flow> flows = new HashMap<Integer, Flow>(0);
-	private static HashMap<Integer,Vertex> vertices = new HashMap<Integer, Vertex>(0);
-	private static HashMap<Integer,Hoelder> hoelders = new HashMap<Integer, Hoelder>(0);
+	private int FLOW_ID;
+	private int VERTEX_ID;
+	private int HOELDER_ID;
+	private HashMap<Integer,Flow> flows;
+	private HashMap<Integer,Vertex> vertices;
+	private HashMap<Integer,Hoelder> hoelders;
 	
 	// Constructor
 	
-	public Network(){}
+	public Network(){
+            FLOW_ID = 1;
+            VERTEX_ID = 1;
+            HOELDER_ID = 1;
+            flows = new HashMap<Integer, Flow>(0);
+            vertices = new HashMap<Integer, Vertex>(0);
+            hoelders = new HashMap<Integer, Hoelder>(0);
+        }
 	
 	//Methods
 	
@@ -63,7 +70,7 @@ public class Network {
 	 * Creates a new Hoelder-Object and returns its id.
 	 * @return the newly created Hoelder-Object.
 	 */
-	public static Hoelder createHoelder(){
+	public Hoelder createHoelder(){
 		Hoelder hoelder = new Hoelder(HOELDER_ID);
 		hoelders.put(hoelder.getHoelderID(), hoelder);
 		incrementHOELDER_ID();
@@ -73,8 +80,8 @@ public class Network {
 	/**
 	 * Adds a new dummy vertex to the network
 	 */
-	public static void addVertex(){
-		Vertex vertex = new Vertex(VERTEX_ID);
+	public void addVertex(){
+		Vertex vertex = new Vertex(VERTEX_ID, this);
 		vertices.put(VERTEX_ID, vertex);
 		incrementVERTEX_ID();
 	}
@@ -82,8 +89,8 @@ public class Network {
 	/**
 	 * Adds a new dummy vertex with alias 
 	 */
-	public static void addVertex(String alias){
-		Vertex vertex = new Vertex(VERTEX_ID, alias);
+	public void addVertex(String alias){
+		Vertex vertex = new Vertex(VERTEX_ID, alias, this);
 		vertices.put(VERTEX_ID, vertex);
 		incrementVERTEX_ID();
 	}
@@ -92,8 +99,8 @@ public class Network {
 	 * Adds a new vertex with predefined service to the network
 	 * @param service the service the new vertex possesses
 	 */
-	public static void addVertex(Service service){
-		Vertex vertex = new Vertex(VERTEX_ID, service);
+	public void addVertex(Service service){
+		Vertex vertex = new Vertex(VERTEX_ID, service, this);
 		vertices.put(VERTEX_ID, vertex);
 		incrementVERTEX_ID();
 	}
@@ -102,8 +109,8 @@ public class Network {
 	 * Adds a new vertex with predefined service and alias
 	 * @param service
 	 */
-	public static void addVertex(Service service, String alias){
-		Vertex vertex = new Vertex(VERTEX_ID, service, alias);
+	public void addVertex(Service service, String alias){
+		Vertex vertex = new Vertex(VERTEX_ID, service, alias, this);
 		vertices.put(VERTEX_ID, vertex);
 		incrementVERTEX_ID();
 	}
@@ -113,7 +120,7 @@ public class Network {
 	 * @param vertex the vertex to be altered
 	 * @param service the new service at the specific vertex
 	 */
-	public static void setServiceAt(Vertex vertex, Service service){
+	public void setServiceAt(Vertex vertex, Service service){
 		vertex.setMGFService(service);
 	}
 	
@@ -122,7 +129,7 @@ public class Network {
 	 * @param alias the alias of the vertex to be altered
 	 * @param service the new service at the specific vertex
 	 */
-	public static void setServiceAt(String alias, Service service){
+	public void setServiceAt(String alias, Service service){
 		Vertex vertex = null;
 		for(Map.Entry<Integer, Vertex> entry : vertices.entrySet()){
 			if(entry.getValue().getAlias() == alias) vertex = entry.getValue();
@@ -137,7 +144,7 @@ public class Network {
 	 * @param vertex_id the id of the vertex to be altered
 	 * @param service the new service at the specific vertex
 	 */
-	public static void setServiceAt(int vertex_id, Service service){
+	public void setServiceAt(int vertex_id, Service service){
 		vertices.get(vertex_id).setMGFService(service);
 	}
 	
@@ -151,7 +158,7 @@ public class Network {
 	 * @param vertex the <code>Vertex</code> to be removed
 	 * @return if removing the vertex was successful
 	 */
-	public static boolean removeVertex(Vertex vertex) {
+	public boolean removeVertex(Vertex vertex) {
 		boolean success = false;
 		if(vertices.containsKey(vertex.getVertexID())){
 			for(int i : vertex.getAllFlowIDs().keySet()){
@@ -166,8 +173,8 @@ public class Network {
 	/**
 	 * Adds a new dummy flow to the network
 	 */
-	public static void addFlow(){
-		Flow flow = new Flow(FLOW_ID);
+	public void addFlow(){
+		Flow flow = new Flow(FLOW_ID, this);
 		flows.put(FLOW_ID, flow);
 		incrementFLOW_ID();
 	}
@@ -175,8 +182,8 @@ public class Network {
 	/**
 	 * Adds a new dummy flow with some alias to the network
 	 */
-	public static void addFlow(String alias){
-		Flow flow = new Flow(FLOW_ID, alias);
+	public void addFlow(String alias){
+		Flow flow = new Flow(FLOW_ID, alias, this);
 		flows.put(FLOW_ID, flow);
 		incrementFLOW_ID();
 	}
@@ -191,12 +198,12 @@ public class Network {
 	 * @param priority the priority of the flow at the 
 	 * corresponding vertices.
 	 */
-	public static void addFlow(ArrayList<Integer> route, int priority){
+	public void addFlow(ArrayList<Integer> route, int priority){
 
 		//Creates the dummy arrivals for all vertices
 		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
 		for(int i=0; i < route.size(); i++){
-			arrivals.add(new Arrival());
+			arrivals.add(new Arrival(this));
 		}
 		
 		//Creates the array of priorities
@@ -206,7 +213,7 @@ public class Network {
 		}
 		
 		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities);
+		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, this);
 		flows.put(FLOW_ID, flow);
 
 		
@@ -232,12 +239,12 @@ public class Network {
 	 * corresponding vertices.
 	 * @parm alias the alias of the new flow
 	 */
-	public static void addFlow(ArrayList<Integer> route, int priority, String alias){
+	public void addFlow(ArrayList<Integer> route, int priority, String alias){
 
 		//Creates the dummy arrivals for all vertices
 		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
 		for(int i=0; i < route.size(); i++){
-			arrivals.add(new Arrival());
+			arrivals.add(new Arrival(this));
 		}
 		
 		//Creates the array of priorities
@@ -247,7 +254,7 @@ public class Network {
 		}
 		
 		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias);
+		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
 		flows.put(FLOW_ID, flow);
 
 		
@@ -271,16 +278,16 @@ public class Network {
 	 * @param priorities the priorities of the flow at the 
 	 * corresponding vertices.
 	 */
-	public static void addFlow(ArrayList<Integer> route, ArrayList<Integer> priorities){
+	public void addFlow(ArrayList<Integer> route, ArrayList<Integer> priorities){
 
 		//Creates the dummy arrivals for all vertices
 		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
 		for(int i=0; i < route.size(); i++){
-			arrivals.add(new Arrival());
+			arrivals.add(new Arrival(this));
 		}
 		
 		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities);
+		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, this);
 		flows.put(FLOW_ID, flow);
 
 		
@@ -305,16 +312,16 @@ public class Network {
 	 * corresponding vertices.
 	 * @param alias the alias of the new flow
 	 */
-	public static void addFlow(ArrayList<Integer> route, ArrayList<Integer> priorities, String alias){
+	public void addFlow(ArrayList<Integer> route, ArrayList<Integer> priorities, String alias){
 
 		//Creates the dummy arrivals for all vertices
 		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
 		for(int i=0; i < route.size(); i++){
-			arrivals.add(new Arrival());
+			arrivals.add(new Arrival(this));
 		}
 		
 		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias);
+		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
 		flows.put(FLOW_ID, flow);
 
 		
@@ -342,13 +349,13 @@ public class Network {
 	 * corresponding vertices
 	 * @throws ArrivalNotAvailableException
 	 */
-	public static void addFlow(Arrival initial_arrival, ArrayList<Integer> route, int priority) throws ArrivalNotAvailableException{
+	public void addFlow(Arrival initial_arrival, ArrayList<Integer> route, int priority) throws ArrivalNotAvailableException{
 
 		//Creates the dummy arrivals for all vertices after the first
 		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(1);
 		arrivals.add(0, initial_arrival);
 		for(int i=1; i < route.size(); i++){
-			arrivals.add(new Arrival());
+			arrivals.add(new Arrival(this));
 		}
 		
 		//Creates the priority-array
@@ -358,7 +365,7 @@ public class Network {
 		}
 		
 		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route,arrivals,priorities);
+		Flow flow = new Flow(FLOW_ID, route,arrivals,priorities, this);
 		flows.put(FLOW_ID, flow);
 
 		//Writes the flow in its corresponding vertices
@@ -390,14 +397,14 @@ public class Network {
 	 * @param alias the alias of the new flow
 	 * @throws ArrivalNotAvailableException
 	 */
-	public static void addFlow(Arrival initial_arrival, ArrayList<Integer> route, int priority, String alias) 
+	public void addFlow(Arrival initial_arrival, ArrayList<Integer> route, int priority, String alias) 
 			throws ArrivalNotAvailableException{
 
 		//Creates the dummy arrivals for all vertices after the first
 		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(1);
 		arrivals.add(0, initial_arrival);
 		for(int i=1; i < route.size(); i++){
-			arrivals.add(new Arrival());
+			arrivals.add(new Arrival(this));
 		}
 		
 		//Creates the priority-array
@@ -407,7 +414,7 @@ public class Network {
 		}
 		
 		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias);
+		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
 		flows.put(FLOW_ID, flow);
 
 		//Writes the flow in its corresponding vertices
@@ -437,17 +444,17 @@ public class Network {
 	 * corresponding vertices
 	 * @throws ArrivalNotAvailableException
 	 */
-	public static void addFlow(Arrival initial_arrival, ArrayList<Integer> route, ArrayList<Integer> priorities) throws ArrivalNotAvailableException{
+	public void addFlow(Arrival initial_arrival, ArrayList<Integer> route, ArrayList<Integer> priorities) throws ArrivalNotAvailableException{
 
 		// Creates the dummy arrivals for all vertices after the first
 		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(1);
 		arrivals.add(0, initial_arrival);
 		for(int i=1; i < route.size(); i++){
-			arrivals.add(new Arrival());
+			arrivals.add(new Arrival(this));
 		}
 		
 		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route,arrivals,priorities);
+		Flow flow = new Flow(FLOW_ID, route,arrivals,priorities, this);
 		flows.put(FLOW_ID, flow);
 
 		//Writes the flow in its corresponding vertices
@@ -478,18 +485,18 @@ public class Network {
 	 * @param alias the alias of the new flow
 	 * @throws ArrivalNotAvailableException
 	 */
-	public static void addFlow(Arrival initial_arrival, ArrayList<Integer> route, ArrayList<Integer> priorities,
+	public void addFlow(Arrival initial_arrival, ArrayList<Integer> route, ArrayList<Integer> priorities,
 								String alias) throws ArrivalNotAvailableException{
 
 		// Creates the dummy arrivals for all vertices after the first
 		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(1);
 		arrivals.add(0, initial_arrival);
 		for(int i=1; i < route.size(); i++){
-			arrivals.add(new Arrival());
+			arrivals.add(new Arrival(this));
 		}
 		
 		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias);
+		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
 		flows.put(FLOW_ID, flow);
 
 		//Writes the flow in its corresponding vertices
@@ -519,7 +526,7 @@ public class Network {
 	 * corresponding vertices
 	 * @throws ArrivalNotAvailableException
 	 */
-	public static void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, int priority) throws ArrivalNotAvailableException{
+	public void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, int priority) throws ArrivalNotAvailableException{
 
 		//Constructs the priorities array
 		ArrayList<Integer> priorities = new ArrayList<Integer>(0);
@@ -527,7 +534,7 @@ public class Network {
 			priorities.add(priority);
 		}
 		
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities);
+		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, this);
 		
 		//Adds the flow into the flow list
 		flows.put(FLOW_ID, flow);
@@ -553,7 +560,7 @@ public class Network {
 		 * @param alias the alias of the new flow
 		 * @throws ArrivalNotAvailableException
 		 */
-		public static void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, int priority, 
+		public void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, int priority, 
 									String alias) throws ArrivalNotAvailableException{
 
 			//Constructs the priorities array
@@ -562,7 +569,7 @@ public class Network {
 				priorities.add(priority);
 			}
 			
-			Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias);
+			Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
 			
 			//Adds the flow into the flow list
 			flows.put(FLOW_ID, flow);
@@ -590,9 +597,9 @@ public class Network {
 	 * corresponding vertices
 	 * @throws ArrivalNotAvailableException
 	 */
-	public static void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, ArrayList<Integer> priorities) throws ArrivalNotAvailableException{
+	public void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, ArrayList<Integer> priorities) throws ArrivalNotAvailableException{
 
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities);
+		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, this);
 		
 		//Adds the flow into the flow list
 		flows.put(FLOW_ID, flow);
@@ -621,10 +628,10 @@ public class Network {
 	 * @param alias the alias of the new flow
 	 * @throws ArrivalNotAvailableException
 	 */
-	public static void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, 
+	public void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, 
 								ArrayList<Integer> priorities, String alias) throws ArrivalNotAvailableException{
 
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias);
+		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
 		
 		//Adds the flow into the flow list
 		flows.put(FLOW_ID, flow);
@@ -649,7 +656,7 @@ public class Network {
 	 * @param priority the priority the flow has at the appended
 	 * vertex.
 	 */
-	public static void appendNode(int flow_id, int vertex_id, int priority){
+	public void appendNode(int flow_id, int vertex_id, int priority){
 		
 		//Adds the vertex to the path of the flow
 		flows.get(flow_id).addNodetoPath(vertex_id, priority);
@@ -666,7 +673,7 @@ public class Network {
 	 * @param priority the priority the flow has at the appended
 	 * vertex.
 	 */
-	public static void appendNode(String flow_alias, int vertex_id, int priority){
+	public void appendNode(String flow_alias, int vertex_id, int priority){
 		Flow flow = null;
 		for(Map.Entry<Integer, Flow> entry : flows.entrySet()){
 			if(entry.getValue().getAlias() == flow_alias) flow = entry.getValue();
@@ -689,7 +696,7 @@ public class Network {
 	 * @param priority the priority the flow has at the appended
 	 * vertex.
 	 */
-	public static void appendNode(int flow_id, String vertex_alias, int priority){
+	public void appendNode(int flow_id, String vertex_alias, int priority){
 		Vertex vertex = null;
 		for(Map.Entry<Integer, Vertex> entry : vertices.entrySet()){
 			if(entry.getValue().getAlias() == vertex_alias) vertex = entry.getValue();
@@ -712,7 +719,7 @@ public class Network {
 	 * @param priority the priority the flow has at the appended
 	 * vertex.
 	 */
-	public static void appendNode(String flow_alias, String vertex_alias, int priority){
+	public void appendNode(String flow_alias, String vertex_alias, int priority){
 		Vertex vertex = null;
 		Flow flow = null;
 		for(Map.Entry<Integer, Vertex> entry : vertices.entrySet()){
@@ -738,7 +745,7 @@ public class Network {
 	 * @param arrival the initial arrival
 	 * @throws ArrivalNotAvailableException
 	 */
-	public static void setInitialArrival(int flow_id, Arrival arrival) throws ArrivalNotAvailableException{
+	public void setInitialArrival(int flow_id, Arrival arrival) throws ArrivalNotAvailableException{
 		
 		//initializes the arrival at the flow
 		flows.get(flow_id).setInitialArrival(arrival);
@@ -754,7 +761,7 @@ public class Network {
 	 * @param arrival the initial arrival
 	 * @throws ArrivalNotAvailableException
 	 */
-	public static void setInitialArrival(String alias, Arrival arrival) throws ArrivalNotAvailableException{
+	public void setInitialArrival(String alias, Arrival arrival) throws ArrivalNotAvailableException{
 		Flow flow = null;
 		for(Map.Entry<Integer, Flow> entry : flows.entrySet()){
 			if(entry.getValue().getAlias() == alias) flow = entry.getValue();
@@ -778,7 +785,7 @@ public class Network {
 	 * @param flow the <code>Flow</code> to be removed
 	 * @return returns if removing the flow was successful
 	 */
-	public static boolean removeFlow(Flow flow) {
+	public boolean removeFlow(Flow flow) {
 		boolean success = false;
 		if(flows.containsKey(flow.getFlow_ID())){
 			for(int i : flow.getVerticeIDs()){
@@ -791,27 +798,27 @@ public class Network {
 		return success;
 	}
 	
-	private static void incrementFLOW_ID(){
+	private void incrementFLOW_ID(){
 		FLOW_ID++;
 	}
 	
-	private static void incrementVERTEX_ID(){
+	private void incrementVERTEX_ID(){
 		VERTEX_ID++;
 	}
 		
-	private static void incrementHOELDER_ID(){
+	private void incrementHOELDER_ID(){
 		HOELDER_ID++;
 	}
 	
-	public static void resetFLOW_ID(int reset){
+	public void resetFLOW_ID(int reset){
 		FLOW_ID = reset;
 	}
 	
-	public static void resetVERTEX_ID(int reset){
+	public void resetVERTEX_ID(int reset){
 		VERTEX_ID = reset;
 	}
 	
-	public static void resetHOELDER_ID(int reset){
+	public void resetHOELDER_ID(int reset){
 		HOELDER_ID = reset;
 	}
 	
@@ -821,7 +828,7 @@ public class Network {
 	 * or if not existend their IDs.
 	 * @return
 	 */
-	public static String getStringRepresentation(){
+	public String getStringRepresentation(){
 		String result_string = "List of vertices:\n";
 		for(Map.Entry<Integer, Vertex> entry : vertices.entrySet()){
 			result_string = result_string+"Vertex-ID: "+entry.getValue().getVertexID()+
@@ -838,43 +845,43 @@ public class Network {
 	
 	//Getter and Setter
 		
-	public static int getVERTEX_ID(){
+	public int getVERTEX_ID(){
 		return VERTEX_ID;
 	}
 	
-	public static int getFLOW_ID(){
+	public int getFLOW_ID(){
 		return FLOW_ID;
 	}
 	
-	public static int getHOELDER_ID(){
+	public int getHOELDER_ID(){
 		return HOELDER_ID;
 	}
 	
-	public static HashMap<Integer, Vertex> getVertices(){
+	public HashMap<Integer, Vertex> getVertices(){
 		return vertices;
 	}
 	
-	public static void setVertices(HashMap<Integer, Vertex> newVertices){
-		Network.vertices = newVertices;
-                Network.resetVERTEX_ID(newVertices.size() + 1);
+	public void setVertices(HashMap<Integer, Vertex> newVertices){
+		this.vertices = newVertices;
+                this.resetVERTEX_ID(newVertices.size() + 1);
 	}
 	
-	public static HashMap<Integer, Flow> getFlows(){
+	public HashMap<Integer, Flow> getFlows(){
 		return flows;
 	}
 	
-	public static void setFlows(HashMap<Integer, Flow> newFlows){
-		Network.flows = newFlows;
-                Network.resetFLOW_ID(newFlows.size() + 1);
+	public void setFlows(HashMap<Integer, Flow> newFlows){
+		this.flows = newFlows;
+                this.resetFLOW_ID(newFlows.size() + 1);
 	}
 	
-	public static HashMap<Integer, Hoelder> getHoelders(){
+	public HashMap<Integer, Hoelder> getHoelders(){
 		return hoelders;
 	}
 	
-	public static void setHoelders(HashMap<Integer, Hoelder> newHoelders){
-		Network.hoelders = newHoelders;
-                Network.resetHOELDER_ID(newHoelders.size() + 1);
+	public void setHoelders(HashMap<Integer, Hoelder> newHoelders){
+		this.hoelders = newHoelders;
+                this.resetHOELDER_ID(newHoelders.size() + 1);
 	}
 
 }

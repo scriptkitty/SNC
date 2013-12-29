@@ -64,7 +64,7 @@ public class Service implements Serializable {
 	private FunctionIF sigma;
 	private Set<Integer> Arrivaldependencies;
 	private Set<Integer> Servicedependencies;
-	
+        private Network nw; // TODO: Maybe exchange this for Node/Flow later on
 	//Constructor
 	
 	/**
@@ -72,12 +72,13 @@ public class Service implements Serializable {
 	 * </code> and <code>sigma</code> being the 
 	 * {@link ZeroFunctions}s.
 	 */	
-	public Service(){ 
+	public Service(Network nw){ 
 		rho = new ZeroFunction();
 		sigma = new ZeroFunction();
 		thetastar = Math.min(rho.getmaxTheta(), sigma.getmaxTheta());
 		Arrivaldependencies = new HashSet<Integer>();
 		Servicedependencies = new HashSet<Integer>();
+                this.nw = nw;
 	}
 	
 	
@@ -89,12 +90,13 @@ public class Service implements Serializable {
  	 * @param rho the time dependent part of the MGF-bound.
 	 * @see FunctionIF
 	 */
-	public Service(FunctionIF sigma, FunctionIF rho) {
+	public Service(FunctionIF sigma, FunctionIF rho, Network nw) {
 		this.rho = rho;
 		this.sigma = sigma;
 		thetastar = Math.min(rho.getmaxTheta(), sigma.getmaxTheta());
 		Arrivaldependencies = new HashSet<Integer>();
 		Servicedependencies = new HashSet<Integer>();
+                this.nw = nw;
 	}
 	
 	/**
@@ -110,13 +112,14 @@ public class Service implements Serializable {
 	 * @param vertex_id the id of the vertex, with which this
 	 * service is associated.
 	 */
-	public Service(FunctionIF sigma, FunctionIF rho, int vertex_id) {
+	public Service(FunctionIF sigma, FunctionIF rho, int vertex_id, Network nw) {
 		this.rho = rho;
 		this.sigma = sigma;
 		thetastar = Math.min(rho.getmaxTheta(), sigma.getmaxTheta());
 		Arrivaldependencies = new HashSet<Integer>();
 		Servicedependencies = new HashSet<Integer>();
 		Servicedependencies.add(vertex_id);
+                this.nw = nw;
 	}
 	
 	/**
@@ -195,17 +198,17 @@ public class Service implements Serializable {
 		
 		//Dependent Case
 		if(!SetUtils.getIntersection(service1.getServicedependencies(),service2.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service1.getArrivaldependencies(), service2.getArrivaldependencies()).isEmpty()){
-			Hoelder hoelder = Network.createHoelder();
-			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(service1.getSigma(),service2.getSigma(),hoelder),new BFunction(new NegAbsDiffFunction(service1.getRho(),service2.getRho(),hoelder)),true);
+			Hoelder hoelder = nw.createHoelder();
+			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(service1.getSigma(),service2.getSigma(),hoelder),new BFunction(new NegAbsDiffFunction(service1.getRho(),service2.getRho(),hoelder)));
 			FunctionIF givenrho = new MaximumFunction(service1.getRho(), service2.getRho(), hoelder);
-			service = new Service(givensigma, givenrho);
+			service = new Service(givensigma, givenrho, nw);
 		}
 		
 		//Independent Case
 		else{
-			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(service1.getSigma(),service2.getSigma(),true),new BFunction(new NegAbsDiffFunction(service1.getRho(),service2.getRho(),true)),true);
-			FunctionIF givenrho = new MaximumFunction(service1.getRho(), service2.getRho(), true);
-			service = new Service(givensigma, givenrho);
+			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(service1.getSigma(),service2.getSigma()),new BFunction(new NegAbsDiffFunction(service1.getRho(),service2.getRho())));
+			FunctionIF givenrho = new MaximumFunction(service1.getRho(), service2.getRho());
+			service = new Service(givensigma, givenrho, nw);
 		}
 		
 		//Keeps track of stochastic dependencies
@@ -233,18 +236,18 @@ public class Service implements Serializable {
 
 		//Dependent Case
 		if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
-			Hoelder hoelder = Network.createHoelder();
+			Hoelder hoelder = nw.createHoelder();
 			FunctionIF givensigma = new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder);
 			FunctionIF givenrho = new AddedFunctions(arrival.getRho(),service.getRho(),hoelder);
-			leftoverservice = new Service(givensigma, givenrho);
+			leftoverservice = new Service(givensigma, givenrho, nw);
 			System.out.println("Dependent Case Leftover calculated");
 		}
 		
 		//Independent Case
 		else{
-			FunctionIF givensigma = new AddedFunctions(arrival.getSigma(),service.getSigma(),true);
-			FunctionIF givenrho = new AddedFunctions(arrival.getRho(),service.getRho(),true);
-			leftoverservice = new Service(givensigma, givenrho);
+			FunctionIF givensigma = new AddedFunctions(arrival.getSigma(),service.getSigma());
+			FunctionIF givenrho = new AddedFunctions(arrival.getRho(),service.getRho());
+			leftoverservice = new Service(givensigma, givenrho, nw);
 			System.out.println("Independent Case Leftover calculated");
 		}
 		

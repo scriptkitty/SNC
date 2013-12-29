@@ -49,21 +49,24 @@ public abstract class AbstractAnalysis {
 	
 	protected int flow_of_interest;
 	protected int vertex_of_interest;
+        
+        protected Network nw;
 	
 	public enum Boundtype{
 		BACKLOG, DELAY, OUTPUT, END_TO_END_DELAY
 	};
 	protected Boundtype boundtype;
 	
-
-	
-	public AbstractAnalysis(HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, 
+        
+	// TODO
+	public AbstractAnalysis(Network nw, HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, 
 							int flow_of_interest, int vertex_of_interest, Boundtype boundtype){
 		this.setVertices(vertices);
 		this.setFlows(flows);
 		this.setFlowOfInterest(flow_of_interest); 
 		this.setVertexOfInterest(vertex_of_interest);
 		this.setBoundtype(boundtype);
+                this.nw = nw;
 	}
 	
 	public abstract Arrival analyze() throws ArrivalNotAvailableException, DeadlockException, BadInitializationException;

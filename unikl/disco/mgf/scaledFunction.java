@@ -70,11 +70,11 @@ public class scaledFunction implements FunctionIF {
 	 * @param p_scale wether the first or second part of a Hoelder-
 	 * coefficient should be used for scaling.
 	 */
-	public scaledFunction(FunctionIF function, boolean p_scale){
+	/*public scaledFunction(FunctionIF function, boolean p_scale){
 		this.original = function;
 		this.hoelder = Network.createHoelder();
 		this.p_scale = p_scale;
-	}
+	}*/
 	
 	/**
 	 * Constructs an <code>scaledFunction</code> entity. If 

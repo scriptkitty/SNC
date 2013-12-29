@@ -54,24 +54,28 @@ public class Flow implements Serializable {
 	private String alias;
 	
 	private int established_arrivals;
+        
+        private Network nw;
 	
 	//Constructors
 	
-	public Flow(int flow_ID){
+	public Flow(int flow_ID, Network nw){
 		vertices = new ArrayList<Integer>(0);
 		arrivals = new ArrayList<Arrival>(0);
 		priorities = new ArrayList<Integer>(0);
 		established_arrivals = 0;
 		this.flow_ID= flow_ID;
+                this.nw = nw;
 	}
 	
-	public Flow(int flow_ID, String alias){
+	public Flow(int flow_ID, String alias, Network nw){
 		vertices = new ArrayList<Integer>(0);
 		arrivals = new ArrayList<Arrival>(0);
 		priorities = new ArrayList<Integer>(0);
 		established_arrivals = 0;
 		this.flow_ID= flow_ID;
 		this.setAlias(alias);
+                this.nw = nw;
 	}
 	/**
 	 * Constructs a flow, with the complete route through the 
@@ -90,17 +94,18 @@ public class Flow implements Serializable {
 	 * highest priority number is served first.
 	 */
 	public Flow(int flow_ID, ArrayList<Integer> vertices, ArrayList<Arrival> arrivals, 
-				ArrayList<Integer> priorities){
+				ArrayList<Integer> priorities, Network nw){
 		this.vertices = vertices;
 		this.arrivals = arrivals;
 		this.priorities = priorities;
 		established_arrivals = 1;
 		this.flow_ID = flow_ID;
 		arrivals.get(0).addArrivalDependency(flow_ID);
+                this.nw = nw;
 	}
 	
 	public Flow(int flow_ID, ArrayList<Integer> vertices, ArrayList<Arrival> arrivals, 
-			ArrayList<Integer> priorities, String alias){
+			ArrayList<Integer> priorities, String alias, Network nw){
 		this.vertices = vertices;
 		this.arrivals = arrivals;
 		this.priorities = priorities;
@@ -108,6 +113,7 @@ public class Flow implements Serializable {
 		this.flow_ID = flow_ID;
 		this.setAlias(alias);
 		arrivals.get(0).addArrivalDependency(flow_ID);
+                this.nw = nw;
 	}
 
 	
@@ -122,7 +128,7 @@ public class Flow implements Serializable {
 	 */
 	public void addNodetoPath(int vertex_ID, int priority){
 		vertices.add(vertex_ID);
-		arrivals.add(new Arrival());
+		arrivals.add(new Arrival(nw));
 		priorities.add(priority);
 	}
 	
@@ -163,7 +169,7 @@ public class Flow implements Serializable {
 	 * Returns a copy of this flow.
 	 */
 	public Flow copy(){
-		Flow copy = new Flow(flow_ID, vertices, arrivals, priorities, alias);
+		Flow copy = new Flow(flow_ID, vertices, arrivals, priorities, alias, nw);
 		copy.setEstablishedArrivals(getNumberOfEstablishedArrivals());
 		return copy;
 	}

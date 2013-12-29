@@ -44,7 +44,7 @@ import unikl.disco.misc.SetUtils;
  * The integer <code>HoelderID</code> decides whether 
  * taking the maximum is proceeded normally (stochastically 
  * independent case: <code>HoelderID = 0</code>) or with an 
- * Hölder-coefficient (stochastically dependent case: <code>
+ * HÃ¶lder-coefficient (stochastically dependent case: <code>
  * HoelderID != 0</code>).
  * @author Michael Beck
  * @see FunctionIF
@@ -82,8 +82,7 @@ public class MaximumFunction implements FunctionIF{
 	 * @param independent determines if the stochastically dependent
 	 * or independent version is invoked.
 	 */
-	public MaximumFunction(FunctionIF first, FunctionIF second, boolean independent){
-		if(!independent) hoelder = Network.createHoelder();
+	public MaximumFunction(FunctionIF first, FunctionIF second){
 		this.first = first;
 		this.second = second;
 		this.firstparameters = first.getParameters();
@@ -154,7 +153,7 @@ public class MaximumFunction implements FunctionIF{
 			else throw new ParameterMismatchException("Needed hoelder_id is not found in given parameters.");
 		}
 
-		//Multiplies the Hölder-coefficients to theta, if needed
+		//Multiplies the Hï¿½lder-coefficients to theta, if needed
 		double theta1 = (hoelder == null) ? theta : theta*hoelder.getPValue();
 		double theta2 = (hoelder == null) ? theta : theta*hoelder.getQValue();
 		
@@ -179,7 +178,7 @@ public class MaximumFunction implements FunctionIF{
 	 * for the atom functions (parameters belonging to both 
 	 * functions are counted twice). If the atom-functions are 
 	 * stochastically dependent one further parameter (the 
-	 * Hölder-coefficient) is needed to calculate the values of the
+	 * HÃ¶lder-coefficient) is needed to calculate the values of the
 	 * resulting function.
 	 * @return a list of parameterIDs.
 	 */

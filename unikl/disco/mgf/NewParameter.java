@@ -53,8 +53,8 @@ public class NewParameter implements FunctionIF {
 	 * A new parameter always gets a fresh parameter_id from the 
 	 * {@link Analysis}-Class.
 	 */
-	public NewParameter(){
-		this.hoelder = Network.createHoelder();
+	public NewParameter(Hoelder hoelder){
+		this.hoelder = hoelder;
 	}
 	
 	//Methods 

@@ -61,7 +61,9 @@ public class SNC {
 		}
 	};
 	
+        // TODO
 	private static GUI gui;
+        private static Network nw;
 	
 	//Main-Method
 	public static void main(String[] args) throws InvocationTargetException, InterruptedException, 
@@ -69,10 +71,12 @@ public class SNC {
 	ParameterMismatchException, ServerOverloadException{
 		
 		SNC snc = new SNC();
+		nw = new Network();
 		
-		vertices = Network.getVertices();
+                // TODO
+                vertices = nw.getVertices();
 		
-		flows = Network.getFlows();
+		flows = nw.getFlows();
 		
 		gui = new GUI(snc);
 		SwingUtilities.invokeLater(gui);
@@ -81,6 +85,9 @@ public class SNC {
 		
 	//Methods
 	
+        public Network getCurrentNetwork() {
+            return nw;
+        }
 	/**
 	 * Loads a network, which is given in <code>file</code>. Can only read networks, which
 	 * had been saved by a simple <code>ObjectOutputStream</code>. The order of saved objects
@@ -89,33 +96,34 @@ public class SNC {
 	 * flows (HashMap<Integer, Flow>) 
 	 * hoelders (HashMap<Integer, Hoelder>)
 	 */
-	public void loadNetwork(File file){
+	public Network loadNetwork(File file){
+            HashMap<Integer, Vertex> newVertices = null;
+            HashMap<Integer, Flow> newFlows = null;
+            HashMap<Integer, Hoelder> newHoelders = null;
+            
+            try {
+                FileInputStream fis = new FileInputStream(file);
+		ObjectInputStream ois = new ObjectInputStream(fis);
+			
+		newVertices = (HashMap<Integer, Vertex>) ois.readObject();
+		newFlows = (HashMap<Integer, Flow>) ois.readObject();
+		newHoelders = (HashMap)ois.readObject();
 		
-		try{
-			FileInputStream fis = new FileInputStream(file);
-			ObjectInputStream ois = new ObjectInputStream(fis);
+                ois.close();
+                
+            } catch(Exception exc){
+                System.out.println(exc.getMessage());
+            }
+            // TODO
+            vertices = newVertices;
+            flows = newFlows;
 			
-			@SuppressWarnings("unchecked")
-			HashMap<Integer, Vertex> newVertices = (HashMap<Integer, Vertex>) ois.readObject();
-			@SuppressWarnings("unchecked")
-			HashMap<Integer, Flow> newFlows = (HashMap<Integer, Flow>) ois.readObject();
-			@SuppressWarnings("unchecked")
-			HashMap<Integer, Hoelder> newHoelders = (HashMap<Integer, Hoelder>) ois.readObject();
-			
-			Network.setVertices(newVertices);
-			Network.setFlows(newFlows);
-			Network.setHoelders(newHoelders);
-			
-			vertices = Network.getVertices();
-			flows = Network.getFlows();
-			
-			ois.close();
-		}
-		catch(Exception exc){
-			System.out.println(exc.getMessage());
-		}
-		
-	}
+            Network nw = new Network();
+            nw.setVertices(newVertices);
+            nw.setFlows(newFlows);
+            nw.setHoelders(newHoelders);
+            return(nw);
+        }
 	
 	/**
 	 * Saves the network in the given <code>file</code>. This is done by using a 
@@ -125,7 +133,7 @@ public class SNC {
 	 * flows (HashMap<Integer, Flow>) 
 	 * hoelders (HashMap<Integer, Hoelder>)
 	 */
-	public void saveNetwork(File file){
+	public void saveNetwork(File file, Network nw){
 		
 		try{
 			FileOutputStream fos = new FileOutputStream(file);
@@ -133,7 +141,7 @@ public class SNC {
 		
 			oos.writeObject(vertices);
 			oos.writeObject(flows);
-			oos.writeObject(Network.getHoelders());
+			oos.writeObject(nw.getHoelders());
 			
 			oos.close();
 		}
@@ -149,8 +157,8 @@ public class SNC {
 	 * @return Returns <code>true</code> if the flow has been successfully
 	 * removed and <code>false</code> otherwise.
 	 */
-	public boolean removeFlow(Flow flow) {
-		return Network.removeFlow(flow);
+	public boolean removeFlow(Flow flow, Network nw) {
+		return nw.removeFlow(flow);
 	}
 	
 	/**
@@ -163,14 +171,14 @@ public class SNC {
 	 * flow-id will be returned. In the case that the flow could not been added 
 	 * the return will be <code>-1</code> instead.
 	 */
-	public int addFlow(Flow flow){
+	public int addFlow(Flow flow, Network nw){
 	
 		int id = -1;
 		
 		try{
-			Network.addFlow(flow.getInitialArrival(), flow.getVerticeIDs(), 
+			nw.addFlow(flow.getInitialArrival(), flow.getVerticeIDs(), 
 					flow.getPriorities(), flow.getAlias());
-			id = Network.getFLOW_ID()-1;
+			id = nw.getFLOW_ID()-1;
 		}
 		catch(IndexOutOfBoundsException e){
 			System.out.println(e.getMessage());
@@ -191,8 +199,8 @@ public class SNC {
 	 * @return Returns <code>true</code> if the vertex has been successfully
 	 * removed and <code>false</code> otherwise.
 	 */
-	public boolean removeVertex(Vertex vertex) {
-		return Network.removeVertex(vertex);
+	public boolean removeVertex(Vertex vertex, Network nw) {
+		return nw.removeVertex(vertex);
 	}
 	
 	/**
@@ -205,13 +213,13 @@ public class SNC {
 	 * vertex-id will be returned. In the case that the vertex could not been added 
 	 * the return will be <code>-1</code> instead.
 	 */
-	public int addVertex(Vertex vertex){
+	public int addVertex(Vertex vertex, Network nw){
 		
 		int id = -1;
 		
 		try{
-			Network.addVertex(vertex.getService(), vertex.getAlias());
-			id = Network.getVERTEX_ID()-1;
+			nw.addVertex(vertex.getService(), vertex.getAlias());
+			id = nw.getVERTEX_ID()-1;
 		}
 		catch(Exception e){
 			System.out.println(e.getMessage());
@@ -231,7 +239,7 @@ public class SNC {
 	 * @param boundtype the type of bound, which needs to be computed.
 	 * @return the result of the analysis in arrival-representation.
 	 */
-	public Arrival analyzeNetwork(Flow flow, Vertex vertex, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype){
+	public Arrival analyzeNetwork(Flow flow, Vertex vertex, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype, Network nw){
 		
 		//Preparations
 		Arrival bound = null;
@@ -246,14 +254,14 @@ public class SNC {
 			givenFlows.put(entry.getKey(), entry.getValue().copy());
 		}
 		
-		int resetFlowID = Network.getFLOW_ID();
-		int resetHoelderID = Network.getHOELDER_ID();
-		int resetVertexID = Network.getVERTEX_ID();
+		int resetFlowID = nw.getFLOW_ID();
+		int resetHoelderID = nw.getHOELDER_ID();
+		int resetVertexID = nw.getVERTEX_ID();
 		
 		//Relays command to the corresponding analysis class
 		switch(analyzer){
 		case SIMPLE_ANA:
-			SimpleAnalysis analysis = new SimpleAnalysis(givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
+			SimpleAnalysis analysis = new SimpleAnalysis(nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
 			try {
 				bound = analysis.analyze();
 			} catch (ArrivalNotAvailableException e) {
@@ -270,9 +278,9 @@ public class SNC {
 		
 		
 		//Resets the network
-		Network.resetFLOW_ID(resetFlowID);
-		Network.resetHOELDER_ID(resetHoelderID);
-		Network.resetVERTEX_ID(resetVertexID);
+		nw.resetFLOW_ID(resetFlowID);
+		nw.resetHOELDER_ID(resetHoelderID);
+		nw.resetVERTEX_ID(resetVertexID);
 		
 		return bound;
 	}
@@ -293,7 +301,7 @@ public class SNC {
 	 * @return the best probability found for the given delay or backlog bound
 	 */
 	public double calculateBound(Flow flow, Vertex vertex, double thetaGran, 
-			double hoelderGran, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value){
+			double hoelderGran, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value, Network nw){
 
 		//Preparations
 		//Backlog values are represented by negative values in the arrival representation
@@ -311,14 +319,14 @@ public class SNC {
 			givenFlows.put(entry.getKey(), entry.getValue().copy());
 		}
 		
-		int resetFlowID = Network.getFLOW_ID();
-		int resetHoelderID = Network.getHOELDER_ID();
-		int resetVertexID = Network.getVERTEX_ID();
+		int resetFlowID = nw.getFLOW_ID();
+		int resetHoelderID = nw.getHOELDER_ID();
+		int resetVertexID = nw.getVERTEX_ID();
 		
 		switch(analyzer){
 		case SIMPLE_ANA:
 			//Computes the bound in arrival-representation
-			SimpleAnalysis analysis = new SimpleAnalysis(givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
+			SimpleAnalysis analysis = new SimpleAnalysis(nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
 			Arrival bound = null;
 			try {
 				bound = analysis.analyze();
@@ -333,7 +341,7 @@ public class SNC {
 			//Optimizes the bound
 			switch(optimizer){
 			case SIMPLE_OPT:
-				SimpleOptimizer simple = new SimpleOptimizer(bound, boundtype);
+				SimpleOptimizer simple = new SimpleOptimizer(bound, boundtype, nw);
 				try {
 					probability = simple.Bound(bound, boundtype, value, thetaGran, hoelderGran);
 				} catch (ThetaOutOfBoundException e) {
@@ -346,7 +354,7 @@ public class SNC {
 				break;
 			
 			case GRADIENT_OPT:
-				SimpleGradient gradient = new SimpleGradient(bound, boundtype);
+				SimpleGradient gradient = new SimpleGradient(bound, boundtype, nw);
 				try{
 					probability = gradient.Bound(bound, boundtype, value, thetaGran, hoelderGran);
 				} catch (ThetaOutOfBoundException e) {
@@ -370,9 +378,9 @@ public class SNC {
 		}
 		
 		//Resets the network
-		Network.resetFLOW_ID(resetFlowID);
-		Network.resetHOELDER_ID(resetHoelderID);
-		Network.resetVERTEX_ID(resetVertexID);
+		nw.resetFLOW_ID(resetFlowID);
+		nw.resetHOELDER_ID(resetHoelderID);
+		nw.resetVERTEX_ID(resetVertexID);
 		
 		return probability;
 	}
@@ -389,7 +397,7 @@ public class SNC {
          * @param value
          * @return the probability, that the E2E exceeds the parameter "value"
          */
-        public double calculateE2EBound(Flow flow, Vertex vertex1, Vertex vertex2, double thetaGran, double hoelderGran, AnalysisType analyzer, OptimizationType optimizer, double value) {
+        public double calculateE2EBound(Flow flow, Vertex vertex1, Vertex vertex2, double thetaGran, double hoelderGran, AnalysisType analyzer, OptimizationType optimizer, double value, Network nw) {
             double probability = 0;
             
             // For every node in between vertex1 and vertex2 along the flow, compute the bound and return the sum
@@ -407,7 +415,7 @@ public class SNC {
             
             int len = vlist.size();
             for (Integer vid : vlist) {
-                probability += calculateBound(flow, vertices.get(vid), thetaGran, hoelderGran, analyzer, optimizer, AbstractAnalysis.Boundtype.DELAY, value/len);
+                probability += calculateBound(flow, vertices.get(vid), thetaGran, hoelderGran, analyzer, optimizer, AbstractAnalysis.Boundtype.DELAY, value/len, nw);
             }
             return probability;
         }
@@ -417,7 +425,7 @@ public class SNC {
          * CAUTION: At the moment the returned value may not be correct!
          */
         
-        public double calculateInverseE2EBound(Flow flow, Vertex vertex1, Vertex vertex2, double thetaGran, double hoelderGran, double boundGran, AnalysisType analyzer, OptimizationType optimizer, double probability) {
+        public double calculateInverseE2EBound(Flow flow, Vertex vertex1, Vertex vertex2, double thetaGran, double hoelderGran, double boundGran, AnalysisType analyzer, OptimizationType optimizer, double probability, Network nw) {
             double value = 0;
             // For every node in between vertex1 and vertex2 along the flow, compute the bound and return the sum
             // TODO: Introduce Error Handling
@@ -434,7 +442,7 @@ public class SNC {
             
             int len = vlist.size();
             for (Integer vid : vlist) {
-                value += calculateInverseBound(flow, vertices.get(vid), thetaGran, hoelderGran, boundGran, analyzer, optimizer, AbstractAnalysis.Boundtype.BACKLOG, probability/len);
+                value += calculateInverseBound(flow, vertices.get(vid), thetaGran, hoelderGran, boundGran, analyzer, optimizer, AbstractAnalysis.Boundtype.BACKLOG, probability/len, nw);
             }
             return value;
         }
@@ -459,7 +467,7 @@ public class SNC {
 	 */
 	public double calculateInverseBound(Flow flow, Vertex vertex, double thetaGran, 
 			double hoelderGran, double boundGran, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, 
-			AbstractAnalysis.Boundtype boundtype, double probability){
+			AbstractAnalysis.Boundtype boundtype, double probability, Network nw){
 
 		//Preparations
 		double value = Double.NaN;
@@ -474,14 +482,14 @@ public class SNC {
 			givenFlows.put(entry.getKey(), entry.getValue().copy());
 		}
 		
-		int resetFlowID = Network.getFLOW_ID();
-		int resetHoelderID = Network.getHOELDER_ID();
-		int resetVertexID = Network.getVERTEX_ID();
+		int resetFlowID = nw.getFLOW_ID();
+		int resetHoelderID = nw.getHOELDER_ID();
+		int resetVertexID = nw.getVERTEX_ID();
 		
 		switch(analyzer){
 		case SIMPLE_ANA:
 			//Computes the bound in arrival representation
-			SimpleAnalysis analysis = new SimpleAnalysis(givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
+			SimpleAnalysis analysis = new SimpleAnalysis(nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
 			Arrival bound = null;
 			try {
 				bound = analysis.analyze();
@@ -494,7 +502,7 @@ public class SNC {
 			}
 			switch(optimizer){
 			case SIMPLE_OPT:
-				SimpleOptimizer simple = new SimpleOptimizer(bound, boundtype);
+				SimpleOptimizer simple = new SimpleOptimizer(bound, boundtype, nw);
 				try {
 					value = simple.ReverseBound(bound, boundtype, probability, thetaGran, hoelderGran);
 				} catch (ThetaOutOfBoundException e) {
@@ -507,7 +515,7 @@ public class SNC {
 				break;
 			
 			case GRADIENT_OPT:
-				SimpleGradient gradient = new SimpleGradient(bound, boundtype);
+				SimpleGradient gradient = new SimpleGradient(bound, boundtype, nw);
 				try {
 					value = gradient.ReverseBound(bound, boundtype, probability, thetaGran, hoelderGran);
 				} catch (ThetaOutOfBoundException e) {
@@ -531,9 +539,9 @@ public class SNC {
 		}
 		
 		//Resets the network
-		Network.resetFLOW_ID(resetFlowID);
-		Network.resetHOELDER_ID(resetHoelderID);
-		Network.resetVERTEX_ID(resetVertexID);
+		nw.resetFLOW_ID(resetFlowID);
+		nw.resetHOELDER_ID(resetHoelderID);
+		nw.resetVERTEX_ID(resetVertexID);
 		
 		return value;
 	}

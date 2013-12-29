@@ -47,8 +47,8 @@ import unikl.disco.mgf.network.AbstractAnalysis.Boundtype;
  */
 public class SimpleOptimizer extends AbstractOptimizer {
 
-	public SimpleOptimizer(Arrival input, Boundtype boundtype) {
-		super(input, boundtype);
+	public SimpleOptimizer(Arrival input, Boundtype boundtype, Network nw) {
+		super(input, boundtype, nw);
 	}
 	
 	@Override
@@ -63,8 +63,8 @@ public class SimpleOptimizer extends AbstractOptimizer {
 		
 		//If needed, the parameter, which represents the backlog, must be separated from the other Hoelder parameters
 		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG){
-			allparameters.get(Network.getHOELDER_ID()-1).setPValue(0);
-			allparameters.remove(Network.getHOELDER_ID()-1);
+			allparameters.get(nw.getHOELDER_ID()-1).setPValue(0);
+			allparameters.remove(nw.getHOELDER_ID()-1);
 		}
 		
 		IncrementList hoelderlist = new IncrementList(hoeldergranularity);
@@ -280,8 +280,8 @@ public class SimpleOptimizer extends AbstractOptimizer {
 		
 		//If needed, the parameter, which represents the backlog, must be separated from the other Hoelder parameters
 		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG){
-			allparameters.get(Network.getHOELDER_ID()-1).setPValue(bound);
-			allparameters.remove(Network.getHOELDER_ID()-1);
+			allparameters.get(nw.getHOELDER_ID()-1).setPValue(bound);
+			allparameters.remove(nw.getHOELDER_ID()-1);
 		}
 		
 		IncrementList hoelderlist = new IncrementList(hoeldergranularity);

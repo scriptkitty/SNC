@@ -50,18 +50,19 @@ public class VertexEditor extends JDialog {
 	static final int ERROR_OPTION = 2;
 	private int output = 0;
 	private Vertex vertex;
+        private final Network nw;
 	
 	private final JPanel topCardContainer = new JPanel();	
 	
 	//Constructors
 	
-	public VertexEditor(String title, Vertex vertex){
-		this(title);
+	public VertexEditor(String title, Vertex vertex, Network nw){
+		this(title, nw);
 		this.vertex = vertex;
 	}
 	
-	public VertexEditor(String title){
-		
+	public VertexEditor(String title, final Network nw){
+		this.nw = nw;
 		//Constructs the dialog
 		this.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 		this.setTitle(title);
@@ -150,10 +151,10 @@ public class VertexEditor extends JDialog {
 						correct = false;
 					}
 					
-					Service service = new Service(new ZeroFunction(), rho);
+					Service service = new Service(new ZeroFunction(), rho, nw);
 					
 					if(correct) {
-						vertex = new Vertex(-1, service, aliasField.getText());
+						vertex = new Vertex(-1, service, aliasField.getText(), nw);
 						vertex.getService().getServicedependencies().clear();
 					}
 					else vertex = null;

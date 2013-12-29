@@ -55,8 +55,8 @@ public class SimpleGradient extends AbstractOptimizer {
 		THETA_DEC, THETA_INC, HOELDER_P, HOELDER_Q, NOTHING
 	};
 
-	public SimpleGradient(Arrival input, Boundtype boundtype) {
-		super(input, boundtype);
+	public SimpleGradient(Arrival input, Boundtype boundtype, Network nw) {
+		super(input, boundtype, nw);
 		
 	}
 
@@ -73,8 +73,8 @@ public class SimpleGradient extends AbstractOptimizer {
 			
 		//If needed, the parameter, which represents the backlog, must be separated from the other Hoelder parameters
 		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG){
-			allparameters.get(Network.getHOELDER_ID()-1).setPValue(bound);
-			allparameters.remove(Network.getHOELDER_ID()-1);
+			allparameters.get(nw.getHOELDER_ID()-1).setPValue(bound);
+			allparameters.remove(nw.getHOELDER_ID()-1);
 		}
 		System.out.println("allparameters:"+ allparameters.toString());
 		for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
@@ -387,8 +387,8 @@ public class SimpleGradient extends AbstractOptimizer {
 			
 		//If needed, the parameter, which represents the backlog, must be separated from the other Hoelder parameters
 		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG){
-			allparameters.get(Network.getHOELDER_ID()-1).setPValue(0);
-			allparameters.remove(Network.getHOELDER_ID()-1);
+			allparameters.get(nw.getHOELDER_ID()-1).setPValue(0);
+			allparameters.remove(nw.getHOELDER_ID()-1);
 		}
 		System.out.println("allparameters:"+ allparameters.toString());
 		for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){

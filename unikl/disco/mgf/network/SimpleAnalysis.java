@@ -79,8 +79,8 @@ public class SimpleAnalysis extends AbstractAnalysis {
 	 * calculated. Note: All performance bounds are given in 
 	 * {@Arrival}-representation.
 	 */
-	public SimpleAnalysis(HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, int flow_of_interest, int vertex_of_interest,  Boundtype boundtype){
-		super(vertices, flows, flow_of_interest, vertex_of_interest, boundtype);
+	public SimpleAnalysis(Network nw, HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, int flow_of_interest, int vertex_of_interest,  Boundtype boundtype){
+		super(nw, vertices, flows, flow_of_interest, vertex_of_interest, boundtype);
 		can_serve = new Stack<Vertex>();
 	}
 	
@@ -106,7 +106,7 @@ public class SimpleAnalysis extends AbstractAnalysis {
 		if(can_serve.isEmpty()) throw new DeadlockException("The initial vertex stack is empty.");
 		
 		Vertex current_vertex;
-		Arrival bound = new Arrival();
+		Arrival bound = new Arrival(nw);
 		boolean successful = false;
 		
 		//Successively serves the flows until the FoI and SoI is characterized
@@ -180,7 +180,7 @@ public class SimpleAnalysis extends AbstractAnalysis {
 	 * @throws BadInitializationException
 	 */
 	private Arrival calculateBound(Arrival arrival, Service service) throws BadInitializationException{
-		
+            
 		Arrival result;
 		
 		//The result is dependent on the wished performance-bound
@@ -191,25 +191,23 @@ public class SimpleAnalysis extends AbstractAnalysis {
 			
 			//Dependent Case
 			if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
-				Hoelder hoelder = Network.createHoelder();
+				Hoelder hoelder = nw.createHoelder();
 				preparation = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder), 
-						new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),hoelder)),
-						true);
+						new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),hoelder)));
 			}
 			
 			//Independent Case
 			else{
-				preparation = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),true), 
-												new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),true)),
-												true);	
+				preparation = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma()), 
+												new BFunction(new AddedFunctions(arrival.getRho(),service.getRho())));	
 			}
 			
 			//introduces the backlog-part in the backlog-bound as new variable. The sign must be negative!
-			FunctionIF backlog_part = new NewParameter();
-			FunctionIF function = new AddedFunctions(preparation, backlog_part, true);
+			FunctionIF backlog_part = new NewParameter(nw.createHoelder());
+			FunctionIF function = new AddedFunctions(preparation, backlog_part);
 
 			//In the vector of variables the backlog has Hoelder_ID equal to Network.HOELDER_ID-1.
-			result = new Arrival(function,new ZeroFunction());
+			result = new Arrival(function,new ZeroFunction(), nw);
 			
 			break;
 		
@@ -226,25 +224,24 @@ public class SimpleAnalysis extends AbstractAnalysis {
 			
 			//Dependent Case
 			if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
-				Hoelder hoelder = Network.createHoelder();
+				Hoelder hoelder = nw.createHoelder();
 				FunctionIF prep1 = new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder);
 				FunctionIF prep2 = new AddedFunctions(arrival.getRho(),service.getRho(),hoelder);
 				
-				sigma = new AddedFunctions(prep1,new BFunction(prep2),true);
+				sigma = new AddedFunctions(prep1,new BFunction(prep2));
 				rho = new scaledFunction(service.getRho(), hoelder, false);
 				System.out.println("Dependent case");
 			}
 			
 			//Independent Case
 			else{
-				sigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),true),
-						new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),true)),
-						true);
+				sigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma()),
+						new BFunction(new AddedFunctions(arrival.getRho(),service.getRho())));
 				rho = service.getRho();
 				System.out.println("Independent Case");
 			} 
 			
-			result = new Arrival(sigma, rho);
+			result = new Arrival(sigma, rho, nw);
 			
 			break;
 		
@@ -255,24 +252,24 @@ public class SimpleAnalysis extends AbstractAnalysis {
 			
 			//Dependent Case
 			if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
-				Hoelder hoelder = Network.createHoelder();
-				givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),hoelder)),true);
+				Hoelder hoelder = nw.createHoelder();
+				givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),hoelder)));
 				givenrho = new scaledFunction(arrival.getRho(),hoelder, false);
 			}
 			
 			//Independent Case
 			else{
-				givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),true),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),true)),true);
+				givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma()),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho())));
 				givenrho = arrival.getRho();
 			}
 			
-			result = new Arrival(givensigma, givenrho);
+			result = new Arrival(givensigma, givenrho, nw);
 			
 			break;
 		
 		default:
 			
-			result = new Arrival();
+			result = new Arrival(nw);
 		}
 		
 		return result;

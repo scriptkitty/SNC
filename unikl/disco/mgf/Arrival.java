@@ -65,6 +65,7 @@ public class Arrival implements Serializable {
 	private FunctionIF sigma;
 	private Set<Integer> Arrivaldependencies;
 	private Set<Integer> Servicedependencies;
+        private Network nw; // TODO: Maybe exchange for Node/Flow
 	
 	//Constructors
 	
@@ -73,11 +74,12 @@ public class Arrival implements Serializable {
 	 * <code>rho</code> and <code>sigma</code> being 
 	 * {@link ZeroFunction}s.
 	 */
-	public Arrival(){ 
+	public Arrival(Network nw){ 
 		rho = new ZeroFunction();
 		sigma = new ZeroFunction();
 		Arrivaldependencies = new HashSet<Integer>();
 		Servicedependencies = new HashSet<Integer>();
+                this.nw = nw;
 	}
 
 	/**
@@ -88,11 +90,12 @@ public class Arrival implements Serializable {
 	 * @param sigma the time independent part of the MGF-bound.
 	 * @see FunctionIF
 	 */
-	public Arrival(FunctionIF sigma, FunctionIF rho) {
+	public Arrival(FunctionIF sigma, FunctionIF rho, Network nw) {
 		this.rho = rho;
 		this.sigma = sigma;
 		Arrivaldependencies = new HashSet<Integer>();
 		Servicedependencies = new HashSet<Integer>();
+                this.nw = nw;
 	}
 	
 	/**
@@ -110,12 +113,13 @@ public class Arrival implements Serializable {
 	 * @see FunctionIF
 	 * @see Flow
 	 */
-	public Arrival(FunctionIF sigma, FunctionIF rho, int flow_id) {
+	public Arrival(FunctionIF sigma, FunctionIF rho, int flow_id, Network nw) {
 		this.rho = rho;
 		this.sigma = sigma;
 		Arrivaldependencies = new HashSet<Integer>();
 		Arrivaldependencies.add(flow_id);
 		Servicedependencies = new HashSet<Integer>();
+                this.nw = nw;
 	}
 	
 	//Methods
@@ -213,17 +217,17 @@ public class Arrival implements Serializable {
 		
 		//Dependent case
 		if(!SetUtils.getIntersection(arrival1.getServicedependencies(),arrival2.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(arrival1.getArrivaldependencies(), arrival2.getArrivaldependencies()).isEmpty()){
-			Hoelder hoelder = Network.createHoelder();
+			Hoelder hoelder = nw.createHoelder();
 			FunctionIF givensigma = new AddedFunctions(arrival1.getSigma(),arrival2.getSigma(),hoelder);
 			FunctionIF givenrho = new AddedFunctions(arrival1.getRho(), arrival2.getRho(), hoelder);
-			arrival = new Arrival(givensigma, givenrho);
+			arrival = new Arrival(givensigma, givenrho, nw);
 		}
 		
 		//Independent case
 		else{
-			FunctionIF givensigma = new AddedFunctions(arrival1.getSigma(),arrival2.getSigma(),true);
-			FunctionIF givenrho = new AddedFunctions(arrival1.getRho(), arrival2.getRho(), true);
-			arrival = new Arrival(givensigma, givenrho);
+			FunctionIF givensigma = new AddedFunctions(arrival1.getSigma(),arrival2.getSigma());
+			FunctionIF givenrho = new AddedFunctions(arrival1.getRho(), arrival2.getRho());
+			arrival = new Arrival(givensigma, givenrho, nw);
 		}
 		
 		//Keeps track of stochastic dependencies
@@ -251,18 +255,18 @@ public class Arrival implements Serializable {
 
 		//Dependent case
 		if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
-			Hoelder hoelder = Network.createHoelder();
-			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),hoelder)),true);
+			Hoelder hoelder = nw.createHoelder();
+			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),hoelder)));
 			FunctionIF givenrho = new scaledFunction(arrival.getRho(),hoelder, false);
-			output = new Arrival(givensigma, givenrho);
+			output = new Arrival(givensigma, givenrho, nw);
 			//System.out.println("Dependent Case Output calculated");
 		}
 		
 		//Independent case
 		else{
-			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),true),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),true)),true);
+			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma()),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho())));
 			FunctionIF givenrho = arrival.getRho();
-			output = new Arrival(givensigma, givenrho);
+			output = new Arrival(givensigma, givenrho, nw);
 			//System.out.println("Independent Case Output calculated");
 		}
 		

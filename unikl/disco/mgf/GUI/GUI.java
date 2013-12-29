@@ -154,7 +154,7 @@ public class GUI implements Runnable {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				FlowEditor dialog = new FlowEditor("Add Flow", caller.getVertices());
+				FlowEditor dialog = new FlowEditor("Add Flow", caller.getVertices(), caller.getCurrentNetwork());
 				int output = dialog.showFlowEditor();
 				if(output == FlowEditor.APPROVE_OPTION){
 					if(dialog.getEditedFlow() != null) addFlow(dialog.getEditedFlow());
@@ -208,7 +208,7 @@ public class GUI implements Runnable {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				VertexEditor dialog = new VertexEditor("Add Vertex");
+				VertexEditor dialog = new VertexEditor("Add Vertex", caller.getCurrentNetwork());
 				int output = dialog.showVertexEditor();
 				if(output == VertexEditor.APPROVE_OPTION){
 					addVertex(dialog.getEditedVertex());
@@ -533,7 +533,7 @@ public class GUI implements Runnable {
 	}
 	
 	private static void saveNetwork(File file){
-		caller.saveNetwork(file);
+		caller.saveNetwork(file, caller.getCurrentNetwork());
 		System.out.println(file.getName()+" saved");
 	}
 	
@@ -546,7 +546,7 @@ public class GUI implements Runnable {
 	private static void removeFlow(Flow flow){
 		
 		//Alters the network via the caller
-		boolean success = caller.removeFlow(flow);
+		boolean success = caller.removeFlow(flow, caller.getCurrentNetwork());
 		
 		//Console output
 		if(success) System.out.println(flow.getAlias()+ " with ID "+flow.getFlow_ID()+ " removed");
@@ -561,7 +561,7 @@ public class GUI implements Runnable {
 	private static void removeVertex(Vertex vertex){
 		
 		//Alters the network via the caller
-		boolean success = caller.removeVertex(vertex);
+		boolean success = caller.removeVertex(vertex, caller.getCurrentNetwork());
 		
 		//Console output
 		if(success) System.out.println(vertex.getAlias()+ " with ID "+vertex.getVertexID()+" removed");
@@ -576,7 +576,7 @@ public class GUI implements Runnable {
 	private static void addFlow(Flow flow){
 
 		//Alters the network via the caller
-		int newID = caller.addFlow(flow);
+		int newID = caller.addFlow(flow, caller.getCurrentNetwork());
 		
 		//Console output
 		if(newID>0){
@@ -595,7 +595,7 @@ public class GUI implements Runnable {
 	private static void addVertex(Vertex vertex){
 		
 		//Alters the network via the caller
-		int newID = caller.addVertex(vertex);
+		int newID = caller.addVertex(vertex, caller.getCurrentNetwork());
 		
 		//Console output
 		if(newID>0){
@@ -617,10 +617,10 @@ public class GUI implements Runnable {
                 System.out.println("Boundtype:" + boundtype.toString());
                 double probability = -1;
                 if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
-                    probability = caller.calculateE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, analyzer, optimizer, value);
+                    probability = caller.calculateE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, analyzer, optimizer, value, caller.getCurrentNetwork());
                 } else {
                     probability = caller.calculateBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
-				analyzer, optimizer, boundtype, value);
+				analyzer, optimizer, boundtype, value, caller.getCurrentNetwork());
                 }
 		System.out.println("The probability for the asked bound being broken is smaller than: "+probability);
 	}
@@ -631,10 +631,10 @@ public class GUI implements Runnable {
 		System.out.println("Inverse Bound is being calculated...");
                 double value = 0;
                 if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
-                    value = caller.calculateInverseE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, boundGranularity, analyzer, optimizer, probability);
+                    value = caller.calculateInverseE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, boundGranularity, analyzer, optimizer, probability, caller.getCurrentNetwork());
                 } else {
                     value = caller.calculateInverseBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
-				boundGranularity, analyzer, optimizer, boundtype, probability);
+				boundGranularity, analyzer, optimizer, boundtype, probability, caller.getCurrentNetwork());
                 }
 		System.out.println("The best calculated bound for the asked probability is: "+value);
 	}
@@ -645,7 +645,7 @@ public class GUI implements Runnable {
                 if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
                     System.out.println("End-To-End Delay Analysis: No closed form available at the moment.");
                 } else {
-                    bound = caller.analyzeNetwork(selectedFlow, selectedVertex, analyzer, boundtype);
+                    bound = caller.analyzeNetwork(selectedFlow, selectedVertex, analyzer, boundtype, caller.getCurrentNetwork());
                 }
 		System.out.println("The bound in arrival-representation equals: "+bound.toString());
 	}
