@@ -34,6 +34,8 @@ import unikl.disco.mgf.SNC;
 import unikl.disco.mgf.network.AbstractAnalysis;
 import unikl.disco.mgf.network.Flow;
 import unikl.disco.mgf.network.Vertex;
+import unikl.disco.mgf.network.AnalysisType;
+import unikl.disco.mgf.optimization.OptimizationType;
 
 /**
  * Creates a dialog, asking the user for the parameters
@@ -57,8 +59,8 @@ public class BoundDialog extends JDialog {
         private Vertex vertex2;
 	private double thetaGran;
 	private double hoelderGran;
-	private SNC.OptimizationType optType;
-	private SNC.AnalysisType anaType;
+	private OptimizationType optType;
+	private AnalysisType anaType;
 	private AbstractAnalysis.Boundtype boundtype;
 	private double value;
 	
@@ -112,7 +114,7 @@ public class BoundDialog extends JDialog {
 		JLabel optiLabel = new JLabel("Optimization Type:");
 		leftPanel.add(optiLabel);
 		
-		final JComboBox<Object> optiBox = new JComboBox<Object>(SNC.OptimizationType.values());
+		final JComboBox<Object> optiBox = new JComboBox<Object>(OptimizationType.values());
 		leftPanel.add(optiBox);
 		
 		JLabel FOILabel = new JLabel("Flow of interest:");
@@ -138,7 +140,7 @@ public class BoundDialog extends JDialog {
 		JLabel analyLabel = new JLabel("Analysis Type:");
 		rightPanel.add(analyLabel);
 		
-		final JComboBox<Object> analyBox = new JComboBox<Object>(SNC.AnalysisType.values());
+		final JComboBox<Object> analyBox = new JComboBox<Object>(AnalysisType.values());
 		rightPanel.add(analyBox);
 		
 		JLabel VOILabel = new JLabel("Vertex of interest:");
@@ -231,8 +233,8 @@ public class BoundDialog extends JDialog {
                                     output = CANCEL_OPTION;
                                 }
 				
-				optType = (SNC.OptimizationType)optiBox.getSelectedItem();
-				anaType = (SNC.AnalysisType)analyBox.getSelectedItem();
+				optType = (OptimizationType)optiBox.getSelectedItem();
+				anaType = (AnalysisType)analyBox.getSelectedItem();
 				try{
 					thetaGran = ((SpinnerNumberModel) theta.getModel()).getNumber().doubleValue();
 				}
@@ -309,11 +311,11 @@ public class BoundDialog extends JDialog {
 		return hoelderGran;
 	}
 	
-	public SNC.AnalysisType getAnalyzer(){
+	public AnalysisType getAnalyzer(){
 		return anaType;
 	}
 	
-	public SNC.OptimizationType getOptimizer(){
+	public OptimizationType getOptimizer(){
 		return optType;
 	}
 	

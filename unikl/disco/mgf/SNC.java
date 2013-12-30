@@ -23,6 +23,8 @@ import unikl.disco.mgf.network.SimpleAnalysis;
 import unikl.disco.mgf.network.Vertex;
 import unikl.disco.mgf.optimization.SimpleGradient;
 import unikl.disco.mgf.optimization.SimpleOptimizer;
+import unikl.disco.mgf.network.AnalysisType;
+import unikl.disco.mgf.optimization.OptimizationType;
 
 /**
  * This class contains the main method, which starts and prepares the GUI.
@@ -38,28 +40,6 @@ public class SNC {
 	//Members
 	private static HashMap<Integer, Flow> flows;
 	private static HashMap<Integer, Vertex> vertices;
-	
-	public enum OptimizationType{
-            	GRADIENT_OPT{
-			public String toString(){
-				return "Gradient Heuristic";
-			}
-		},
-		SIMPLE_OPT{
-			public String toString(){
-				return "Simple Optimization";
-			}
-		}
-		
-	};
-	
-	public enum AnalysisType{
-		SIMPLE_ANA{
-			public String toString(){
-				return "Simple Analysis";
-			}
-		}
-	};
 	
         // TODO
 	private static GUI gui;
@@ -239,7 +219,7 @@ public class SNC {
 	 * @param boundtype the type of bound, which needs to be computed.
 	 * @return the result of the analysis in arrival-representation.
 	 */
-	public Arrival analyzeNetwork(Flow flow, Vertex vertex, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype, Network nw){
+	public Arrival analyzeNetwork(Flow flow, Vertex vertex, AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype, Network nw){
 		
 		//Preparations
 		Arrival bound = null;
@@ -301,7 +281,7 @@ public class SNC {
 	 * @return the best probability found for the given delay or backlog bound
 	 */
 	public double calculateBound(Flow flow, Vertex vertex, double thetaGran, 
-			double hoelderGran, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value, Network nw){
+			double hoelderGran, AnalysisType analyzer, OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value, Network nw){
 
 		//Preparations
 		//Backlog values are represented by negative values in the arrival representation
@@ -466,7 +446,7 @@ public class SNC {
 	 * given probability.
 	 */
 	public double calculateInverseBound(Flow flow, Vertex vertex, double thetaGran, 
-			double hoelderGran, double boundGran, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, 
+			double hoelderGran, double boundGran, AnalysisType analyzer, OptimizationType optimizer, 
 			AbstractAnalysis.Boundtype boundtype, double probability, Network nw){
 
 		//Preparations

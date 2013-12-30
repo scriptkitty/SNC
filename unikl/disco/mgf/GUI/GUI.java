@@ -42,6 +42,8 @@ import unikl.disco.mgf.SNC;
 import unikl.disco.mgf.network.AbstractAnalysis;
 import unikl.disco.mgf.network.Flow;
 import unikl.disco.mgf.network.Vertex;
+import unikl.disco.mgf.network.AnalysisType;
+import unikl.disco.mgf.optimization.OptimizationType;
 
 /**
  * This is a first GUI, allowing the user easy manipulations of the network
@@ -612,7 +614,7 @@ public class GUI implements Runnable {
 	//Calculating bounds
 	private void calculateBound(Flow selectedFlow, Vertex selectedVertex, Vertex selectedSecondVertex,
 			double thetaGranularity, double hoelderGranularity,
-			SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value) {
+			AnalysisType analyzer, OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value) {
 		System.out.println("Bound is being calculated...");
                 System.out.println("Boundtype:" + boundtype.toString());
                 double probability = -1;
@@ -626,7 +628,7 @@ public class GUI implements Runnable {
 	}
 	
 	private void calculateInverseBound(Flow selectedFlow, Vertex selectedVertex, Vertex selectedSecondVertex, double thetaGranularity, 
-			double hoelderGranularity, double boundGranularity, SNC.AnalysisType analyzer, SNC.OptimizationType optimizer, 
+			double hoelderGranularity, double boundGranularity, AnalysisType analyzer, OptimizationType optimizer, 
 			AbstractAnalysis.Boundtype boundtype, double probability){
 		System.out.println("Inverse Bound is being calculated...");
                 double value = 0;
@@ -639,7 +641,7 @@ public class GUI implements Runnable {
 		System.out.println("The best calculated bound for the asked probability is: "+value);
 	}
 	
-	private void analyzeNetwork(Flow selectedFlow, Vertex selectedVertex, Vertex selectedSecondVertex, SNC.AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype){
+	private void analyzeNetwork(Flow selectedFlow, Vertex selectedVertex, Vertex selectedSecondVertex, AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype){
 		System.out.println("Network is being analyzed...");
                 Arrival bound = null;
                 if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {

@@ -34,6 +34,7 @@ import unikl.disco.mgf.SNC;
 import unikl.disco.mgf.network.AbstractAnalysis;
 import unikl.disco.mgf.network.Flow;
 import unikl.disco.mgf.network.Vertex;
+import unikl.disco.mgf.network.AnalysisType;
 
 /**
  * Creates a dialog, asking the user for the parameters
@@ -54,7 +55,7 @@ public class AnalyzeDialog extends JDialog {
 	private Flow flow; 
 	private Vertex vertex;
         private Vertex vertex2;
-	private SNC.AnalysisType anaType;
+	private AnalysisType anaType;
 	private AbstractAnalysis.Boundtype boundtype;
 	
 	//Constructor
@@ -99,7 +100,7 @@ public class AnalyzeDialog extends JDialog {
 		JLabel analyLabel = new JLabel("Analysis Type:");
 		rightPanel.add(analyLabel);
 		
-		final JComboBox<Object> analyBox = new JComboBox<Object>(SNC.AnalysisType.values());
+		final JComboBox<Object> analyBox = new JComboBox<Object>(AnalysisType.values());
 		rightPanel.add(analyBox);
 		
 		JLabel VOILabel = new JLabel("Vertex of interest:");
@@ -168,7 +169,7 @@ public class AnalyzeDialog extends JDialog {
 				vertex = vertices.get(vertexID);
                                 vertex2 = vertices.get(vertexID2);
 				
-				anaType = (SNC.AnalysisType)analyBox.getSelectedItem();
+				anaType = (AnalysisType)analyBox.getSelectedItem();
 				
 				boundtype = (AbstractAnalysis.Boundtype)typeBox.getSelectedItem();
                                 if(vertexID == vertexID2 && boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
@@ -223,7 +224,7 @@ public class AnalyzeDialog extends JDialog {
             return vertex2;
         }
 	
-	public SNC.AnalysisType getAnalyzer(){
+	public AnalysisType getAnalyzer(){
 		return anaType;
 	}
 	
