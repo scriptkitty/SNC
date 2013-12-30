@@ -43,6 +43,7 @@ import unikl.disco.mgf.network.AbstractAnalysis;
 import unikl.disco.mgf.network.Flow;
 import unikl.disco.mgf.network.Vertex;
 import unikl.disco.mgf.network.AnalysisType;
+import unikl.disco.mgf.network.ArrivalNotAvailableException;
 import unikl.disco.mgf.optimization.OptimizationType;
 
 /**
@@ -60,13 +61,13 @@ import unikl.disco.mgf.optimization.OptimizationType;
 public class GUI implements Runnable {
 	
 	//Members
-	private static SNC caller;
+	private static SNC snc;
 	private static AbstractTableModel flowModel;
 	private static AbstractTableModel nodeModel;
 	
 	//Constructor
 	public GUI(SNC caller){
-		GUI.caller = caller;
+		GUI.snc = caller;
 	}
 	
 	@Override
@@ -156,7 +157,7 @@ public class GUI implements Runnable {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				FlowEditor dialog = new FlowEditor("Add Flow", caller.getVertices(), caller.getCurrentNetwork());
+				FlowEditor dialog = new FlowEditor("Add Flow", snc.getVertices(), snc.getCurrentNetwork());
 				int output = dialog.showFlowEditor();
 				if(output == FlowEditor.APPROVE_OPTION){
 					if(dialog.getEditedFlow() != null) addFlow(dialog.getEditedFlow());
@@ -177,7 +178,7 @@ public class GUI implements Runnable {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				HashMap<Integer, Flow> flows = caller.getFlows();
+				HashMap<Integer, Flow> flows = snc.getFlows();
 				FlowChooser dialog = new FlowChooser("Remove Flow", flows);
 				int output = dialog.showFlowChooser();
 				if(output == FlowChooser.APPROVE_OPTION){
@@ -210,7 +211,7 @@ public class GUI implements Runnable {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				VertexEditor dialog = new VertexEditor("Add Vertex", caller.getCurrentNetwork());
+				VertexEditor dialog = new VertexEditor("Add Vertex", snc.getCurrentNetwork());
 				int output = dialog.showVertexEditor();
 				if(output == VertexEditor.APPROVE_OPTION){
 					addVertex(dialog.getEditedVertex());
@@ -230,7 +231,7 @@ public class GUI implements Runnable {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				VertexChooser dialog = new VertexChooser("Remove Vertex", caller.getVertices());
+				VertexChooser dialog = new VertexChooser("Remove Vertex", snc.getVertices());
 				int output = dialog.showVertexChooser();
 				if(output == FlowChooser.APPROVE_OPTION){
 					removeVertex(dialog.getSelectedVertex());
@@ -265,7 +266,7 @@ public class GUI implements Runnable {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				
-				AnalyzeDialog dialog = new AnalyzeDialog("Analyze Network", caller.getFlows(), caller.getVertices());
+				AnalyzeDialog dialog = new AnalyzeDialog("Analyze Network", snc.getFlows(), snc.getVertices());
 				int output = dialog.showAnalyzeDialog();
 				if(output == BoundDialog.APPROVE_OPTION){
 					analyzeNetwork(dialog.getSelectedFlow(), dialog.getSelectedVertex(), dialog.getSelectedSecondVertex(), dialog.getAnalyzer(), dialog.getBoundtype());
@@ -287,7 +288,7 @@ public class GUI implements Runnable {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				BoundDialog dialog = new BoundDialog("Calculate Bound", caller.getFlows(), caller.getVertices());
+				BoundDialog dialog = new BoundDialog("Calculate Bound", snc.getFlows(), snc.getVertices());
 				int output = dialog.showBoundDialog();
 				if(output == BoundDialog.APPROVE_OPTION){
 					calculateBound(dialog.getSelectedFlow(), dialog.getSelectedVertex(), dialog.getSelectedSecondVertex(), dialog.getThetaGranularity(), 
@@ -311,7 +312,7 @@ public class GUI implements Runnable {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				InverseBoundDialog dialog = new InverseBoundDialog("Calculate Inverse Bound", caller.getFlows(), caller.getVertices());
+				InverseBoundDialog dialog = new InverseBoundDialog("Calculate Inverse Bound", snc.getFlows(), snc.getVertices());
 				int output = dialog.showInverseBoundDialog();
 				if(output == BoundDialog.APPROVE_OPTION){
 					calculateInverseBound(dialog.getSelectedFlow(), dialog.getSelectedVertex(), dialog.getSelectedSecondVertex(), dialog.getThetaGranularity(), 
@@ -354,34 +355,34 @@ public class GUI implements Runnable {
 
 			@Override
 			public int getRowCount() {
-				return caller.getFlows().keySet().size();
+				return snc.getFlows().keySet().size();
 			}
 
 			@Override
 			public Object getValueAt(int arg0, int arg1) {
-				Integer[] keys = caller.getFlows().keySet().toArray(new Integer[0]);
+				Integer[] keys = snc.getFlows().keySet().toArray(new Integer[0]);
 				int id = keys[arg0];
 				String entry;
 				switch(arg1){
 					case 0:
-						entry = caller.getFlows().get(id).getAlias();
+						entry = snc.getFlows().get(id).getAlias();
 						break;
 					case 1:
-						entry = ""+caller.getFlows().get(id).getFlow_ID();
+						entry = ""+snc.getFlows().get(id).getFlow_ID();
 						break;
 					case 2: 
 						try{
-							entry = caller.getFlows().get(id).getInitialArrival().toString();
+							entry = snc.getFlows().get(id).getInitialArrival().toString();
 						}
 						catch(IndexOutOfBoundsException e){
 							entry = "";
 						}
 						break;
 					case 3:
-						entry = caller.getFlows().get(id).getVerticeIDs().toString();
+						entry = snc.getFlows().get(id).getVerticeIDs().toString();
 						break;
 					case 4:
-						entry = caller.getFlows().get(id).getPriorities().toString();
+						entry = snc.getFlows().get(id).getPriorities().toString();
 						break;
 					default:
 						entry = "";
@@ -410,23 +411,23 @@ public class GUI implements Runnable {
 
 			@Override
 			public int getRowCount() {
-				return caller.getVertices().keySet().size();
+				return snc.getVertices().keySet().size();
 			}
 
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
-				Integer[] keys = caller.getVertices().keySet().toArray(new Integer[0]);
+				Integer[] keys = snc.getVertices().keySet().toArray(new Integer[0]);
 				int id = keys[rowIndex];
 				String entry;
 				switch(columnIndex){
 					case 0:
-						entry = caller.getVertices().get(id).getAlias();
+						entry = snc.getVertices().get(id).getAlias();
 						break;
 					case 1:
-						entry = ""+caller.getVertices().get(id).getVertexID();
+						entry = ""+snc.getVertices().get(id).getVertexID();
 						break;
 					case 2:
-						entry = caller.getVertices().get(id).getAllFlowIDs().toString();
+						entry = snc.getVertices().get(id).getAllFlowIDs().toString();
 						break;
 					default:
 						entry = "";
@@ -526,7 +527,7 @@ public class GUI implements Runnable {
 	
 	//Loading and saving of Networks
 	private static void loadNetwork(File file){
-		caller.loadNetwork(file);
+		snc.loadNetwork(file);
 		flowModel.fireTableDataChanged();
 		nodeModel.fireTableDataChanged();
 		updateGraph();
@@ -535,7 +536,7 @@ public class GUI implements Runnable {
 	}
 	
 	private static void saveNetwork(File file){
-		caller.saveNetwork(file, caller.getCurrentNetwork());
+		snc.saveNetwork(file, snc.getCurrentNetwork());
 		System.out.println(file.getName()+" saved");
 	}
 	
@@ -548,7 +549,7 @@ public class GUI implements Runnable {
 	private static void removeFlow(Flow flow){
 		
 		//Alters the network via the caller
-		boolean success = caller.removeFlow(flow, caller.getCurrentNetwork());
+		boolean success = snc.removeFlow(flow, snc.getCurrentNetwork());
 		
 		//Console output
 		if(success) System.out.println(flow.getAlias()+ " with ID "+flow.getFlow_ID()+ " removed");
@@ -563,7 +564,7 @@ public class GUI implements Runnable {
 	private static void removeVertex(Vertex vertex){
 		
 		//Alters the network via the caller
-		boolean success = caller.removeVertex(vertex, caller.getCurrentNetwork());
+		boolean success = snc.removeVertex(vertex, snc.getCurrentNetwork());
 		
 		//Console output
 		if(success) System.out.println(vertex.getAlias()+ " with ID "+vertex.getVertexID()+" removed");
@@ -577,27 +578,26 @@ public class GUI implements Runnable {
 
 	private static void addFlow(Flow flow){
 
-		//Alters the network via the caller
-		int newID = caller.addFlow(flow, caller.getCurrentNetwork());
+            //Alters the network via the caller
+            try {
+                int newID = snc.addFlow(flow, snc.getCurrentNetwork());
+                System.out.println(flow.getAlias()+ " with ID "+newID+ " added");
+		System.out.println("Route: "+flow.getVerticeIDs());
+		System.out.println("Priorities: "+flow.getPriorities());
+            } catch(IndexOutOfBoundsException | ArrivalNotAvailableException e) {
+                System.out.println("Flow can't be added.");
+            }
 		
-		//Console output
-		if(newID>0){
-			System.out.println(flow.getAlias()+ " with ID "+newID+ " added");
-			System.out.println("Route: "+flow.getVerticeIDs());
-			System.out.println("Priorities: "+flow.getPriorities());
-		}
-		else System.out.println("Flow can't be added.");
-		
-		//Updates GUI
-		flowModel.fireTableDataChanged();
-		nodeModel.fireTableDataChanged();
-		updateGraph();
+            //Updates GUI
+            flowModel.fireTableDataChanged();
+            nodeModel.fireTableDataChanged();
+            updateGraph();
 	}
 	
 	private static void addVertex(Vertex vertex){
 		
 		//Alters the network via the caller
-		int newID = caller.addVertex(vertex, caller.getCurrentNetwork());
+		int newID = snc.addVertex(vertex, snc.getCurrentNetwork());
 		
 		//Console output
 		if(newID>0){
@@ -619,10 +619,10 @@ public class GUI implements Runnable {
                 System.out.println("Boundtype:" + boundtype.toString());
                 double probability = -1;
                 if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
-                    probability = caller.calculateE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, analyzer, optimizer, value, caller.getCurrentNetwork());
+                    probability = snc.calculateE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, analyzer, optimizer, value, snc.getCurrentNetwork());
                 } else {
-                    probability = caller.calculateBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
-				analyzer, optimizer, boundtype, value, caller.getCurrentNetwork());
+                    probability = snc.calculateBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
+				analyzer, optimizer, boundtype, value, snc.getCurrentNetwork());
                 }
 		System.out.println("The probability for the asked bound being broken is smaller than: "+probability);
 	}
@@ -633,10 +633,10 @@ public class GUI implements Runnable {
 		System.out.println("Inverse Bound is being calculated...");
                 double value = 0;
                 if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
-                    value = caller.calculateInverseE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, boundGranularity, analyzer, optimizer, probability, caller.getCurrentNetwork());
+                    value = snc.calculateInverseE2EBound(selectedFlow, selectedVertex, selectedSecondVertex, thetaGranularity, hoelderGranularity, boundGranularity, analyzer, optimizer, probability, snc.getCurrentNetwork());
                 } else {
-                    value = caller.calculateInverseBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
-				boundGranularity, analyzer, optimizer, boundtype, probability, caller.getCurrentNetwork());
+                    value = snc.calculateInverseBound(selectedFlow, selectedVertex, thetaGranularity, hoelderGranularity, 
+				boundGranularity, analyzer, optimizer, boundtype, probability, snc.getCurrentNetwork());
                 }
 		System.out.println("The best calculated bound for the asked probability is: "+value);
 	}
@@ -647,7 +647,7 @@ public class GUI implements Runnable {
                 if(boundtype == AbstractAnalysis.Boundtype.END_TO_END_DELAY) {
                     System.out.println("End-To-End Delay Analysis: No closed form available at the moment.");
                 } else {
-                    bound = caller.analyzeNetwork(selectedFlow, selectedVertex, analyzer, boundtype, caller.getCurrentNetwork());
+                    bound = snc.analyzeNetwork(selectedFlow, selectedVertex, analyzer, boundtype, snc.getCurrentNetwork());
                 }
 		System.out.println("The bound in arrival-representation equals: "+bound.toString());
 	}

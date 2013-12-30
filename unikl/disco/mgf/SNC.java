@@ -15,6 +15,7 @@ import javax.swing.SwingUtilities;
 
 import unikl.disco.mgf.GUI.GUI;
 import unikl.disco.mgf.network.AbstractAnalysis;
+import unikl.disco.mgf.network.AnalysisFactory;
 import unikl.disco.mgf.network.ArrivalNotAvailableException;
 import unikl.disco.mgf.network.DeadlockException;
 import unikl.disco.mgf.network.Flow;
@@ -24,6 +25,8 @@ import unikl.disco.mgf.network.Vertex;
 import unikl.disco.mgf.optimization.SimpleGradient;
 import unikl.disco.mgf.optimization.SimpleOptimizer;
 import unikl.disco.mgf.network.AnalysisType;
+import unikl.disco.mgf.optimization.AbstractOptimizer;
+import unikl.disco.mgf.optimization.OptimizationFactory;
 import unikl.disco.mgf.optimization.OptimizationType;
 
 /**
@@ -151,25 +154,11 @@ public class SNC {
 	 * flow-id will be returned. In the case that the flow could not been added 
 	 * the return will be <code>-1</code> instead.
 	 */
-	public int addFlow(Flow flow, Network nw){
+	public int addFlow(Flow flow, Network nw) throws ArrivalNotAvailableException {
 	
-		int id = -1;
-		
-		try{
-			nw.addFlow(flow.getInitialArrival(), flow.getVerticeIDs(), 
+            nw.addFlow(flow.getInitialArrival(), flow.getVerticeIDs(), 
 					flow.getPriorities(), flow.getAlias());
-			id = nw.getFLOW_ID()-1;
-		}
-		catch(IndexOutOfBoundsException e){
-			System.out.println(e.getMessage());
-			System.out.println("Flow has not been added. Possible reason: No initial arrival specified.");
-		}
-		catch(Exception e){
-			System.out.println(e.getMessage());
-			System.out.println("Flow has not been added. Possible reason: No initial arrival specified.");
-		}
-		
-		return id;
+            return nw.getFLOW_ID()-1;
 	}
 	
 	/**
@@ -194,19 +183,8 @@ public class SNC {
 	 * the return will be <code>-1</code> instead.
 	 */
 	public int addVertex(Vertex vertex, Network nw){
-		
-		int id = -1;
-		
-		try{
-			nw.addVertex(vertex.getService(), vertex.getAlias());
-			id = nw.getVERTEX_ID()-1;
-		}
-		catch(Exception e){
-			System.out.println(e.getMessage());
-			System.out.println("Vertex has not been added.");
-		}
-		
-		return id;
+            nw.addVertex(vertex.getService(), vertex.getAlias());
+            return nw.getVERTEX_ID()-1;
 	}
 	
 	/**
@@ -215,11 +193,11 @@ public class SNC {
 	 * result is returned in arrival-representation.
 	 * @param flow the <code>Flow</code> of interest.
 	 * @param vertex the <code>Vertex</code> of interest.
-	 * @param analyzer the type of analysis used
+	 * @param anaType the type of analysis used
 	 * @param boundtype the type of bound, which needs to be computed.
 	 * @return the result of the analysis in arrival-representation.
 	 */
-	public Arrival analyzeNetwork(Flow flow, Vertex vertex, AnalysisType analyzer, AbstractAnalysis.Boundtype boundtype, Network nw){
+	public Arrival analyzeNetwork(Flow flow, Vertex vertex, AnalysisType anaType, AbstractAnalysis.Boundtype boundtype, Network nw){
 		
 		//Preparations
 		Arrival bound = null;
@@ -238,24 +216,16 @@ public class SNC {
 		int resetHoelderID = nw.getHOELDER_ID();
 		int resetVertexID = nw.getVERTEX_ID();
 		
-		//Relays command to the corresponding analysis class
-		switch(analyzer){
-		case SIMPLE_ANA:
-			SimpleAnalysis analysis = new SimpleAnalysis(nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
-			try {
-				bound = analysis.analyze();
-			} catch (ArrivalNotAvailableException e) {
-				e.printStackTrace();
-			} catch (DeadlockException e) {
-				e.printStackTrace();
-			} catch (BadInitializationException e) {
-				e.printStackTrace();
-			}
-			break;
-		default:
-			System.out.println("Unknown analysis type.");	
-		}
-		
+		AbstractAnalysis analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
+                try {
+                        bound = analyzer.analyze();
+                } catch (ArrivalNotAvailableException e) {
+                        e.printStackTrace();
+                } catch (DeadlockException e) {
+                        e.printStackTrace();
+                } catch (BadInitializationException e) {
+                        e.printStackTrace();
+                }
 		
 		//Resets the network
 		nw.resetFLOW_ID(resetFlowID);
@@ -274,14 +244,14 @@ public class SNC {
 	 * allowed to differ.
 	 * @param hoelderGran the step-size by which different values for hoelder 
 	 * parameters are allowed to differ. 
-	 * @param analyzer the type of analysis used
-	 * @param optimizer the type of optimization used
+	 * @param anaType the type of analysis used
+	 * @param optType the type of optimization used
 	 * @param boundtype the type of bound searched for
 	 * @param value the value of the delay or backlog bound
 	 * @return the best probability found for the given delay or backlog bound
 	 */
 	public double calculateBound(Flow flow, Vertex vertex, double thetaGran, 
-			double hoelderGran, AnalysisType analyzer, OptimizationType optimizer, AbstractAnalysis.Boundtype boundtype, double value, Network nw){
+			double hoelderGran, AnalysisType anaType, OptimizationType optType, AbstractAnalysis.Boundtype boundtype, double value, Network nw){
 
 		//Preparations
 		//Backlog values are represented by negative values in the arrival representation
@@ -303,59 +273,28 @@ public class SNC {
 		int resetHoelderID = nw.getHOELDER_ID();
 		int resetVertexID = nw.getVERTEX_ID();
 		
-		switch(analyzer){
-		case SIMPLE_ANA:
-			//Computes the bound in arrival-representation
-			SimpleAnalysis analysis = new SimpleAnalysis(nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
-			Arrival bound = null;
-			try {
-				bound = analysis.analyze();
-			} catch (ArrivalNotAvailableException e) {
-				e.printStackTrace();
-			} catch (DeadlockException e) {
-				e.printStackTrace();
-			} catch (BadInitializationException e) {
-				e.printStackTrace();
-			}
-			
-			//Optimizes the bound
-			switch(optimizer){
-			case SIMPLE_OPT:
-				SimpleOptimizer simple = new SimpleOptimizer(bound, boundtype, nw);
-				try {
-					probability = simple.Bound(bound, boundtype, value, thetaGran, hoelderGran);
-				} catch (ThetaOutOfBoundException e) {
-					e.printStackTrace();
-				} catch (ParameterMismatchException e) {
-					e.printStackTrace();
-				} catch (ServerOverloadException e) {
-					e.printStackTrace();
-				}
-				break;
-			
-			case GRADIENT_OPT:
-				SimpleGradient gradient = new SimpleGradient(bound, boundtype, nw);
-				try{
-					probability = gradient.Bound(bound, boundtype, value, thetaGran, hoelderGran);
-				} catch (ThetaOutOfBoundException e) {
-					e.printStackTrace();
-				} catch (ParameterMismatchException e) {
-					e.printStackTrace();
-				} catch (ServerOverloadException e) {
-					e.printStackTrace();
-				}
-				break;
-			
-			default:
-				System.out.println("Optimization type not known.");
-				break;
-			}	
-			break;
-		
-		default:
-			System.out.println("Analysis type not known.");
-			break;
-		}
+                AbstractAnalysis analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
+                Arrival bound = null;
+                try {
+                    bound = analyzer.analyze();
+                } catch (ArrivalNotAvailableException e) {
+                    e.printStackTrace();
+                } catch (DeadlockException e) {
+                    e.printStackTrace();
+                } catch (BadInitializationException e) {
+                    e.printStackTrace();
+                }
+                
+                AbstractOptimizer optimizer = OptimizationFactory.getOptimizer(nw, bound, boundtype, optType);
+                try {
+                    probability = optimizer.Bound(bound, boundtype, value, thetaGran, hoelderGran);
+                } catch (ThetaOutOfBoundException e) {
+                    e.printStackTrace();
+                } catch (ParameterMismatchException e) {
+                    e.printStackTrace();
+                } catch (ServerOverloadException e) {
+                    e.printStackTrace();
+                }
 		
 		//Resets the network
 		nw.resetFLOW_ID(resetFlowID);
@@ -438,15 +377,15 @@ public class SNC {
 	 * parameters are allowed to differ. 
 	 * @param boundGran the step-size by which different values of bounds are 
 	 * allowed to differ.
-	 * @param analyzer the type of analysis used
-	 * @param optimizer the type of optimization used
+	 * @param anaType the type of analysis used
+	 * @param optType the type of optimization used
 	 * @param boundtype the type of bound searched for
 	 * @param probability the probability for which the best bound is searched
 	 * @return the best value of delay or backlog found, which still suffices the 
 	 * given probability.
 	 */
 	public double calculateInverseBound(Flow flow, Vertex vertex, double thetaGran, 
-			double hoelderGran, double boundGran, AnalysisType analyzer, OptimizationType optimizer, 
+			double hoelderGran, double boundGran, AnalysisType anaType, OptimizationType optType, 
 			AbstractAnalysis.Boundtype boundtype, double probability, Network nw){
 
 		//Preparations
@@ -466,57 +405,29 @@ public class SNC {
 		int resetHoelderID = nw.getHOELDER_ID();
 		int resetVertexID = nw.getVERTEX_ID();
 		
-		switch(analyzer){
-		case SIMPLE_ANA:
-			//Computes the bound in arrival representation
-			SimpleAnalysis analysis = new SimpleAnalysis(nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
-			Arrival bound = null;
-			try {
-				bound = analysis.analyze();
-			} catch (ArrivalNotAvailableException e) {
-				e.printStackTrace();
-			} catch (DeadlockException e) {
-				e.printStackTrace();
-			} catch (BadInitializationException e) {
-				e.printStackTrace();
-			}
-			switch(optimizer){
-			case SIMPLE_OPT:
-				SimpleOptimizer simple = new SimpleOptimizer(bound, boundtype, nw);
-				try {
-					value = simple.ReverseBound(bound, boundtype, probability, thetaGran, hoelderGran);
-				} catch (ThetaOutOfBoundException e) {
-					e.printStackTrace();
-				} catch (ParameterMismatchException e) {
-					e.printStackTrace();
-				} catch (ServerOverloadException e) {
-					e.printStackTrace();
-				}
-				break;
-			
-			case GRADIENT_OPT:
-				SimpleGradient gradient = new SimpleGradient(bound, boundtype, nw);
-				try {
-					value = gradient.ReverseBound(bound, boundtype, probability, thetaGran, hoelderGran);
-				} catch (ThetaOutOfBoundException e) {
-					e.printStackTrace();
-				} catch (ParameterMismatchException e) {
-					e.printStackTrace();
-				} catch (ServerOverloadException e) {
-					e.printStackTrace();
-				}
-				break;
-				
-			default:
-				System.out.println("Optimization type not known.");
-				break;
-			}
-			break;
-		
-		default:
-			System.out.println("Analysis type not known.");
-			break;
-		}
+                
+                AbstractAnalysis analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
+                Arrival bound = null;
+                try {
+                    bound = analyzer.analyze();
+                } catch (ArrivalNotAvailableException e) {
+                    e.printStackTrace();
+                } catch (DeadlockException e) {
+                    e.printStackTrace();
+                } catch (BadInitializationException e) {
+                    e.printStackTrace();
+                }
+                
+                AbstractOptimizer optimizer = OptimizationFactory.getOptimizer(nw, bound, boundtype, optType);
+                try {
+                    probability = optimizer.ReverseBound(bound, boundtype, probability, thetaGran, hoelderGran);
+                } catch (ThetaOutOfBoundException e) {
+                    e.printStackTrace();
+                } catch (ParameterMismatchException e) {
+                    e.printStackTrace();
+                } catch (ServerOverloadException e) {
+                    e.printStackTrace();
+                }
 		
 		//Resets the network
 		nw.resetFLOW_ID(resetFlowID);
