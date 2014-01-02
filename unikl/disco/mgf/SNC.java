@@ -40,10 +40,6 @@ import unikl.disco.mgf.optimization.OptimizationType;
  */
 public class SNC {
 
-	//Members
-	private static HashMap<Integer, Flow> flows;
-	private static HashMap<Integer, Vertex> vertices;
-	
         // TODO
 	private static GUI gui;
         private static Network nw;
@@ -53,13 +49,9 @@ public class SNC {
 	ArrivalNotAvailableException, BadInitializationException, DeadlockException, ThetaOutOfBoundException, 
 	ParameterMismatchException, ServerOverloadException{
 		
+                // TODO
 		SNC snc = new SNC();
 		nw = new Network();
-		
-                // TODO
-                vertices = nw.getVertices();
-		
-		flows = nw.getFlows();
 		
 		gui = new GUI(snc);
 		SwingUtilities.invokeLater(gui);
@@ -97,14 +89,9 @@ public class SNC {
             } catch(Exception exc){
                 System.out.println(exc.getMessage());
             }
+            
             // TODO
-            vertices = newVertices;
-            flows = newFlows;
-			
-            Network nw = new Network();
-            nw.setVertices(newVertices);
-            nw.setFlows(newFlows);
-            nw.setHoelders(newHoelders);
+            Network nw = new Network(newVertices, newFlows, newHoelders);
             return(nw);
         }
 	
@@ -122,8 +109,8 @@ public class SNC {
 			FileOutputStream fos = new FileOutputStream(file);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 		
-			oos.writeObject(vertices);
-			oos.writeObject(flows);
+			oos.writeObject(nw.getVertices());
+			oos.writeObject(nw.getFlows());
 			oos.writeObject(nw.getHoelders());
 			
 			oos.close();
@@ -203,12 +190,12 @@ public class SNC {
 		Arrival bound = null;
 		
 		HashMap<Integer, Vertex> givenVertices = new HashMap<Integer, Vertex>();
-		for(Entry<Integer, Vertex> entry : vertices.entrySet()){
+		for(Entry<Integer, Vertex> entry : nw.getVertices().entrySet()){
 			givenVertices.put(entry.getKey(), entry.getValue().copy());
 		}
 		
 		HashMap<Integer, Flow> givenFlows = new HashMap<Integer, Flow>();
-		for(Entry<Integer, Flow> entry : flows.entrySet()){
+		for(Entry<Integer, Flow> entry : nw.getFlows().entrySet()){
 			givenFlows.put(entry.getKey(), entry.getValue().copy());
 		}
 		
@@ -260,12 +247,12 @@ public class SNC {
 		double probability = 1;
 		
 		HashMap<Integer, Vertex> givenVertices = new HashMap<Integer, Vertex>();
-		for(Entry<Integer, Vertex> entry : vertices.entrySet()){
+		for(Entry<Integer, Vertex> entry : nw.getVertices().entrySet()){
 			givenVertices.put(entry.getKey(), entry.getValue().copy());
 		}
 		
 		HashMap<Integer, Flow> givenFlows = new HashMap<Integer, Flow>();
-		for(Entry<Integer, Flow> entry : flows.entrySet()){
+		for(Entry<Integer, Flow> entry : nw.getFlows().entrySet()){
 			givenFlows.put(entry.getKey(), entry.getValue().copy());
 		}
 		
@@ -334,7 +321,7 @@ public class SNC {
             
             int len = vlist.size();
             for (Integer vid : vlist) {
-                probability += calculateBound(flow, vertices.get(vid), thetaGran, hoelderGran, analyzer, optimizer, AbstractAnalysis.Boundtype.DELAY, value/len, nw);
+                probability += calculateBound(flow, nw.getVertices().get(vid), thetaGran, hoelderGran, analyzer, optimizer, AbstractAnalysis.Boundtype.DELAY, value/len, nw);
             }
             return probability;
         }
@@ -361,7 +348,7 @@ public class SNC {
             
             int len = vlist.size();
             for (Integer vid : vlist) {
-                value += calculateInverseBound(flow, vertices.get(vid), thetaGran, hoelderGran, boundGran, analyzer, optimizer, AbstractAnalysis.Boundtype.BACKLOG, probability/len, nw);
+                value += calculateInverseBound(flow, nw.getVertices().get(vid), thetaGran, hoelderGran, boundGran, analyzer, optimizer, AbstractAnalysis.Boundtype.BACKLOG, probability/len, nw);
             }
             return value;
         }
@@ -392,12 +379,12 @@ public class SNC {
 		double value = Double.NaN;
 		
 		HashMap<Integer, Vertex> givenVertices = new HashMap<Integer, Vertex>();
-		for(Entry<Integer, Vertex> entry : vertices.entrySet()){
+		for(Entry<Integer, Vertex> entry : nw.getVertices().entrySet()){
 			givenVertices.put(entry.getKey(), entry.getValue().copy());
 		}
 		
 		HashMap<Integer, Flow> givenFlows = new HashMap<Integer, Flow>();
-		for(Entry<Integer, Flow> entry : flows.entrySet()){
+		for(Entry<Integer, Flow> entry : nw.getFlows().entrySet()){
 			givenFlows.put(entry.getKey(), entry.getValue().copy());
 		}
 		
@@ -438,17 +425,23 @@ public class SNC {
 	}
 	
 	//Getter and Setter
-	
+	public HashMap<Integer, Flow> getFlows(Network nw) {
+            return nw.getFlows();
+        }
+        
+        public HashMap<Integer, Vertex> getVertices(Network nw) {
+            return nw.getVertices();
+        }
 	public HashMap<Integer, Flow> getFlows(){
-		return flows;
+		return getFlows(getCurrentNetwork());
 	}
-
-	public Flow getFlow(int id){
-		return flows.get(id);
+        
+	public Flow getFlow(int id) {
+		return getCurrentNetwork().getFlow(id);
 	}
 	
 	public HashMap<Integer, Vertex> getVertices() {
-		return vertices;
+		return getVertices(getCurrentNetwork());
 	}
 	
 }

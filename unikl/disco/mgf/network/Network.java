@@ -63,6 +63,15 @@ public class Network {
             vertices = new HashMap<Integer, Vertex>(0);
             hoelders = new HashMap<Integer, Hoelder>(0);
         }
+        
+        public Network(HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, HashMap<Integer, Hoelder> hoelders) {
+            this.flows = flows;
+            this.vertices = vertices;
+            this.hoelders = hoelders;
+            FLOW_ID = flows.size() + 1;
+            VERTEX_ID = vertices.size() + 1;
+            HOELDER_ID = hoelders.size() + 1;
+        }
 	
 	//Methods
 	
@@ -100,9 +109,7 @@ public class Network {
 	 * @param service the service the new vertex possesses
 	 */
 	public void addVertex(Service service){
-		Vertex vertex = new Vertex(VERTEX_ID, service, this);
-		vertices.put(VERTEX_ID, vertex);
-		incrementVERTEX_ID();
+            addVertex(service, "");
 	}
 	
 	/**
@@ -122,21 +129,6 @@ public class Network {
 	 */
 	public void setServiceAt(Vertex vertex, Service service){
 		vertex.setMGFService(service);
-	}
-	
-	/**
-	 * Sets the service at the node with alias <code>alias</code>
-	 * @param alias the alias of the vertex to be altered
-	 * @param service the new service at the specific vertex
-	 */
-	public void setServiceAt(String alias, Service service){
-		Vertex vertex = null;
-		for(Map.Entry<Integer, Vertex> entry : vertices.entrySet()){
-			if(entry.getValue().getAlias() == alias) vertex = entry.getValue();
-		}
-		if(vertex != null) setServiceAt(vertex, service);
-		else throw new NullPointerException("There is no vertex with the given alias.");
-	
 	}
 	
 	/**
@@ -174,9 +166,7 @@ public class Network {
 	 * Adds a new dummy flow to the network
 	 */
 	public void addFlow(){
-		Flow flow = new Flow(FLOW_ID, this);
-		flows.put(FLOW_ID, flow);
-		incrementFLOW_ID();
+            addFlow("");
 	}
 
 	/**
@@ -188,252 +178,7 @@ public class Network {
 		incrementFLOW_ID();
 	}
 	
-	/**
-	 * Creates a new flow with no initial arrival, but a complete
-	 * description of its route through the network (in expression
-	 * all of its vertices and the corresponding priorities at 
-	 * these vertices of the flow). The priorities at all nodes is
-	 * the same and given by <code>priority</code>.
-	 * @param vertices the  vertices the flow traverses
-	 * @param priority the priority of the flow at the 
-	 * corresponding vertices.
-	 */
-	public void addFlow(ArrayList<Integer> route, int priority){
-
-		//Creates the dummy arrivals for all vertices
-		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
-		for(int i=0; i < route.size(); i++){
-			arrivals.add(new Arrival(this));
-		}
-		
-		//Creates the array of priorities
-		ArrayList<Integer> priorities = new ArrayList<Integer>(0);
-		for(int i=0; i < route.size(); i++){
-			priorities.add(priority);
-		}
-		
-		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, this);
-		flows.put(FLOW_ID, flow);
-
-		
-		//Writes the flow in its corresponding vertices
-		for(int i=0; i < route.size(); i++){
-			Vertex vertex;
-			vertex = vertices.get(route.get(i));
-			vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-		}
-		
-		//increments the flow count
-		incrementFLOW_ID();
-	}
-	
-	/**
-	 * Creates a new flow with no initial arrival, but a complete
-	 * description of its route through the network (in expression
-	 * all of its vertices and the corresponding priorities at 
-	 * these vertices of the flow). The priorities at all nodes is
-	 * the same and given by <code>priority</code>.
-	 * @param vertices the  vertices the flow traverses
-	 * @param priority the priority of the flow at the 
-	 * corresponding vertices.
-	 * @parm alias the alias of the new flow
-	 */
-	public void addFlow(ArrayList<Integer> route, int priority, String alias){
-
-		//Creates the dummy arrivals for all vertices
-		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
-		for(int i=0; i < route.size(); i++){
-			arrivals.add(new Arrival(this));
-		}
-		
-		//Creates the array of priorities
-		ArrayList<Integer> priorities = new ArrayList<Integer>(0);
-		for(int i=0; i < route.size(); i++){
-			priorities.add(priority);
-		}
-		
-		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
-		flows.put(FLOW_ID, flow);
-
-		
-		//Writes the flow in its corresponding vertices
-		for(int i=0; i < route.size(); i++){
-			Vertex vertex;
-			vertex = vertices.get(route.get(i));
-			vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-		}
-		
-		//increments the flow count
-		incrementFLOW_ID();
-	}
-	
-	/**
-	 * Creates a new flow with no initial arrival, but a complete
-	 * description of its route through the network (in expression
-	 * all of its vertices and the corresponding priorities at 
-	 * these vertices of the flow).
-	 * @param vertices the  vertices the flow traverses
-	 * @param priorities the priorities of the flow at the 
-	 * corresponding vertices.
-	 */
-	public void addFlow(ArrayList<Integer> route, ArrayList<Integer> priorities){
-
-		//Creates the dummy arrivals for all vertices
-		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
-		for(int i=0; i < route.size(); i++){
-			arrivals.add(new Arrival(this));
-		}
-		
-		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, this);
-		flows.put(FLOW_ID, flow);
-
-		
-		//Writes the flow in its corresponding vertices
-		for(int i=0; i < route.size(); i++){
-			Vertex vertex;
-			vertex = vertices.get(route.get(i));
-			vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-		}
-		
-		//Increments the flow count
-		incrementFLOW_ID();
-	}
-
-	/**
-	 * Creates a new flow with no initial arrival, but a complete
-	 * description of its route through the network (in expression
-	 * all of its vertices and the corresponding priorities at 
-	 * these vertices of the flow).
-	 * @param vertices the  vertices the flow traverses
-	 * @param priorities the priorities of the flow at the 
-	 * corresponding vertices.
-	 * @param alias the alias of the new flow
-	 */
-	public void addFlow(ArrayList<Integer> route, ArrayList<Integer> priorities, String alias){
-
-		//Creates the dummy arrivals for all vertices
-		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
-		for(int i=0; i < route.size(); i++){
-			arrivals.add(new Arrival(this));
-		}
-		
-		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
-		flows.put(FLOW_ID, flow);
-
-		
-		//Writes the flow in its corresponding vertices
-		for(int i=0; i < route.size(); i++){
-			Vertex vertex;
-			vertex = vertices.get(route.get(i));
-			vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-		}
-		
-		//Increments the flow count
-		incrementFLOW_ID();
-	}
-
-	
-	/**
-	 * Creates a new flow with an initial arrival and a complete
-	 * description of its route through the network (in expression
-	 * all of its vertices and the corresponding priorities at 
-	 * these vertices of the flow). The priorities at the vertices
-	 * is identical to <code>priority</code>.
-	 * @param initial_arrival the arrival at the first node
-	 * @param vertices the  vertices the flow traverses
-	 * @param priority the priorities of the flow at the 
-	 * corresponding vertices
-	 * @throws ArrivalNotAvailableException
-	 */
-	public void addFlow(Arrival initial_arrival, ArrayList<Integer> route, int priority) throws ArrivalNotAvailableException{
-
-		//Creates the dummy arrivals for all vertices after the first
-		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(1);
-		arrivals.add(0, initial_arrival);
-		for(int i=1; i < route.size(); i++){
-			arrivals.add(new Arrival(this));
-		}
-		
-		//Creates the priority-array
-		ArrayList<Integer> priorities = new ArrayList<Integer>(0);
-		for(int i=0; i < route.size(); i++){
-			priorities.add(priority);
-		}
-		
-		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route,arrivals,priorities, this);
-		flows.put(FLOW_ID, flow);
-
-		//Writes the flow in its corresponding vertices
-		for(int i=0; i < route.size(); i++){
-			Vertex vertex;
-			vertex = vertices.get(route.get(i));
-			vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-		}
-		
-		Vertex first_vertex = vertices.get(route.get(0));
-		
-		//Initializes the first arrival at the first vertex
-		first_vertex.learnArrival(FLOW_ID, initial_arrival);
-		
-		//Increments the flow count
-		incrementFLOW_ID();
-	}
-
-	/**
-	 * Creates a new flow with an initial arrival and a complete
-	 * description of its route through the network (in expression
-	 * all of its vertices and the corresponding priorities at 
-	 * these vertices of the flow). The priorities at the vertices
-	 * is identical to <code>priority</code>.
-	 * @param initial_arrival the arrival at the first node
-	 * @param vertices the  vertices the flow traverses
-	 * @param priority the priorities of the flow at the 
-	 * corresponding vertices
-	 * @param alias the alias of the new flow
-	 * @throws ArrivalNotAvailableException
-	 */
-	public void addFlow(Arrival initial_arrival, ArrayList<Integer> route, int priority, String alias) 
-			throws ArrivalNotAvailableException{
-
-		//Creates the dummy arrivals for all vertices after the first
-		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(1);
-		arrivals.add(0, initial_arrival);
-		for(int i=1; i < route.size(); i++){
-			arrivals.add(new Arrival(this));
-		}
-		
-		//Creates the priority-array
-		ArrayList<Integer> priorities = new ArrayList<Integer>(0);
-		for(int i=0; i < route.size(); i++){
-			priorities.add(priority);
-		}
-		
-		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
-		flows.put(FLOW_ID, flow);
-
-		//Writes the flow in its corresponding vertices
-		for(int i=0; i < route.size(); i++){
-			Vertex vertex;
-			vertex = vertices.get(route.get(i));
-			vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-		}
-		
-		Vertex first_vertex = vertices.get(route.get(0));
-		
-		//Initializes the first arrival at the first vertex
-		first_vertex.learnArrival(FLOW_ID, initial_arrival);
-		
-		//Increments the flow count
-		incrementFLOW_ID();
-	}
-
-	/**
+        /**
 	 * Creates a new flow with an initial arrival and a complete
 	 * description of its route through the network (in expression
 	 * all of its vertices and the corresponding priorities at 
@@ -445,33 +190,8 @@ public class Network {
 	 * @throws ArrivalNotAvailableException
 	 */
 	public void addFlow(Arrival initial_arrival, ArrayList<Integer> route, ArrayList<Integer> priorities) throws ArrivalNotAvailableException{
-
-		// Creates the dummy arrivals for all vertices after the first
-		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(1);
-		arrivals.add(0, initial_arrival);
-		for(int i=1; i < route.size(); i++){
-			arrivals.add(new Arrival(this));
-		}
-		
-		//Adds the flow into the flow list
-		Flow flow = new Flow(FLOW_ID, route,arrivals,priorities, this);
-		flows.put(FLOW_ID, flow);
-
-		//Writes the flow in its corresponding vertices
-		for(int i=0; i < route.size(); i++){
-			Vertex vertex;
-			vertex = vertices.get(route.get(i));
-			vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-		}
-		
-		Vertex first_vertex = vertices.get(route.get(0));
-		
-		//Initializes the first arrival at the first vertex
-		first_vertex.learnArrival(FLOW_ID, initial_arrival);
-		
-		//Increments the flow count
-		incrementFLOW_ID();
-	}
+            addFlow(initial_arrival, route, priorities, "");
+        }
 
 	/**
 	 * Creates a new flow with an initial arrival and a complete
@@ -519,77 +239,6 @@ public class Network {
 	 * Adds a flow with all its arrivals, priorities and vertices
 	 * to the network
 	 * @param arrivals the arrivals at the vertices. Normally only
-	 * the initial arrival is needed and hence all other arrivals
-	 * will be overwritten by the analysis.
-	 * @param vertices the  vertices the flow traverses
-	 * @param priority the priorities of the flow at the 
-	 * corresponding vertices
-	 * @throws ArrivalNotAvailableException
-	 */
-	public void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, int priority) throws ArrivalNotAvailableException{
-
-		//Constructs the priorities array
-		ArrayList<Integer> priorities = new ArrayList<Integer>(0);
-		for(int i=0; i < route.size(); i++){
-			priorities.add(priority);
-		}
-		
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, this);
-		
-		//Adds the flow into the flow list
-		flows.put(FLOW_ID, flow);
-		
-		//Writes the flow in its corresponding vertices
-		for(int i=0; i < vertices.size(); i++){
-			Vertex vertex;
-			vertex = vertices.get(route.get(i));
-			vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-			vertex.learnArrival(FLOW_ID, arrivals.get(i));
-		}
-	}
-
-		/**
-		 * Adds a flow with all its arrivals, priorities and vertices
-		 * to the network
-		 * @param arrivals the arrivals at the vertices. Normally only
-		 * the initial arrival is needed and hence all other arrivals
-		 * will be overwritten by the analysis.
-		 * @param vertices the  vertices the flow traverses
-		 * @param priority the priorities of the flow at the 
-		 * corresponding vertices
-		 * @param alias the alias of the new flow
-		 * @throws ArrivalNotAvailableException
-		 */
-		public void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, int priority, 
-									String alias) throws ArrivalNotAvailableException{
-
-			//Constructs the priorities array
-			ArrayList<Integer> priorities = new ArrayList<Integer>(0);
-			for(int i=0; i < route.size(); i++){
-				priorities.add(priority);
-			}
-			
-			Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
-			
-			//Adds the flow into the flow list
-			flows.put(FLOW_ID, flow);
-			
-			//Writes the flow in its corresponding vertices
-			for(int i=0; i < vertices.size(); i++){
-				Vertex vertex;
-				vertex = vertices.get(route.get(i));
-				vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-				vertex.learnArrival(FLOW_ID, arrivals.get(i));
-			}
-
-		//Increments the flow count
-		incrementFLOW_ID();
-	}
-	
-	/**
-	 * Adds a flow with all its arrivals, priorities and vertices
-	 * to the network
-	 * @param arrivals the arrivals at the vertices. Normally only
 	 * te initial arrival is needed and hence all other arrivaly
 	 * will be overwritten by the analysis.
 	 * @param vertices the  vertices the flow traverses
@@ -598,23 +247,8 @@ public class Network {
 	 * @throws ArrivalNotAvailableException
 	 */
 	public void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, ArrayList<Integer> priorities) throws ArrivalNotAvailableException{
-
-		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, this);
-		
-		//Adds the flow into the flow list
-		flows.put(FLOW_ID, flow);
-		
-		//Writes the flow in its corresponding vertices
-		for(int i=0; i < route.size(); i++){
-			Vertex vertex;
-			vertex = vertices.get(route.get(i));
-			vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-			vertex.learnArrival(FLOW_ID, arrivals.get(i));
-		}
-		
-		//Increments the flow count
-		incrementFLOW_ID();
-	}
+            addFlow(arrivals, route, priorities, "");
+        }
 
 	/**
 	 * Adds a flow with all its arrivals, priorities and vertices
@@ -666,80 +300,6 @@ public class Network {
 	}
 	
 	/**
-	 * Appends a node to an already existing flow. The arrival at
-	 * this appended node is non established.
-	 * @param flow_alias the flows, to which the node is appended, alias
-	 * @param vertex_id the vertex which is appended
-	 * @param priority the priority the flow has at the appended
-	 * vertex.
-	 */
-	public void appendNode(String flow_alias, int vertex_id, int priority){
-		Flow flow = null;
-		for(Map.Entry<Integer, Flow> entry : flows.entrySet()){
-			if(entry.getValue().getAlias() == flow_alias) flow = entry.getValue();
-		}
-		if(flow != null){
-			//Adds the vertex to the path of the flow
-			flow.addNodetoPath(vertex_id, priority);
-			
-			//Adds a non-established arrival to the appended vertex
-			vertices.get(vertex_id).addUnknownArrival(priority, flow.getFlow_ID());
-		}
-		else throw new NullPointerException("There exists no flow with this alias.");
-	}
-	
-	/**
-	 * Appends a node to an already existing flow. The arrival at
-	 * this appended node is non established.
-	 * @param flow_id the flows, to which the node is appended, id
-	 * @param vertex_alias the alias of the vertex which is appended
-	 * @param priority the priority the flow has at the appended
-	 * vertex.
-	 */
-	public void appendNode(int flow_id, String vertex_alias, int priority){
-		Vertex vertex = null;
-		for(Map.Entry<Integer, Vertex> entry : vertices.entrySet()){
-			if(entry.getValue().getAlias() == vertex_alias) vertex = entry.getValue();
-		}
-		if(vertex != null){
-			//Adds the vertex to the path of the flow
-			flows.get(flow_id).addNodetoPath(vertex.getVertexID(), priority);
-			
-			//Adds a non-established arrival to the appended vertex
-			vertices.get(vertex.getVertexID()).addUnknownArrival(priority, flow_id);
-		}
-		else throw new NullPointerException("The vertex with the given alias does not exist.");
-	}
-	
-	/**
-	 * Appends a node to an already existing flow. The arrival at
-	 * this appended node is non established.
-	 * @param flow_alias the flows, to which the node is appended, alias
-	 * @param vertex_alias the alias of the vertex which is appended
-	 * @param priority the priority the flow has at the appended
-	 * vertex.
-	 */
-	public void appendNode(String flow_alias, String vertex_alias, int priority){
-		Vertex vertex = null;
-		Flow flow = null;
-		for(Map.Entry<Integer, Vertex> entry : vertices.entrySet()){
-			if(entry.getValue().getAlias() == vertex_alias) vertex = entry.getValue();
-		}
-		for(Map.Entry<Integer, Flow> entry : flows.entrySet()){
-			if(entry.getValue().getAlias() == flow_alias) flow = entry.getValue();
-		}
-		if(vertex != null && flow != null){
-			//Adds the vertex to the path of the flow
-			flow.addNodetoPath(vertex.getVertexID(), priority);
-			
-			//Adds a non-established arrival to the appended vertex
-			vertex.addUnknownArrival(priority, flow.getFlow_ID());
-		}
-		else if(vertex == null) throw new NullPointerException("The vertex with the given alias does not exist.");
-		else throw new NullPointerException("The flow with the given alias does not exist.");
-	}
-	
-	/**
 	 * Sets the initial arrival of some flow
 	 * @param flow_id the flow-id of the flow, which is initialized
 	 * @param arrival the initial arrival
@@ -753,28 +313,6 @@ public class Network {
 		//the arrival is established at the vertex
 		Vertex vertex = vertices.get(flows.get(flow_id).getFirstVertexID());
 		vertex.learnArrival(flow_id, arrival);
-	}
-	
-	/**
-	 * Sets the initial arrival of some flow
-	 * @param alias the alias of the flow, which is initialized
-	 * @param arrival the initial arrival
-	 * @throws ArrivalNotAvailableException
-	 */
-	public void setInitialArrival(String alias, Arrival arrival) throws ArrivalNotAvailableException{
-		Flow flow = null;
-		for(Map.Entry<Integer, Flow> entry : flows.entrySet()){
-			if(entry.getValue().getAlias() == alias) flow = entry.getValue();
-		}
-		if(flow != null){
-			//initializes the arrival at the flow
-			flows.get(flow.getFlow_ID()).setInitialArrival(arrival);
-
-			//the arrival is established at the vertex
-			Vertex vertex = vertices.get(flows.get(flow.getFlow_ID()).getFirstVertexID());
-			vertex.learnArrival(flow.getFlow_ID(), arrival);
-		}
-		else throw new NullPointerException("There is no flow with the given alias.");
 	}
 	
 	/**
@@ -844,7 +382,14 @@ public class Network {
 	}
 	
 	//Getter and Setter
-		
+	public Vertex getVertex(int id) {
+            return vertices.get(id);
+        }
+        
+        public Flow getFlow(int id) {
+            return flows.get(id);
+        }
+        
 	public int getVERTEX_ID(){
 		return VERTEX_ID;
 	}
@@ -861,27 +406,12 @@ public class Network {
 		return vertices;
 	}
 	
-	public void setVertices(HashMap<Integer, Vertex> newVertices){
-		this.vertices = newVertices;
-                this.resetVERTEX_ID(newVertices.size() + 1);
-	}
-	
 	public HashMap<Integer, Flow> getFlows(){
 		return flows;
-	}
-	
-	public void setFlows(HashMap<Integer, Flow> newFlows){
-		this.flows = newFlows;
-                this.resetFLOW_ID(newFlows.size() + 1);
 	}
 	
 	public HashMap<Integer, Hoelder> getHoelders(){
 		return hoelders;
 	}
 	
-	public void setHoelders(HashMap<Integer, Hoelder> newHoelders){
-		this.hoelders = newHoelders;
-                this.resetHOELDER_ID(newHoelders.size() + 1);
-	}
-
 }
