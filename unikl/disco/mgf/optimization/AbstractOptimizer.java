@@ -43,22 +43,18 @@ import unikl.disco.mgf.network.Network;
  */
 public abstract class AbstractOptimizer {
 	
-	protected Arrival input;
+	protected Optimizable bound;
 	protected AbstractAnalysis.Boundtype boundtype;
-	protected HashMap<Integer, Hoelder> sigma_parameters;
-	protected HashMap<Integer, Hoelder> rho_parameters;
-	protected double max_theta;
+	protected double maxTheta;
         protected Network nw;
 	
-	public AbstractOptimizer(Arrival input, AbstractAnalysis.Boundtype boundtype, Network nw){
-		this.input = input;
+	public AbstractOptimizer(Optimizable input, AbstractAnalysis.Boundtype boundtype, Network nw){
+		this.bound = input;
 		this.boundtype = boundtype;
-		this.sigma_parameters = input.getSigma().getParameters();
-		this.rho_parameters = input.getRho().getParameters();
-		this.max_theta = Math.min(input.getSigma().getmaxTheta(), input.getRho().getmaxTheta());
                 this.nw = nw;
 	}
 	
+        public abstract double minimize(double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException;
 	/**
 	 * Computes a bound on the violation probability that a 
 	 * given backlog or delay is broken.

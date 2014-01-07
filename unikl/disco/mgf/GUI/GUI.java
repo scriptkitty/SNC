@@ -536,7 +536,7 @@ public class GUI implements Runnable {
 	}
 	
 	private static void saveNetwork(File file){
-		snc.saveNetwork(file, snc.getCurrentNetwork());
+		snc.saveNetwork(file);
 		System.out.println(file.getName()+" saved");
 	}
 	

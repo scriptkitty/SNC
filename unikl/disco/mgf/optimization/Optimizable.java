@@ -1,4 +1,4 @@
-/*
+ /*
  *  (c) 2013 Michael A. Beck, disco | Distributed Computer Systems Lab
  *                                  University of Kaiserslautern, Germany
  *         All Rights Reserved.
@@ -18,27 +18,21 @@
  *  extensions to this software.
  *
  */
-
 package unikl.disco.mgf.optimization;
 
-import unikl.disco.mgf.Arrival;
-import unikl.disco.mgf.network.AbstractAnalysis;
-import unikl.disco.mgf.network.Network;
+import java.util.HashMap;
+import unikl.disco.mgf.Hoelder;
+import unikl.disco.mgf.ParameterMismatchException;
+import unikl.disco.mgf.ServerOverloadException;
+import unikl.disco.mgf.ThetaOutOfBoundException;
 
 /**
  *
  * @author Sebastian Henningsen
  */
-public class OptimizationFactory {
-    
-    public static AbstractOptimizer getOptimizer(Network nw, Optimizable bound, AbstractAnalysis.Boundtype boundtype, OptimizationType type) {
-        switch(type) {
-            case SIMPLE_OPT:
-                return new SimpleOptimizer(bound, boundtype, nw);
-            case GRADIENT_OPT:
-                return new SimpleGradient(bound, boundtype, nw);
-            default:
-                throw new IllegalArgumentException("Optimization Type: " + type.toString() + " not known.");
-        }
-    }
+public interface Optimizable {
+    public void prepare();
+    public double evaluate(double theta) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException;
+    public HashMap<Integer, Hoelder> getHoelderParameters();
+    public double getMaximumTheta();
 }

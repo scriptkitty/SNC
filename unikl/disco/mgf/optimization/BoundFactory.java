@@ -1,4 +1,4 @@
-/*
+ /*
  *  (c) 2013 Michael A. Beck, disco | Distributed Computer Systems Lab
  *                                  University of Kaiserslautern, Germany
  *         All Rights Reserved.
@@ -18,27 +18,28 @@
  *  extensions to this software.
  *
  */
-
 package unikl.disco.mgf.optimization;
 
 import unikl.disco.mgf.Arrival;
-import unikl.disco.mgf.network.AbstractAnalysis;
-import unikl.disco.mgf.network.Network;
 
 /**
  *
  * @author Sebastian Henningsen
  */
-public class OptimizationFactory {
-    
-    public static AbstractOptimizer getOptimizer(Network nw, Optimizable bound, AbstractAnalysis.Boundtype boundtype, OptimizationType type) {
-        switch(type) {
-            case SIMPLE_OPT:
-                return new SimpleOptimizer(bound, boundtype, nw);
-            case GRADIENT_OPT:
-                return new SimpleGradient(bound, boundtype, nw);
+public class BoundFactory {
+    public static Optimizable createBound(Arrival input, BoundType boundtype, double bound) {
+        switch(boundtype) {
+            case BACKLOG:
+                return new BacklogBound(input, bound);
+            case DELAY:
+                return new DelayBound(input, bound);
+            case INVERSE_BACKLOG:
+                return new InverseBacklogBound(input, bound);
+            case INVERSE_DELAY:
+                return new InverseDelayBound(input, bound);
             default:
-                throw new IllegalArgumentException("Optimization Type: " + type.toString() + " not known.");
+                throw new IllegalArgumentException("No such bound yet.");
         }
     }
+    
 }

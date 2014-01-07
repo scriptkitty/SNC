@@ -47,7 +47,7 @@ import unikl.disco.mgf.network.AbstractAnalysis.Boundtype;
  */
 public class SimpleOptimizer extends AbstractOptimizer {
 
-	public SimpleOptimizer(Arrival input, Boundtype boundtype, Network nw) {
+	public SimpleOptimizer(Optimizable input, Boundtype boundtype, Network nw) {
 		super(input, boundtype, nw);
 	}
 	
@@ -472,6 +472,11 @@ public class SimpleOptimizer extends AbstractOptimizer {
 		}
 		return result;
 	}
+
+    @Override
+    public double minimize(double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 	
 	/**
 	 * A helper class, which gives a method to rotate through all

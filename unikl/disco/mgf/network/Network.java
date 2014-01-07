@@ -21,6 +21,11 @@
 
 package unikl.disco.mgf.network;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,18 +64,18 @@ public class Network {
             FLOW_ID = 1;
             VERTEX_ID = 1;
             HOELDER_ID = 1;
-            flows = new HashMap<Integer, Flow>(0);
-            vertices = new HashMap<Integer, Vertex>(0);
-            hoelders = new HashMap<Integer, Hoelder>(0);
+            flows = new HashMap<>(0);
+            vertices = new HashMap<>(0);
+            hoelders = new HashMap<>(0);
         }
         
         public Network(HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, HashMap<Integer, Hoelder> hoelders) {
-            this.flows = flows;
-            this.vertices = vertices;
-            this.hoelders = hoelders;
-            FLOW_ID = flows.size() + 1;
-            VERTEX_ID = vertices.size() + 1;
-            HOELDER_ID = hoelders.size() + 1;
+            this.flows = (flows != null) ? flows : new HashMap<Integer, Flow>(1);
+            this.vertices = (vertices != null) ? vertices : new HashMap<Integer, Vertex>(1);
+            this.hoelders = (hoelders != null) ? hoelders : new HashMap<Integer, Hoelder>(1);
+            FLOW_ID = this.flows.size() + 1;
+            VERTEX_ID = this.vertices.size() + 1;
+            HOELDER_ID = this.hoelders.size() + 1;
         }
 	
 	//Methods
@@ -406,12 +411,60 @@ public class Network {
 		return vertices;
 	}
 	
-	public HashMap<Integer, Flow> getFlows(){
-		return flows;
-	}
 	
-	public HashMap<Integer, Hoelder> getHoelders(){
-		return hoelders;
-	}
+    /**
+     * Loads a network, which is given in <code>file</code>. Can only read networks, which
+     * had been saved by a simple <code>ObjectOutputStream</code>. The order of saved objects
+     * (and its corresponding type) is:
+     * vertices (HashMap<Integer, Vertex>
+     * flows (HashMap<Integer, Flow>)
+     * hoelders (HashMap<Integer, Hoelder>)
+     */
+    public static Network load(File file) {
+        HashMap<Integer, Vertex> newVertices = null;
+        HashMap<Integer, Flow> newFlows = null;
+        HashMap<Integer, Hoelder> newHoelders = null;
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            newVertices = (HashMap<Integer, Vertex>) ois.readObject();
+            newFlows = (HashMap<Integer, Flow>) ois.readObject();
+            newHoelders = (HashMap<Integer, Hoelder>) ois.readObject();
+            ois.close();
+        } catch (Exception exc) {
+            System.out.println(exc.getMessage());
+        }
+        Network nw = new Network(newVertices, newFlows, newHoelders);
+        return nw;
+    }
+
+    /**
+     * Saves the network in the given <code>file</code>. This is done by using a
+     * simple ObjectOutputStream. The order of saved objects (and its corresponding
+     * type) is:
+     * vertices (HashMap<Integer, Vertex>
+     * flows (HashMap<Integer, Flow>)
+     * hoelders (HashMap<Integer, Hoelder>)
+     */
+    public void save(File file) {
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(this.getVertices());
+            oos.writeObject(this.getFlows());
+            oos.writeObject(this.getHoelders());
+            oos.close();
+        } catch (Exception exc) {
+            System.out.println(exc.getMessage());
+        }
+    }
+    
+    public HashMap<Integer, Flow> getFlows(){
+        return flows;
+    }
+	
+    public HashMap<Integer, Hoelder> getHoelders(){
+        return hoelders;
+    }
 	
 }

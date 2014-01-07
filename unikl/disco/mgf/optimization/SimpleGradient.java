@@ -50,16 +50,155 @@ import unikl.disco.mgf.network.AbstractAnalysis.Boundtype;
  *
  */
 public class SimpleGradient extends AbstractOptimizer {
-	
+
 	enum Change{
 		THETA_DEC, THETA_INC, HOELDER_P, HOELDER_Q, NOTHING
 	};
 
-	public SimpleGradient(Arrival input, Boundtype boundtype, Network nw) {
-		super(input, boundtype, nw);
-		
+	public SimpleGradient(Optimizable bound, AbstractAnalysis.Boundtype boundtype, Network nw) {
+		super(bound, boundtype, nw);
 	}
+        
+        @Override
+        public double minimize(double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
+            double result;
+            
+            bound.prepare();
+            // Initilializes the list of Hoelder-Parameters
+            HashMap<Integer, Hoelder> allparameters = bound.getHoelderParameters();
+            
+            for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()) {
+                entry.getValue().setPValue(2);
+            }
+            
+            // Initializes parameters
+            maxTheta = bound.getMaximumTheta();
+            double theta = thetagranularity;
+            int changedHoelder = Integer.MAX_VALUE;
+            boolean improved = true;
+            Change change = SimpleGradient.Change.NOTHING;
+            
+            // Compute initial value
+            double optValue;
+            double newOptValue;
+            try {
+		optValue = bound.evaluate(theta);
+            } catch(ServerOverloadException e) {
+                optValue = Double.POSITIVE_INFINITY;
+            }
+            while(improved) {
+                improved = false;
+                change = SimpleGradient.Change.NOTHING;
+                // Check if decreasing theta leads to a better result
+                if(theta > thetagranularity) {
+                    theta = theta - thetagranularity;
+                    try {
+                        newOptValue = bound.evaluate(theta);
+                    } catch(ServerOverloadException | ThetaOutOfBoundException e) {
+                        newOptValue = Double.POSITIVE_INFINITY;
+                    }
+                    if(optValue > newOptValue) {
+                            optValue = newOptValue;
+                            change = SimpleGradient.Change.THETA_DEC;
+                    }
 
+                    // Reset the changes
+                    theta = theta + thetagranularity;
+                }
+
+                // Check if increasing theta leads to a better result
+                if(theta < this.maxTheta - thetagranularity){
+                    theta = theta + thetagranularity;
+                    try {
+                        newOptValue = bound.evaluate(theta);
+                    } catch(             ServerOverloadException | ThetaOutOfBoundException e) {
+                        newOptValue = Double.POSITIVE_INFINITY;
+                    }
+                    if(optValue > newOptValue) {
+                        optValue = newOptValue;
+                        change = SimpleGradient.Change.THETA_INC;
+                    }
+                    
+                    // Reset changes again
+                    theta = theta - thetagranularity;
+                }
+                // TODO: Get rid of the "call by reference" to the parameters, which is used here.
+                // Check each neighbors resulting from decreasing the P-Value of Hoelder parameters
+                for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
+                    double old_p_value = entry.getValue().getPValue();
+                    if(entry.getValue().getPValue() < 2) {
+                        entry.getValue().setPValue(-hoeldergranularity + entry.getValue().getPValue());
+                    } else {
+                        entry.getValue().setQValue(hoeldergranularity + entry.getValue().getQValue());
+                    }
+                    try {
+                        newOptValue = bound.evaluate(theta);
+                    } catch(ServerOverloadException | ThetaOutOfBoundException e){
+                        newOptValue = Double.POSITIVE_INFINITY;
+                    }
+                    if(optValue > newOptValue) {
+                        optValue = newOptValue; 
+                        changedHoelder = entry.getKey();
+                        change = SimpleGradient.Change.HOELDER_P;
+                    }
+
+                    // Reset changes
+                    entry.getValue().setPValue(old_p_value);
+                }
+
+                // Check each neighbor by decreasing the Q-Value of Hoelder parameters
+                for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
+                    double old_q_value = entry.getValue().getQValue();
+                    if(entry.getValue().getPValue() < 2) {
+                        entry.getValue().setPValue(hoeldergranularity + entry.getValue().getPValue());
+                    } else {
+                        entry.getValue().setQValue(-hoeldergranularity + entry.getValue().getQValue());
+                    }
+                    entry.getValue().setQValue(-hoeldergranularity + entry.getValue().getQValue());
+                    try {
+                        newOptValue = bound.evaluate(theta);
+                    } catch(             ServerOverloadException | ThetaOutOfBoundException e) {
+                        newOptValue = Double.POSITIVE_INFINITY;
+                    }
+                    if(optValue > newOptValue){
+                            optValue = newOptValue; 
+                            changedHoelder = entry.getKey();
+                            change = SimpleGradient.Change.HOELDER_Q;
+                    }
+
+                    entry.getValue().setQValue(old_q_value);
+                }
+
+                switch(change) {
+                    case THETA_INC:
+                        theta = theta + thetagranularity;
+                        improved = true;
+                        break;
+                    case THETA_DEC:
+                        theta = theta - thetagranularity;
+                        improved = true;
+                        break;
+                    case HOELDER_P:
+                        allparameters.get(changedHoelder).setPValue(allparameters.get(changedHoelder).getPValue() - hoeldergranularity);
+                        improved = true;
+                        break;
+                    case HOELDER_Q:
+                        allparameters.get(changedHoelder).setQValue(allparameters.get(changedHoelder).getQValue() - hoeldergranularity);
+                        improved = true;
+                        break;
+                    case NOTHING:
+                        improved = false;
+                        break;
+                    default:
+                        improved = false;
+                        break;
+                }
+                System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+optValue);
+        }
+
+        return optValue; 
+        }
+        
 	@Override
 	public double Bound(Arrival input, Boundtype boundtype, double bound, double thetagranularity, double hoeldergranularity)
 			throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
@@ -73,10 +212,13 @@ public class SimpleGradient extends AbstractOptimizer {
 			
 		//If needed, the parameter, which represents the backlog, must be separated from the other Hoelder parameters
 		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG){
-			allparameters.get(nw.getHOELDER_ID()-1).setPValue(bound);
+                    if(allparameters.size() != nw.getHOELDER_ID() - 1) {
+                        // Something is really wrong. This is only a temporary test, until the problem is sorted out
+                        throw new IllegalStateException("Fatal: Hoelder IDs do not match.");
+                    }
+                    allparameters.get(nw.getHOELDER_ID()-1).setPValue(bound);
 			allparameters.remove(nw.getHOELDER_ID()-1);
 		}
-		System.out.println("allparameters:"+ allparameters.toString());
 		for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
 			entry.getValue().setPValue(2);
 		}
@@ -226,7 +368,7 @@ public class SimpleGradient extends AbstractOptimizer {
 						improved = false;
 						break;
 					}
-					System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+backlogprob);
+					//System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+backlogprob);
 				}
 				
 				result = backlogprob;
@@ -357,7 +499,7 @@ public class SimpleGradient extends AbstractOptimizer {
 						improved = false;
 						break;
 					}
-					System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+delayprob);
+					//System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+delayprob);
 				}
 				
 				result = delayprob;

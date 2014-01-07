@@ -26,6 +26,9 @@ import unikl.disco.mgf.optimization.SimpleGradient;
 import unikl.disco.mgf.optimization.SimpleOptimizer;
 import unikl.disco.mgf.network.AnalysisType;
 import unikl.disco.mgf.optimization.AbstractOptimizer;
+import unikl.disco.mgf.optimization.BoundFactory;
+import unikl.disco.mgf.optimization.BoundType;
+import unikl.disco.mgf.optimization.Optimizable;
 import unikl.disco.mgf.optimization.OptimizationFactory;
 import unikl.disco.mgf.optimization.OptimizationType;
 
@@ -63,63 +66,14 @@ public class SNC {
         public Network getCurrentNetwork() {
             return nw;
         }
-	/**
-	 * Loads a network, which is given in <code>file</code>. Can only read networks, which
-	 * had been saved by a simple <code>ObjectOutputStream</code>. The order of saved objects
-	 * (and its corresponding type) is: 
-	 * vertices (HashMap<Integer, Vertex>
-	 * flows (HashMap<Integer, Flow>) 
-	 * hoelders (HashMap<Integer, Hoelder>)
-	 */
-	public Network loadNetwork(File file){
-            HashMap<Integer, Vertex> newVertices = null;
-            HashMap<Integer, Flow> newFlows = null;
-            HashMap<Integer, Hoelder> newHoelders = null;
-            
-            try {
-                FileInputStream fis = new FileInputStream(file);
-		ObjectInputStream ois = new ObjectInputStream(fis);
-			
-		newVertices = (HashMap<Integer, Vertex>) ois.readObject();
-		newFlows = (HashMap<Integer, Flow>) ois.readObject();
-		newHoelders = (HashMap)ois.readObject();
-		
-                ois.close();
-                
-            } catch(Exception exc){
-                System.out.println(exc.getMessage());
-            }
-            
-            // TODO
-            Network nw = new Network(newVertices, newFlows, newHoelders);
-            return(nw);
+	
+        public void saveNetwork(File file) {
+            getCurrentNetwork().save(file);
         }
-	
-	/**
-	 * Saves the network in the given <code>file</code>. This is done by using a 
-	 * simple ObjectOutputStream. The order of saved objects (and its corresponding 
-	 * type) is: 
-	 * vertices (HashMap<Integer, Vertex>
-	 * flows (HashMap<Integer, Flow>) 
-	 * hoelders (HashMap<Integer, Hoelder>)
-	 */
-	public void saveNetwork(File file, Network nw){
-		
-		try{
-			FileOutputStream fos = new FileOutputStream(file);
-			ObjectOutputStream oos = new ObjectOutputStream(fos);
-		
-			oos.writeObject(nw.getVertices());
-			oos.writeObject(nw.getFlows());
-			oos.writeObject(nw.getHoelders());
-			
-			oos.close();
-		}
-		catch(Exception exc){
-			System.out.println(exc.getMessage());
-		}
-	}
-	
+        
+        public void loadNetwork(File file) {
+            nw = Network.load(file);
+        }
 	/**
 	 * Relays the command of removing a given <code>flow</code> from the
 	 * network to the {@link Network}-class.  
@@ -244,7 +198,8 @@ public class SNC {
 		//Backlog values are represented by negative values in the arrival representation
 		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG && value > 0) value = -value;
 		
-		double probability = 1;
+		double debugProb = 1;
+                double prob = 1;
 		
 		HashMap<Integer, Vertex> givenVertices = new HashMap<Integer, Vertex>();
 		for(Entry<Integer, Vertex> entry : nw.getVertices().entrySet()){
@@ -261,25 +216,28 @@ public class SNC {
 		int resetVertexID = nw.getVERTEX_ID();
 		
                 AbstractAnalysis analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
-                Arrival bound = null;
+                Arrival symbolicBound = null;
                 try {
-                    bound = analyzer.analyze();
-                } catch (ArrivalNotAvailableException e) {
-                    e.printStackTrace();
-                } catch (DeadlockException e) {
-                    e.printStackTrace();
-                } catch (BadInitializationException e) {
+                    symbolicBound = analyzer.analyze();
+                } catch (    ArrivalNotAvailableException | DeadlockException | BadInitializationException e) {
                     e.printStackTrace();
                 }
                 
+                // Temporary fix:
+                BoundType optBoundType;
+                if(boundtype == AbstractAnalysis.Boundtype.BACKLOG) {
+                    optBoundType = BoundType.BACKLOG;
+                } else if(boundtype == AbstractAnalysis.Boundtype.DELAY) {
+                    optBoundType = BoundType.DELAY;
+                } else {
+                    throw new IllegalArgumentException("No such boundtype");
+                }
+                Optimizable bound = BoundFactory.createBound(symbolicBound, optBoundType, value);
                 AbstractOptimizer optimizer = OptimizationFactory.getOptimizer(nw, bound, boundtype, optType);
                 try {
-                    probability = optimizer.Bound(bound, boundtype, value, thetaGran, hoelderGran);
-                } catch (ThetaOutOfBoundException e) {
-                    e.printStackTrace();
-                } catch (ParameterMismatchException e) {
-                    e.printStackTrace();
-                } catch (ServerOverloadException e) {
+                    debugProb = optimizer.Bound(symbolicBound, boundtype, value, thetaGran, hoelderGran);
+                    prob = optimizer.minimize(thetaGran, hoelderGran);
+                } catch (    ThetaOutOfBoundException | ParameterMismatchException | ServerOverloadException e) {
                     e.printStackTrace();
                 }
 		
@@ -287,8 +245,8 @@ public class SNC {
 		nw.resetFLOW_ID(resetFlowID);
 		nw.resetHOELDER_ID(resetHoelderID);
 		nw.resetVERTEX_ID(resetVertexID);
-		
-		return probability;
+		System.out.println("p: " + prob + " Debug: " + prob);
+		return debugProb;
 	}
         
         /**
@@ -377,6 +335,7 @@ public class SNC {
 
 		//Preparations
 		double value = Double.NaN;
+                double debugVal = Double.NaN;
 		
 		HashMap<Integer, Vertex> givenVertices = new HashMap<Integer, Vertex>();
 		for(Entry<Integer, Vertex> entry : nw.getVertices().entrySet()){
@@ -394,25 +353,29 @@ public class SNC {
 		
                 
                 AbstractAnalysis analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
-                Arrival bound = null;
+                Arrival symbolicBound = null;
                 try {
-                    bound = analyzer.analyze();
-                } catch (ArrivalNotAvailableException e) {
-                    e.printStackTrace();
-                } catch (DeadlockException e) {
-                    e.printStackTrace();
-                } catch (BadInitializationException e) {
+                    symbolicBound = analyzer.analyze();
+                } catch (    ArrivalNotAvailableException | DeadlockException | BadInitializationException e) {
                     e.printStackTrace();
                 }
                 
+                // Temporary fix:
+                BoundType optBoundType;
+                if(boundtype == AbstractAnalysis.Boundtype.BACKLOG) {
+                    optBoundType = BoundType.BACKLOG;
+                } else if(boundtype == AbstractAnalysis.Boundtype.DELAY) {
+                    optBoundType = BoundType.DELAY;
+                } else {
+                    throw new IllegalArgumentException("No such boundtype");
+                }
+                
+                Optimizable bound = BoundFactory.createBound(symbolicBound, optBoundType, probability);
                 AbstractOptimizer optimizer = OptimizationFactory.getOptimizer(nw, bound, boundtype, optType);
                 try {
-                    probability = optimizer.ReverseBound(bound, boundtype, probability, thetaGran, hoelderGran);
-                } catch (ThetaOutOfBoundException e) {
-                    e.printStackTrace();
-                } catch (ParameterMismatchException e) {
-                    e.printStackTrace();
-                } catch (ServerOverloadException e) {
+                    value = optimizer.minimize(thetaGran, hoelderGran);
+                    debugVal = optimizer.ReverseBound(symbolicBound, boundtype, probability, thetaGran, hoelderGran);
+                } catch (    ThetaOutOfBoundException | ParameterMismatchException | ServerOverloadException e) {
                     e.printStackTrace();
                 }
 		
