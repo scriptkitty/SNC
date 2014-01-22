@@ -201,28 +201,7 @@ public class SNC {
 		double debugProb = 1;
                 double prob = 1;
 		
-		HashMap<Integer, Vertex> givenVertices = new HashMap<Integer, Vertex>();
-		for(Entry<Integer, Vertex> entry : nw.getVertices().entrySet()){
-			givenVertices.put(entry.getKey(), entry.getValue().copy());
-		}
-		
-		HashMap<Integer, Flow> givenFlows = new HashMap<Integer, Flow>();
-		for(Entry<Integer, Flow> entry : nw.getFlows().entrySet()){
-			givenFlows.put(entry.getKey(), entry.getValue().copy());
-		}
-		
-		int resetFlowID = nw.getFLOW_ID();
-		int resetHoelderID = nw.getHOELDER_ID();
-		int resetVertexID = nw.getVERTEX_ID();
-		
-                AbstractAnalysis analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
-                Arrival symbolicBound = null;
-                try {
-                    symbolicBound = analyzer.analyze();
-                } catch (    ArrivalNotAvailableException | DeadlockException | BadInitializationException e) {
-                    e.printStackTrace();
-                }
-                
+                Arrival symbolicBound = analyzeNetwork(flow, vertex, anaType, boundtype, nw);
                 // Temporary fix:
                 BoundType optBoundType;
                 if(boundtype == AbstractAnalysis.Boundtype.BACKLOG) {
@@ -241,13 +220,9 @@ public class SNC {
                     e.printStackTrace();
                 }
 		
-		//Resets the network
-		nw.resetFLOW_ID(resetFlowID);
-		nw.resetHOELDER_ID(resetHoelderID);
-		nw.resetVERTEX_ID(resetVertexID);
-		// For debug purposes
+		// For debugging purposes
                 if(prob != debugProb) {
-                    throw new RuntimeException("[DEBUG] Optimization results are not the same!");
+                    throw new RuntimeException("[DEBUG] Optimization results do not match!");
                 }
 		return prob;
 	}
@@ -340,28 +315,7 @@ public class SNC {
 		double value = Double.NaN;
                 double debugVal = Double.NaN;
 		
-		HashMap<Integer, Vertex> givenVertices = new HashMap<Integer, Vertex>();
-		for(Entry<Integer, Vertex> entry : nw.getVertices().entrySet()){
-			givenVertices.put(entry.getKey(), entry.getValue().copy());
-		}
-		
-		HashMap<Integer, Flow> givenFlows = new HashMap<Integer, Flow>();
-		for(Entry<Integer, Flow> entry : nw.getFlows().entrySet()){
-			givenFlows.put(entry.getKey(), entry.getValue().copy());
-		}
-		
-		int resetFlowID = nw.getFLOW_ID();
-		int resetHoelderID = nw.getHOELDER_ID();
-		int resetVertexID = nw.getVERTEX_ID();
-		
-                
-                AbstractAnalysis analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
-                Arrival symbolicBound = null;
-                try {
-                    symbolicBound = analyzer.analyze();
-                } catch (    ArrivalNotAvailableException | DeadlockException | BadInitializationException e) {
-                    e.printStackTrace();
-                }
+		Arrival symbolicBound = analyzeNetwork(flow, vertex, anaType, boundtype, nw);
                 
                 // Temporary fix:
                 BoundType optBoundType;
@@ -381,12 +335,10 @@ public class SNC {
                 } catch (    ThetaOutOfBoundException | ParameterMismatchException | ServerOverloadException e) {
                     e.printStackTrace();
                 }
-		
-		//Resets the network
-		nw.resetFLOW_ID(resetFlowID);
-		nw.resetHOELDER_ID(resetHoelderID);
-		nw.resetVERTEX_ID(resetVertexID);
-		
+                // For debuggin purposes
+		if(value != debugVal) {
+                    throw new RuntimeException("[DEBUG] Optimization results do not match!");
+                }
 		return value;
 	}
 	

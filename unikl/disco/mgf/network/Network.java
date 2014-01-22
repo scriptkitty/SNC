@@ -92,15 +92,6 @@ public class Network {
 	}
 	
 	/**
-	 * Adds a new dummy vertex to the network
-	 */
-	public void addVertex(){
-		Vertex vertex = new Vertex(VERTEX_ID, this);
-		vertices.put(VERTEX_ID, vertex);
-		incrementVERTEX_ID();
-	}
-	
-	/**
 	 * Adds a new dummy vertex with alias 
 	 */
 	public void addVertex(String alias){
@@ -167,36 +158,6 @@ public class Network {
 		}
 		return success;
 	}
-	/**
-	 * Adds a new dummy flow to the network
-	 */
-	public void addFlow(){
-            addFlow("");
-	}
-
-	/**
-	 * Adds a new dummy flow with some alias to the network
-	 */
-	public void addFlow(String alias){
-		Flow flow = new Flow(FLOW_ID, alias, this);
-		flows.put(FLOW_ID, flow);
-		incrementFLOW_ID();
-	}
-	
-        /**
-	 * Creates a new flow with an initial arrival and a complete
-	 * description of its route through the network (in expression
-	 * all of its vertices and the corresponding priorities at 
-	 * these vertices of the flow).
-	 * @param initial_arrival the arrival at the first node
-	 * @param vertices the  vertices the flow traverses
-	 * @param priorities the priorities of the flow at the 
-	 * corresponding vertices
-	 * @throws ArrivalNotAvailableException
-	 */
-	public void addFlow(Arrival initial_arrival, ArrayList<Integer> route, ArrayList<Integer> priorities) throws ArrivalNotAvailableException{
-            addFlow(initial_arrival, route, priorities, "");
-        }
 
 	/**
 	 * Creates a new flow with an initial arrival and a complete
@@ -239,21 +200,6 @@ public class Network {
 		//Increments the flow count
 		incrementFLOW_ID();
 	}
-
-	/**
-	 * Adds a flow with all its arrivals, priorities and vertices
-	 * to the network
-	 * @param arrivals the arrivals at the vertices. Normally only
-	 * te initial arrival is needed and hence all other arrivaly
-	 * will be overwritten by the analysis.
-	 * @param vertices the  vertices the flow traverses
-	 * @param priorities the priorities of the flow at the 
-	 * corresponding vertices
-	 * @throws ArrivalNotAvailableException
-	 */
-	public void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, ArrayList<Integer> priorities) throws ArrivalNotAvailableException{
-            addFlow(arrivals, route, priorities, "");
-        }
 
 	/**
 	 * Adds a flow with all its arrivals, priorities and vertices

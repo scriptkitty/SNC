@@ -59,24 +59,6 @@ public class Flow implements Serializable {
 	
 	//Constructors
 	
-	public Flow(int flow_ID, Network nw){
-		vertices = new ArrayList<Integer>(0);
-		arrivals = new ArrayList<Arrival>(0);
-		priorities = new ArrayList<Integer>(0);
-		established_arrivals = 0;
-		this.flow_ID= flow_ID;
-                this.nw = nw;
-	}
-	
-	public Flow(int flow_ID, String alias, Network nw){
-		vertices = new ArrayList<Integer>(0);
-		arrivals = new ArrayList<Arrival>(0);
-		priorities = new ArrayList<Integer>(0);
-		established_arrivals = 0;
-		this.flow_ID= flow_ID;
-		this.setAlias(alias);
-                this.nw = nw;
-	}
 	/**
 	 * Constructs a flow, with the complete route through the 
 	 * network and priorities at the vertices given.
@@ -93,16 +75,6 @@ public class Flow implements Serializable {
 	 * descending priority numbers, in expression the flow with the
 	 * highest priority number is served first.
 	 */
-	public Flow(int flow_ID, ArrayList<Integer> vertices, ArrayList<Arrival> arrivals, 
-				ArrayList<Integer> priorities, Network nw){
-		this.vertices = vertices;
-		this.arrivals = arrivals;
-		this.priorities = priorities;
-		established_arrivals = 1;
-		this.flow_ID = flow_ID;
-		arrivals.get(0).addArrivalDependency(flow_ID);
-                this.nw = nw;
-	}
 	
 	public Flow(int flow_ID, ArrayList<Integer> vertices, ArrayList<Arrival> arrivals, 
 			ArrayList<Integer> priorities, String alias, Network nw){
