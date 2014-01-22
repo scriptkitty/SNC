@@ -61,7 +61,7 @@ public class SimpleAnalysis extends AbstractAnalysis {
 	
 	//Members
 	
-	private Stack<Vertex> can_serve;
+	private Stack<Vertex> analyzableVertices;
 	
 	//Constructors
 	
@@ -81,7 +81,7 @@ public class SimpleAnalysis extends AbstractAnalysis {
 	 */
 	public SimpleAnalysis(Network nw, HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, int flow_of_interest, int vertex_of_interest,  Boundtype boundtype){
 		super(nw, vertices, flows, flow_of_interest, vertex_of_interest, boundtype);
-		can_serve = new Stack<Vertex>();
+		analyzableVertices = new Stack<>();
 	}
 	
 	//Methods
@@ -99,20 +99,20 @@ public class SimpleAnalysis extends AbstractAnalysis {
 		
 		//Initializes the stack of vertices, for which all arrivals are known
 		for(Map.Entry<Integer, Vertex> entry : vertices.entrySet()){
-			if(entry.getValue().canServe()) 	can_serve.push(entry.getValue());
+			if(entry.getValue().canServe()) 	analyzableVertices.push(entry.getValue());
 		}
 		
 		//Checks if the can_serve-stack is empty
-		if(can_serve.isEmpty()) throw new DeadlockException("The initial vertex stack is empty.");
+		if(analyzableVertices.isEmpty()) throw new DeadlockException("The initial vertex stack is empty.");
 		
 		Vertex current_vertex;
 		Arrival bound = new Arrival(nw);
 		boolean successful = false;
 		
 		//Successively serves the flows until the FoI and SoI is characterized
-		while(!can_serve.isEmpty()){
+		while(!analyzableVertices.isEmpty()){
 			//Setup of service and flow
-			current_vertex = can_serve.pop();
+			current_vertex = analyzableVertices.pop();
 			System.out.println("vertex "+current_vertex.getVertexID()+" popped");
 			int flowID = current_vertex.whoHasPriority();
 			Vertex next_vertex;
@@ -151,7 +151,7 @@ public class SimpleAnalysis extends AbstractAnalysis {
 				
 				//pushes the next vertex if it knows all its arrivals
 				if(next_vertex.canServe()) {
-					can_serve.push(next_vertex);
+					analyzableVertices.push(next_vertex);
 					System.out.println("Node "+next_vertex.getVertexID()+" knows its arrivals and is pushed");
 					}
 			}
@@ -160,7 +160,7 @@ public class SimpleAnalysis extends AbstractAnalysis {
 			}
 			
 			//pushes the current vertex if it has more flows to serve
-			if(current_vertex.canServe()){ can_serve.push(current_vertex); System.out.println("Vertex "+current_vertex.getVertexID()+" pushed");}
+			if(current_vertex.canServe()){ analyzableVertices.push(current_vertex); System.out.println("Vertex "+current_vertex.getVertexID()+" pushed");}
 		}
 		
 		//checks if the FoI and SoI had been calculated

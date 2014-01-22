@@ -61,11 +61,11 @@ public abstract class AbstractAnalysis {
 	// TODO
 	public AbstractAnalysis(Network nw, HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, 
 							int flow_of_interest, int vertex_of_interest, Boundtype boundtype){
-		this.setVertices(vertices);
-		this.setFlows(flows);
-		this.setFlowOfInterest(flow_of_interest); 
-		this.setVertexOfInterest(vertex_of_interest);
-		this.setBoundtype(boundtype);
+		this.vertices = vertices;
+		this.flows = flows;
+		this.flow_of_interest = flow_of_interest; 
+		this.vertex_of_interest = vertex_of_interest;
+		this.boundtype = boundtype;
                 this.nw = nw;
 	}
 	
@@ -75,39 +75,20 @@ public abstract class AbstractAnalysis {
 		return vertex_of_interest;
 	}
 
-	public void setVertexOfInterest(int vertex_of_interest) {
-		this.vertex_of_interest = vertex_of_interest;
-	}
-
 	public HashMap<Integer, Vertex> getVertices() {
 		return vertices;
-	}
-
-	public void setVertices(HashMap<Integer, Vertex> vertices) {
-		this.vertices = vertices;
 	}
 
 	public HashMap<Integer, Flow> getFlows() {
 		return flows;
 	}
 
-	public void setFlows(HashMap<Integer, Flow> flows) {
-		this.flows = flows;
-	}
-
 	public int getFlowOfInterest() {
 		return flow_of_interest;
-	}
-
-	public void setFlowOfInterest(int flow_of_interest) {
-		this.flow_of_interest = flow_of_interest;
 	}
 
 	public Boundtype getBoundtype() {
 		return boundtype;
 	}
 
-	public void setBoundtype(Boundtype boundtype) {
-		this.boundtype = boundtype;
-	}
 }
