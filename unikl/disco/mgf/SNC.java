@@ -245,8 +245,11 @@ public class SNC {
 		nw.resetFLOW_ID(resetFlowID);
 		nw.resetHOELDER_ID(resetHoelderID);
 		nw.resetVERTEX_ID(resetVertexID);
-		System.out.println("p: " + prob + " Debug: " + prob);
-		return debugProb;
+		// For debug purposes
+                if(prob != debugProb) {
+                    throw new RuntimeException("[DEBUG] Optimization results are not the same!");
+                }
+		return prob;
 	}
         
         /**

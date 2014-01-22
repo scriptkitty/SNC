@@ -51,6 +51,87 @@ public class SimpleOptimizer extends AbstractOptimizer {
 		super(input, boundtype, nw);
 	}
 	
+        @Override
+        public double minimize(double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
+            bound.prepare();
+            // Initilializes the list of Hoelder-Parameters
+            HashMap<Integer, Hoelder> allparameters = bound.getHoelderParameters();
+            IncrementList hoelderlist = new IncrementList(hoeldergranularity);
+            for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
+                hoelderlist.add(entry.getValue());
+            }
+            
+            for(int i=0; i < hoelderlist.size(); i++){
+                hoelderlist.get(i).setPValue(2);
+            }
+            
+            //Initializes further values
+            double maxTheta = bound.getMaximumTheta();
+            double theta = thetagranularity;
+
+            boolean breakCondition = false;
+            
+            //Computes initial value
+            double optValue;
+            double newOptValue;
+            try {
+                optValue = bound.evaluate(theta);
+            } catch(ServerOverloadException e) {
+                optValue = Double.POSITIVE_INFINITY;
+            }
+
+            while(theta < maxTheta) {
+                try {
+                    optValue = Math.min(bound.evaluate(theta), optValue);
+                    theta += thetagranularity;
+                } catch(ServerOverloadException e) {
+                    theta += thetagranularity;
+                }
+            }
+
+            //Resets
+            theta = thetagranularity;
+            breakCondition = false;
+
+            //Tests Hoelder coefficients in one direction
+
+            while(!breakCondition) {
+                breakCondition = !hoelderlist.PDecrement();
+                maxTheta = bound.getMaximumTheta();			
+
+                while(theta < maxTheta) {
+                    try {
+                        optValue = Math.min(optValue, bound.evaluate(theta));
+                        theta = theta+thetagranularity;
+                    } catch(ServerOverloadException | ThetaOutOfBoundException e) {
+                        theta = theta+thetagranularity;
+                    }
+                }
+                theta = thetagranularity;
+            }
+
+            //Resets
+            breakCondition = false;
+
+            //Tests Hoelder coefficients in other direction
+
+            while(!breakCondition) {
+                breakCondition = !hoelderlist.QDecrement();
+                maxTheta = bound.getMaximumTheta();
+
+                while(theta < maxTheta) {
+                    try {
+                        Math.min(optValue, bound.evaluate(theta));
+                        theta = theta+thetagranularity;
+                    } catch(ServerOverloadException | ThetaOutOfBoundException e) {
+                        theta = theta+thetagranularity;
+                    }
+                }
+                theta = thetagranularity;
+            }
+            return optValue;
+        }
+        
 	@Override
 	public double ReverseBound(Arrival input, Boundtype boundtype, double violation_probability, double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
 		
@@ -473,10 +554,7 @@ public class SimpleOptimizer extends AbstractOptimizer {
 		return result;
 	}
 
-    @Override
-    public double minimize(double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 	
 	/**
 	 * A helper class, which gives a method to rotate through all
