@@ -1,12 +1,7 @@
 package unikl.disco.mgf;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -20,10 +15,7 @@ import unikl.disco.mgf.network.ArrivalNotAvailableException;
 import unikl.disco.mgf.network.DeadlockException;
 import unikl.disco.mgf.network.Flow;
 import unikl.disco.mgf.network.Network;
-import unikl.disco.mgf.network.SimpleAnalysis;
 import unikl.disco.mgf.network.Vertex;
-import unikl.disco.mgf.optimization.SimpleGradient;
-import unikl.disco.mgf.optimization.SimpleOptimizer;
 import unikl.disco.mgf.network.AnalysisType;
 import unikl.disco.mgf.optimization.AbstractOptimizer;
 import unikl.disco.mgf.optimization.BoundFactory;
@@ -361,5 +353,8 @@ public class SNC {
 	public HashMap<Integer, Vertex> getVertices() {
 		return getVertices(getCurrentNetwork());
 	}
-	
+        
+        public Vertex getVertex(int id) {
+            return getCurrentNetwork().getVertex(id);
+        }
 }

@@ -35,7 +35,6 @@ import java.util.HashMap;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.SNC;
@@ -265,12 +264,8 @@ public class GUI implements Runnable {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				
-				AnalyzeDialog dialog = new AnalyzeDialog("Analyze Network", snc.getFlows(), snc.getVertices());
-				int output = dialog.showAnalyzeDialog();
-				if(output == BoundDialog.APPROVE_OPTION){
-					analyzeNetwork(dialog.getSelectedFlow(), dialog.getSelectedVertex(), dialog.getSelectedSecondVertex(), dialog.getAnalyzer(), dialog.getBoundtype());
-				}
+				//TODO: just toggle visibility and include listeners?
+				new AnalyzeDialog("Analyze Network", snc);
 			}
 			
 		});

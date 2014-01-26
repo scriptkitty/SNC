@@ -65,7 +65,9 @@ public abstract class AbstractOptimizer {
 	 * @throws ParameterMismatchException 
 	 * @throws ThetaOutOfBoundException 
 	 * @throws ServerOverloadException 
+         * @deprecated 
 	 */
+        @Deprecated
 	public abstract double Bound(Arrival input, AbstractAnalysis.Boundtype boundtype, double bound, double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException;
 	
 	/**
@@ -79,7 +81,9 @@ public abstract class AbstractOptimizer {
 	 * @throws ServerOverloadException 
 	 * @throws ParameterMismatchException 
 	 * @throws ThetaOutOfBoundException 
+         * @deprecated 
 	 */
+        @Deprecated
 	public abstract double ReverseBound(Arrival input, AbstractAnalysis.Boundtype boundtype, 
 										double violation_probability, double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException;
 	

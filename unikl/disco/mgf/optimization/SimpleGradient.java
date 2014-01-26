@@ -23,8 +23,6 @@ package unikl.disco.mgf.optimization;
 
 import java.util.HashMap;
 import java.util.Map;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.Hoelder;
 import unikl.disco.mgf.ParameterMismatchException;
