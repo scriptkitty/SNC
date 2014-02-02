@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import unikl.disco.mgf.Arrival;
+import unikl.disco.mgf.GUI.Displayable;
 
 /**
  * Describes a flow through the network and gives it an initial
@@ -41,7 +42,7 @@ import unikl.disco.mgf.Arrival;
  * @see Vertex
  * @see Arrival
  */
-public class Flow implements Serializable {
+public class Flow implements Serializable, Displayable {
 	
 	//Members
 	
@@ -62,6 +63,7 @@ public class Flow implements Serializable {
 	/**
 	 * Constructs a flow, with the complete route through the 
 	 * network and priorities at the vertices given.
+     * @param flow_ID
 	 * @param vertices the vertex-ids, through which the flow
 	 * traverses the network. vertices[0] denotes the id of the 
 	 * first vertex the flow traverses.
@@ -74,6 +76,8 @@ public class Flow implements Serializable {
 	 * the flow at the first vertex. The flows are served in 
 	 * descending priority numbers, in expression the flow with the
 	 * highest priority number is served first.
+     * @param alias An optional alias, will be set to the empty string, if the argument is null
+     * @param nw The corresponding network to which the flow belongs to
 	 */
 	
 	public Flow(int flow_ID, ArrayList<Integer> vertices, ArrayList<Arrival> arrivals, 
@@ -83,7 +87,7 @@ public class Flow implements Serializable {
 		this.priorities = priorities;
 		established_arrivals = 1;
 		this.flow_ID = flow_ID;
-		this.setAlias(alias);
+		this.alias = alias == null ? "" : alias;
 		arrivals.get(0).addArrivalDependency(flow_ID);
                 this.nw = nw;
 	}
@@ -138,7 +142,8 @@ public class Flow implements Serializable {
 	}
 	
 	/**
-	 * Returns a copy of this flow.
+	 * Copy this flow
+     * @return  A copy of this flow.
 	 */
 	public Flow copy(){
 		Flow copy = new Flow(flow_ID, vertices, arrivals, priorities, alias, nw);
@@ -217,12 +222,9 @@ public class Flow implements Serializable {
 		return flow_ID;
 	}
 
+        @Override
 	public String getAlias() {
 		return alias;
-	}
-
-	public void setAlias(String alias) {
-		this.alias = alias;
 	}
 	
 	public ArrayList<Integer> getVerticeIDs(){

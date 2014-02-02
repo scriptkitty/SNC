@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import unikl.disco.mgf.Arrival;
+import unikl.disco.mgf.GUI.Displayable;
 import unikl.disco.mgf.Service;
 
 /**
@@ -48,14 +49,8 @@ import unikl.disco.mgf.Service;
  * @see Service
  *
  */
-public class Vertex implements Serializable {
+public class Vertex implements Serializable, Displayable {
 	
-	//Members
-	
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -8696545130808777213L;
 	private String alias;
 	private int vertexID;
@@ -71,35 +66,41 @@ public class Vertex implements Serializable {
 	
 	/**
 	 * Creates an empty node.
+     * @param vertex_ID The ID the vertex will have in the network
+     * @param alias An optional alias of the node, empty string if alias is null
+     * @param nw The corresponding network in which this node exists
 	 */
 	
 	protected Vertex(int vertex_ID, String alias, Network nw){
 		service = new Service(nw);
 		prioritized_flow_id = 0;
 		highest_priority = 0;
-		priorities = new HashMap<Integer, Integer>();
-		incoming = new HashMap<Integer, Arrival>();
+		priorities = new HashMap<>();
+		incoming = new HashMap<>();
 		this.vertexID = vertex_ID;
 		service.addServiceDependency(vertex_ID);
-		this.setAlias(alias);
+		this.alias = alias == null ? "" : alias;
                 this.nw = nw;
 	}
 
 	/**
 	 * Creates a node with a given service
+     * @param vertex_ID
 	 * @param service the service, which is associated with this
 	 * node
+     * @param alias An optional alias of the node, empty string if alias is null
+     * @param nw The corresponding network in which this node exists
 	 */
 	
 	public Vertex(int vertex_ID, Service service, String alias, Network nw){
 		this.service = service;
 		prioritized_flow_id = 0;
 		highest_priority = 0;
-		priorities = new HashMap<Integer, Integer>();
-		incoming = new HashMap<Integer, Arrival>();
+		priorities = new HashMap<>();
+		incoming = new HashMap<>();
 		this.vertexID = vertex_ID;
 		service.addServiceDependency(vertex_ID);
-		this.setAlias(alias);
+		this.alias = alias == null ? "" : alias;
                 this.nw = nw;
 	}
 	
@@ -219,12 +220,11 @@ public class Vertex implements Serializable {
 	}
 	
 	/**
-	 * Returns true if there are only established flows and at 
-	 * least one established flow.
+	 * Determines if there is at least one non-established flow
+     * @return true, if there are only established flows and at least one non-established flow, false otherwise
 	 */
 	public boolean canServe(){
-		if(priorities.size() != 0 && priorities.size()==incoming.size()) return true;
-		else return false;
+            return !priorities.isEmpty() && priorities.size()==incoming.size();
 	}
 	
 	/**
@@ -263,12 +263,9 @@ public class Vertex implements Serializable {
 		return service;
 	}
 	
+        @Override
 	public String getAlias() {
 		return alias;
-	}
-	
-	public void setAlias( String name ) {
-		alias = name;
 	}
 	
 	public int getVertexID(){
