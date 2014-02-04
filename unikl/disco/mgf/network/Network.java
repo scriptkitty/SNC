@@ -61,18 +61,13 @@ public class Network {
 	// Constructor
 	
 	public Network(){
-            FLOW_ID = 1;
-            VERTEX_ID = 1;
-            HOELDER_ID = 1;
-            flows = new HashMap<>(0);
-            vertices = new HashMap<>(0);
-            hoelders = new HashMap<>(0);
+            this(null, null, null);
         }
         
         public Network(HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, HashMap<Integer, Hoelder> hoelders) {
-            this.flows = (flows != null) ? flows : new HashMap<Integer, Flow>(1);
-            this.vertices = (vertices != null) ? vertices : new HashMap<Integer, Vertex>(1);
-            this.hoelders = (hoelders != null) ? hoelders : new HashMap<Integer, Hoelder>(1);
+            this.flows = (flows != null) ? flows : new HashMap<Integer, Flow>();
+            this.vertices = (vertices != null) ? vertices : new HashMap<Integer, Vertex>();
+            this.hoelders = (hoelders != null) ? hoelders : new HashMap<Integer, Hoelder>();
             FLOW_ID = this.flows.size() + 1;
             VERTEX_ID = this.vertices.size() + 1;
             HOELDER_ID = this.hoelders.size() + 1;

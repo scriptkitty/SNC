@@ -172,7 +172,7 @@ public class OptimizationDialog extends AbstractDialog {
                     double thetaGranularity = (double)theta.getValue();
                     double hoelderGranularity = (double) hoelder.getValue();
                     double value = (double)Double.parseDouble(valueField.getText());
-                    snc.calculateBound(snc.getFlow(selectedFlow.getId()), snc.getVertex(selectedVertex.getId()), thetaGranularity, hoelderGranularity, anaType, optType, boundType, value, snc.getCurrentNetwork());
+                    //snc.calculateBound(snc.getFlow(selectedFlow.getId()), snc.getVertex(selectedVertex.getId()), thetaGranularity, hoelderGranularity, anaType, optType, boundType, value, snc.getCurrentNetwork());
                     dispose();
                 }
 
