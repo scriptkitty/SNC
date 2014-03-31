@@ -53,7 +53,13 @@ public class SimpleGradient extends AbstractOptimizer {
 		THETA_DEC, THETA_INC, HOELDER_P, HOELDER_Q, NOTHING
 	};
 
-	public SimpleGradient(Optimizable bound, AbstractAnalysis.Boundtype boundtype, Network nw) {
+    /**
+     * Creates an instance of this class, delegates the construction to @link AbstractOptimizer.
+     * @param bound
+     * @param boundtype
+     * @param nw
+     */
+    public SimpleGradient(Optimizable bound, AbstractAnalysis.Boundtype boundtype, Network nw) {
 		super(bound, boundtype, nw);
 	}
         

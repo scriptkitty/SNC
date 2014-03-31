@@ -21,16 +21,24 @@
 package unikl.disco.mgf.optimization;
 
 /**
- *
+ * A list of available optimizers
  * @author Sebastian Henningsen
  */
 public enum OptimizationType {
+
+    /**
+     * The gradient heuristic is the recommended optimization technique at the moment.
+     */
     GRADIENT_OPT {
         @Override
         public String toString() {
             return "Gradient Heuristic";
 	}
     },
+
+    /**
+     * A simple exhaustive search of the complete search space.
+     */
     SIMPLE_OPT {
         @Override
 	public String toString() {

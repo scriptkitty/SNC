@@ -23,10 +23,21 @@ package unikl.disco.mgf.optimization;
 import unikl.disco.mgf.Arrival;
 
 /**
- *
+ * A factory for bound which can be optimized. The goal is to add an extra layer
+ * between bounds and optimization in order to provide a generic and simple interface
+ * for bound handling and creation.
+ * 
  * @author Sebastian Henningsen
  */
 public class BoundFactory {
+
+    /**
+     * Creates the bound which is specified by boundtype
+     * @param input The arrival on which a bound shall be provided
+     * @param boundtype The desired bound type
+     * @param bound A bound value, for example a violation probability or a maximum backlog value.
+     * @return A suitable bound according to the inputs
+     */
     public static Optimizable createBound(Arrival input, BoundType boundtype, double bound) {
         switch(boundtype) {
             case BACKLOG:

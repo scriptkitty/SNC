@@ -28,7 +28,9 @@ import unikl.disco.mgf.ServerOverloadException;
 import unikl.disco.mgf.ThetaOutOfBoundException;
 
 /**
- *
+ * Represents a backlog bound for the given @link Arrival.
+ * The arrival and a given backlog value are wrapped into this class which then
+ * in turn can be optimized by the provided optimization techniques.
  * @author Sebastian Henningsen
  */
 public class BacklogBound implements Optimizable {
@@ -37,6 +39,11 @@ public class BacklogBound implements Optimizable {
     private double bound;
     private HashMap<Integer, Hoelder> allHoelders;
     
+    /**
+     * Creates a backlog bound 
+     * @param input The arrival which shall be bounded
+     * @param bound The bound value for backlog
+     */
     public BacklogBound(Arrival input, double bound) {
         this.input = input;
         this.bound = bound;
@@ -45,11 +52,23 @@ public class BacklogBound implements Optimizable {
         allHoelders.putAll(input.getRho().getParameters());
 
     }
+
+    /**
+     *
+     * @param theta
+     * @return
+     * @throws ThetaOutOfBoundException
+     * @throws ParameterMismatchException
+     * @throws ServerOverloadException
+     */
     @Override
     public double evaluate(double theta) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
         return (input.evaluate(theta, 0, 0));
     }
 
+    /**
+     *
+     */
     @Override
     public void prepare() {
         // Remove the parameter that represents the backlog from the other Hoelder parameters
@@ -58,11 +77,19 @@ public class BacklogBound implements Optimizable {
 	allHoelders.remove(allHoelders.size());
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public HashMap<Integer, Hoelder> getHoelderParameters() {
         return allHoelders;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public double getMaximumTheta() {
         return input.getThetastar();

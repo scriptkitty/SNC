@@ -21,16 +21,23 @@
 
 package unikl.disco.mgf.optimization;
 
-import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.network.AbstractAnalysis;
 import unikl.disco.mgf.network.Network;
 
 /**
- *
+ * A factory to abstract from different implementations of the @link Optimizer interface.
  * @author Sebastian Henningsen
  */
 public class OptimizationFactory {
     
+    /**
+     * Creates an instance of the chosen @link OptimizationType 
+     * @param nw The network the optimizer is associated with
+     * @param bound The bound-to-be-optimized
+     * @param boundtype A leftover, will be removed in future versions
+     * @param type The desired OptimizationType
+     * @return A concrete instance of an optimizer, which is chosen w.r.t. the passed OptimizationType enum.
+     */
     public static Optimizer getOptimizer(Network nw, Optimizable bound, AbstractAnalysis.Boundtype boundtype, OptimizationType type) {
         switch(type) {
             case SIMPLE_OPT:

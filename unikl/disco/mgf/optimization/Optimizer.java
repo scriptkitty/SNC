@@ -27,13 +27,13 @@ import unikl.disco.mgf.ThetaOutOfBoundException;
 import unikl.disco.mgf.network.AbstractAnalysis;
 
 /**
- *
+ * This interface specifies the methods an optimization algorithm must be capable of.
  * @author Sebastian Henningsen
  */
 public interface Optimizer {
 
     /**
-     *
+     * Minimizes the @link Optimizable bound which is provided via the constructor of the specific algorithm.
      * @param thetagranularity
      * @param hoeldergranularity
      * @return

@@ -28,7 +28,9 @@ import unikl.disco.mgf.ServerOverloadException;
 import unikl.disco.mgf.ThetaOutOfBoundException;
 
 /**
- *
+ * Represents a delay bound for the given @link Arrival.
+ * The arrival and a given delay value are wrapped into this class which then
+ * in turn can be optimized by the provided optimization techniques.
  * @author Sebastian Henningsen
  */
 public class DelayBound implements Optimizable {
@@ -36,6 +38,11 @@ public class DelayBound implements Optimizable {
     private int bound;
     private HashMap<Integer, Hoelder> allHoelders;
     
+    /**
+     * Creates a delay bound
+     * @param input The arrival to-be-bounded
+     * @param bound The desired delay value
+     */
     public DelayBound(Arrival input, double bound) {
         this.input = input;
         this.bound = (int)Math.round(Math.ceil(bound));
@@ -43,21 +50,41 @@ public class DelayBound implements Optimizable {
         allHoelders.putAll(input.getSigma().getParameters());
         allHoelders.putAll(input.getRho().getParameters());
     }
+
+    /**
+     *
+     */
     @Override
     public void prepare() {
         // Nothing to prepare for the delay bound
     }
 
+    /**
+     *
+     * @param theta
+     * @return
+     * @throws ThetaOutOfBoundException
+     * @throws ParameterMismatchException
+     * @throws ServerOverloadException
+     */
     @Override
     public double evaluate(double theta) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
         return input.evaluate(theta, bound, 0);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public HashMap<Integer, Hoelder> getHoelderParameters() {
         return allHoelders;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public double getMaximumTheta() {
         return input.getThetastar();

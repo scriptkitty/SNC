@@ -28,7 +28,9 @@ import unikl.disco.mgf.ServerOverloadException;
 import unikl.disco.mgf.ThetaOutOfBoundException;
 
 /**
- *
+ * Represents an inverse backlog bound for the given @link Arrival.
+ * The arrival and a given violation probability are wrapped into this class which then
+ * in turn can be optimized by the provided optimization techniques.
  * @author Sebastian Henningsen
  */
 public class InverseBacklogBound implements Optimizable {
@@ -36,6 +38,11 @@ public class InverseBacklogBound implements Optimizable {
     private double violationProb;
     private HashMap<Integer, Hoelder> allHoelders;
     
+    /**
+     * Creates an inverse backlog bound
+     * @param input The arrival to-be-bounded
+     * @param violationProb The desired violation probability
+     */
     public InverseBacklogBound(Arrival input, double violationProb) {
         this.input = input;
         this.violationProb = violationProb;
@@ -44,6 +51,9 @@ public class InverseBacklogBound implements Optimizable {
         allHoelders.putAll(input.getRho().getParameters());
     }
         
+    /**
+     *
+     */
     @Override
     public void prepare() {
         // Remove the parameter that represents the backlog from the other Hoelder parameters
@@ -52,16 +62,32 @@ public class InverseBacklogBound implements Optimizable {
 	allHoelders.remove(allHoelders.size());
     }
 
+    /**
+     *
+     * @param theta
+     * @return
+     * @throws ThetaOutOfBoundException
+     * @throws ParameterMismatchException
+     * @throws ServerOverloadException
+     */
     @Override
     public double evaluate(double theta) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
         return ( (-Math.log(violationProb)/theta) + 1/theta*Math.log(input.evaluate(theta, 0, 0)) );
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public HashMap<Integer, Hoelder> getHoelderParameters() {
         return allHoelders;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public double getMaximumTheta() {
         return input.getThetastar();

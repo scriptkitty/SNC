@@ -21,29 +21,46 @@
 package unikl.disco.mgf.optimization;
 
 /**
- *
+ * A list of available bounds, somewhat redundant to @link AbstractAnalysis.Boundtypes.
+ * These two enums will be merged in the future
  * @author Sebastian Henningsen
  */
 // TODO: Merge with AbstractAnalysis.Boundtypes
 public enum BoundType {
+
+    /**
+     * The backlog bound
+     */
     BACKLOG {
         @Override
         public String toString() {
             return "BacklogBound";
         }
     },
+
+    /**
+     * The inverse backlog bound
+     */
     INVERSE_BACKLOG {
         @Override
         public String toString() {
             return "Inverse BacklogBound";
         }
     },
+
+    /**
+     * The delay bound
+     */
     DELAY {
         @Override
         public String toString() {
             return "DelayBound";
         }
     },
+
+    /**
+     * the inverse delay bound
+     */
     INVERSE_DELAY {
         @Override
         public String toString() {

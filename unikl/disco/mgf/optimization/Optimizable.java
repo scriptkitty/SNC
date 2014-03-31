@@ -27,12 +27,38 @@ import unikl.disco.mgf.ServerOverloadException;
 import unikl.disco.mgf.ThetaOutOfBoundException;
 
 /**
- *
+ * This interface specifies the functions that must be available
+ * in order to minimize a function by the provided optimizers.
+ * 
  * @author Sebastian Henningsen
  */
 public interface Optimizable {
+
+    /**
+     * Called at the beginning of optimization, used for parameter extraction
+     * in the @link BacklogBound
+     */
     public void prepare();
+
+    /**
+     * Evaluates the function at value theta
+     * @param theta
+     * @return 
+     * @throws ThetaOutOfBoundException
+     * @throws ParameterMismatchException
+     * @throws ServerOverloadException
+     */
     public double evaluate(double theta) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException;
+
+    /**
+     * Returns all hoelder parameters (if any)
+     * @return
+     */
     public HashMap<Integer, Hoelder> getHoelderParameters();
+
+    /**
+     * Returns the maximum value for theta 
+     * @return
+     */
     public double getMaximumTheta();
 }

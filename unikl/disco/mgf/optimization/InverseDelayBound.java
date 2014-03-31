@@ -28,7 +28,9 @@ import unikl.disco.mgf.ServerOverloadException;
 import unikl.disco.mgf.ThetaOutOfBoundException;
 
 /**
- *
+ * Represents an inverse delay bound for the given @link Arrival.
+ * The arrival and a given violation probability are wrapped into this class which then
+ * in turn can be optimized by the provided optimization techniques.
  * @author Sebastian Henningsen
  */
 public class InverseDelayBound implements Optimizable {
@@ -36,6 +38,11 @@ public class InverseDelayBound implements Optimizable {
     private double violationProb;
     private HashMap<Integer, Hoelder> allHoelders;
     
+    /**
+     * Creates an inverse delay bound
+     * @param input The Arrival which shall be bounded
+     * @param violationProb The desired violation probability
+     */
     public InverseDelayBound(Arrival input, double violationProb) {
         this.input = input;
         this.violationProb = violationProb;
@@ -44,11 +51,22 @@ public class InverseDelayBound implements Optimizable {
         allHoelders.putAll(input.getRho().getParameters());
     }
     
+    /**
+     *
+     */
     @Override
     public void prepare() {
         // Nothing to do
     }
 
+    /**
+     *
+     * @param theta
+     * @return
+     * @throws ThetaOutOfBoundException
+     * @throws ParameterMismatchException
+     * @throws ServerOverloadException
+     */
     @Override
     public double evaluate(double theta) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
         double sigmapart = input.getSigma().getValue(theta, input.getSigma().getParameters());
@@ -56,11 +74,19 @@ public class InverseDelayBound implements Optimizable {
 	return -1/rhopart*(-Math.log(violationProb)/theta + sigmapart);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public HashMap<Integer, Hoelder> getHoelderParameters() {
         return allHoelders;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public double getMaximumTheta() {
         return input.getThetastar();

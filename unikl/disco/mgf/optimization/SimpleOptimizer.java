@@ -47,7 +47,13 @@ import unikl.disco.mgf.network.AbstractAnalysis.Boundtype;
  */
 public class SimpleOptimizer extends AbstractOptimizer {
 
-	public SimpleOptimizer(Optimizable input, Boundtype boundtype, Network nw) {
+    /**
+     * Creation is delegated to the @link AbstractOptimizer subclass.
+     * @param input
+     * @param boundtype
+     * @param nw
+     */
+    public SimpleOptimizer(Optimizable input, Boundtype boundtype, Network nw) {
 		super(input, boundtype, nw);
 	}
 	

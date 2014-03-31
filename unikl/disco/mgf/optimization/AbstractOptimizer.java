@@ -35,27 +35,50 @@ import unikl.disco.mgf.network.Network;
  * Important is also the "reverse" operation, which finds the
  * nearly optimal bound for a given violation probability.
  * A calculation of output bounds is not needed.
+ * This class should be used as a starting point when writing
+ * own implementations of the @link Optimizer interface
  * @author Michael Beck
  *
  */
 public abstract class AbstractOptimizer implements Optimizer {
-	
-	protected Optimizable bound;
-	protected AbstractAnalysis.Boundtype boundtype;
-	protected double maxTheta;
-        protected Network nw;
-	
-	public AbstractOptimizer(Optimizable input, AbstractAnalysis.Boundtype boundtype, Network nw){
+
+    /**
+     * The bound-to-be-optimized
+     */
+    protected Optimizable bound;
+
+    /**
+     * A leftover, this information is now encapsulated into the implementations of @link Optimizable
+     */
+    protected AbstractAnalysis.Boundtype boundtype;
+
+    /**
+     * The maximum value of theta
+     */
+    protected double maxTheta;
+
+    /**
+     * The network the optimizer is associated with
+     */
+    protected Network nw;
+
+    /**
+     * Sets the basic parameters
+     * @param input Bound to-be-optimized
+     * @param boundtype Leftover, will be removed in future versions
+     * @param nw The corresponding network the optimizer is associated with
+     */
+    public AbstractOptimizer(Optimizable input, AbstractAnalysis.Boundtype boundtype, Network nw){
 		this.bound = input;
 		this.boundtype = boundtype;
                 this.nw = nw;
 	}
 
     /**
-     *
+     * Minimizes the given bound w.r.t. to the maximum theta as well as theta and hoelder granularities.
      * @param thetagranularity
      * @param hoeldergranularity
-     * @return
+     * @return A minimal value for the given bound
      * @throws ThetaOutOfBoundException
      * @throws ParameterMismatchException
      * @throws ServerOverloadException
@@ -68,13 +91,13 @@ public abstract class AbstractOptimizer implements Optimizer {
 	 * @param input the bound in arrival-representation
 	 * @param boundtype either BACKLOG or DELAY
 	 * @param bound the bound on the backlog or delay
-     * @param thetagranularity
-     * @param hoeldergranularity
+        * @param thetagranularity
+        * @param hoeldergranularity
 	 * @return a bound on the violation probability
 	 * @throws ParameterMismatchException 
 	 * @throws ThetaOutOfBoundException 
 	 * @throws ServerOverloadException 
-         * @deprecated 
+         * @deprecated Functionality is now covered by @link minimize
 	 */
         @Deprecated
         @Override
@@ -88,13 +111,13 @@ public abstract class AbstractOptimizer implements Optimizer {
 	 * @param boundtype either BACKLOG or DELAY
 	 * @param violation_probability the violation probability,
 	 * which must not been exceeded by the bound. 
-     * @param thetagranularity 
-     * @param hoeldergranularity 
-     * @return  
+         * @param thetagranularity 
+         * @param hoeldergranularity 
+         * @return A value w.r.t. to the given violation probability
 	 * @throws ServerOverloadException 
 	 * @throws ParameterMismatchException 
 	 * @throws ThetaOutOfBoundException 
-         * @deprecated 
+         * @deprecated Functionality is now covered by @link minimize
 	 */
         @Deprecated
         @Override
