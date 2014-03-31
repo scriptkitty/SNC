@@ -25,6 +25,8 @@ import unikl.disco.mgf.optimization.Optimizable;
 import unikl.disco.mgf.optimization.OptimizationFactory;
 import unikl.disco.mgf.optimization.OptimizationType;
 import unikl.disco.mgf.optimization.Optimizer;
+import unikl.disco.misc.UndoRedoStack;
+import unikl.disco.misc.commands.Command;
 
 /**
  * This class contains the main method, which starts and prepares the GUI.
@@ -40,6 +42,7 @@ public class SNC {
         // TODO
 	private static GUI gui;
         private static Network nw;
+        private static UndoRedoStack undoRedoStack;
 	
 	//Main-Method
 	public static void main(String[] args) throws InvocationTargetException, InterruptedException, 
@@ -49,14 +52,27 @@ public class SNC {
                 // TODO
 		SNC snc = new SNC();
 		nw = new Network();
-		
+		undoRedoStack = new UndoRedoStack();
+                
 		gui = new GUI(snc);
 		SwingUtilities.invokeLater(gui);
 		
 	}
 		
 	//Methods
-	
+	public void undo() {
+            undoRedoStack.undo();
+        }
+        
+        public void redo() {
+            undoRedoStack.redo();
+        }
+        
+        public void invokeCommand(Command c) {
+            undoRedoStack.insertIntoStack(c);
+            c.execute();
+        }
+        
         public Network getCurrentNetwork() {
             return nw;
         }
