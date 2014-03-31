@@ -1,4 +1,4 @@
-/*
+ /*
  *  (c) 2013 Michael A. Beck, disco | Distributed Computer Systems Lab
  *                                  University of Kaiserslautern, Germany
  *         All Rights Reserved.
@@ -18,27 +18,16 @@
  *  extensions to this software.
  *
  */
-
-package unikl.disco.mgf.optimization;
+package unikl.disco.mgf.network;
 
 import unikl.disco.mgf.Arrival;
-import unikl.disco.mgf.network.AbstractAnalysis;
-import unikl.disco.mgf.network.Network;
+import unikl.disco.mgf.BadInitializationException;
 
 /**
  *
  * @author Sebastian Henningsen
  */
-public class OptimizationFactory {
+public interface Analyzer {
+    public abstract Arrival analyze() throws ArrivalNotAvailableException, DeadlockException, BadInitializationException;
     
-    public static Optimizer getOptimizer(Network nw, Optimizable bound, AbstractAnalysis.Boundtype boundtype, OptimizationType type) {
-        switch(type) {
-            case SIMPLE_OPT:
-                return new SimpleOptimizer(bound, boundtype, nw);
-            case GRADIENT_OPT:
-                return new SimpleGradient(bound, boundtype, nw);
-            default:
-                throw new IllegalArgumentException("Optimization Type: " + type.toString() + " not known.");
-        }
-    }
 }

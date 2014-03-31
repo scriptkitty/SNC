@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import unikl.disco.mgf.Arrival;
-import unikl.disco.mgf.GUI.Displayable;
+import unikl.disco.mgf.gui.Displayable;
 
 /**
  * Describes a flow through the network and gives it an initial

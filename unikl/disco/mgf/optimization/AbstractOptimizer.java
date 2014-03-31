@@ -20,10 +20,7 @@
  */
 package unikl.disco.mgf.optimization;
 
-import java.util.HashMap;
-
 import unikl.disco.mgf.Arrival;
-import unikl.disco.mgf.Hoelder;
 import unikl.disco.mgf.ParameterMismatchException;
 import unikl.disco.mgf.ServerOverloadException;
 import unikl.disco.mgf.ThetaOutOfBoundException;
@@ -41,7 +38,7 @@ import unikl.disco.mgf.network.Network;
  * @author Michael Beck
  *
  */
-public abstract class AbstractOptimizer {
+public abstract class AbstractOptimizer implements Optimizer {
 	
 	protected Optimizable bound;
 	protected AbstractAnalysis.Boundtype boundtype;
@@ -53,7 +50,17 @@ public abstract class AbstractOptimizer {
 		this.boundtype = boundtype;
                 this.nw = nw;
 	}
-	
+
+    /**
+     *
+     * @param thetagranularity
+     * @param hoeldergranularity
+     * @return
+     * @throws ThetaOutOfBoundException
+     * @throws ParameterMismatchException
+     * @throws ServerOverloadException
+     */
+    @Override
         public abstract double minimize(double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException;
 	/**
 	 * Computes a bound on the violation probability that a 
@@ -61,6 +68,8 @@ public abstract class AbstractOptimizer {
 	 * @param input the bound in arrival-representation
 	 * @param boundtype either BACKLOG or DELAY
 	 * @param bound the bound on the backlog or delay
+     * @param thetagranularity
+     * @param hoeldergranularity
 	 * @return a bound on the violation probability
 	 * @throws ParameterMismatchException 
 	 * @throws ThetaOutOfBoundException 
@@ -68,6 +77,7 @@ public abstract class AbstractOptimizer {
          * @deprecated 
 	 */
         @Deprecated
+        @Override
 	public abstract double Bound(Arrival input, AbstractAnalysis.Boundtype boundtype, double bound, double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException;
 	
 	/**
@@ -78,12 +88,16 @@ public abstract class AbstractOptimizer {
 	 * @param boundtype either BACKLOG or DELAY
 	 * @param violation_probability the violation probability,
 	 * which must not been exceeded by the bound. 
+     * @param thetagranularity 
+     * @param hoeldergranularity 
+     * @return  
 	 * @throws ServerOverloadException 
 	 * @throws ParameterMismatchException 
 	 * @throws ThetaOutOfBoundException 
          * @deprecated 
 	 */
         @Deprecated
+        @Override
 	public abstract double ReverseBound(Arrival input, AbstractAnalysis.Boundtype boundtype, 
 										double violation_probability, double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException;
 	

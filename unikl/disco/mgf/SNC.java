@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 
 import javax.swing.SwingUtilities;
 
-import unikl.disco.mgf.GUI.GUI;
+import unikl.disco.mgf.gui.GUI;
 import unikl.disco.mgf.network.AbstractAnalysis;
 import unikl.disco.mgf.network.AnalysisFactory;
 import unikl.disco.mgf.network.ArrivalNotAvailableException;
@@ -17,12 +17,14 @@ import unikl.disco.mgf.network.Flow;
 import unikl.disco.mgf.network.Network;
 import unikl.disco.mgf.network.Vertex;
 import unikl.disco.mgf.network.AnalysisType;
+import unikl.disco.mgf.network.Analyzer;
 import unikl.disco.mgf.optimization.AbstractOptimizer;
 import unikl.disco.mgf.optimization.BoundFactory;
 import unikl.disco.mgf.optimization.BoundType;
 import unikl.disco.mgf.optimization.Optimizable;
 import unikl.disco.mgf.optimization.OptimizationFactory;
 import unikl.disco.mgf.optimization.OptimizationType;
+import unikl.disco.mgf.optimization.Optimizer;
 
 /**
  * This class contains the main method, which starts and prepares the GUI.
@@ -149,7 +151,7 @@ public class SNC {
 		int resetHoelderID = nw.getHOELDER_ID();
 		int resetVertexID = nw.getVERTEX_ID();
 		
-		AbstractAnalysis analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
+		Analyzer analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
                 try {
                         bound = analyzer.analyze();
                 } catch (ArrivalNotAvailableException e) {
@@ -204,7 +206,7 @@ public class SNC {
                     throw new IllegalArgumentException("No such boundtype");
                 }
                 Optimizable bound = BoundFactory.createBound(symbolicBound, optBoundType, value);
-                AbstractOptimizer optimizer = OptimizationFactory.getOptimizer(nw, bound, boundtype, optType);
+                Optimizer optimizer = OptimizationFactory.getOptimizer(nw, bound, boundtype, optType);
                 try {
                     debugProb = optimizer.Bound(symbolicBound, boundtype, value, thetaGran, hoelderGran);
                     prob = optimizer.minimize(thetaGran, hoelderGran);
@@ -312,15 +314,15 @@ public class SNC {
                 // Temporary fix:
                 BoundType optBoundType;
                 if(boundtype == AbstractAnalysis.Boundtype.BACKLOG) {
-                    optBoundType = BoundType.BACKLOG;
+                    optBoundType = BoundType.INVERSE_BACKLOG;
                 } else if(boundtype == AbstractAnalysis.Boundtype.DELAY) {
-                    optBoundType = BoundType.DELAY;
+                    optBoundType = BoundType.INVERSE_DELAY;
                 } else {
                     throw new IllegalArgumentException("No such boundtype");
                 }
                 
                 Optimizable bound = BoundFactory.createBound(symbolicBound, optBoundType, probability);
-                AbstractOptimizer optimizer = OptimizationFactory.getOptimizer(nw, bound, boundtype, optType);
+                Optimizer optimizer = OptimizationFactory.getOptimizer(nw, bound, boundtype, optType);
                 try {
                     value = optimizer.minimize(thetaGran, hoelderGran);
                     debugVal = optimizer.ReverseBound(symbolicBound, boundtype, probability, thetaGran, hoelderGran);

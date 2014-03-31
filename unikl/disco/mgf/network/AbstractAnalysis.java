@@ -42,7 +42,7 @@ import unikl.disco.mgf.BadInitializationException;
  * instead of a result a {@link DeadlockException} is thrown.
  * @author Michael Beck
  */
-public abstract class AbstractAnalysis {
+public abstract class AbstractAnalysis implements Analyzer {
 	
 	protected HashMap<Integer, Vertex> vertices;
 	protected HashMap<Integer, Flow> flows;
@@ -69,6 +69,7 @@ public abstract class AbstractAnalysis {
                 this.nw = nw;
 	}
 	
+        @Override
 	public abstract Arrival analyze() throws ArrivalNotAvailableException, DeadlockException, BadInitializationException;
 
 	public int getVertexOfInterest() {

@@ -144,8 +144,8 @@ public class SimpleOptimizer extends AbstractOptimizer {
 		
 		//If needed, the parameter, which represents the backlog, must be separated from the other Hoelder parameters
 		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG){
-			allparameters.get(nw.getHOELDER_ID()-1).setPValue(0);
-			allparameters.remove(nw.getHOELDER_ID()-1);
+			allparameters.get(allparameters.size()).setPValue(0);
+			allparameters.remove(allparameters.size());
 		}
 		
 		IncrementList hoelderlist = new IncrementList(hoeldergranularity);
@@ -361,8 +361,8 @@ public class SimpleOptimizer extends AbstractOptimizer {
 		
 		//If needed, the parameter, which represents the backlog, must be separated from the other Hoelder parameters
 		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG){
-			allparameters.get(nw.getHOELDER_ID()-1).setPValue(bound);
-			allparameters.remove(nw.getHOELDER_ID()-1);
+			allparameters.get(allparameters.size()).setPValue(bound);
+			allparameters.remove(allparameters.size());
 		}
 		
 		IncrementList hoelderlist = new IncrementList(hoeldergranularity);

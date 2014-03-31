@@ -33,12 +33,12 @@ import unikl.disco.mgf.ThetaOutOfBoundException;
  */
 public class InverseDelayBound implements Optimizable {
     private Arrival input;
-    private int violationProb;
+    private double violationProb;
     private HashMap<Integer, Hoelder> allHoelders;
     
-    public InverseDelayBound(Arrival input, double bound) {
+    public InverseDelayBound(Arrival input, double violationProb) {
         this.input = input;
-        this.violationProb = (int)Math.round(Math.ceil(bound));
+        this.violationProb = violationProb;
         this.allHoelders = new HashMap<>(0);
         allHoelders.putAll(input.getSigma().getParameters());
         allHoelders.putAll(input.getRho().getParameters());

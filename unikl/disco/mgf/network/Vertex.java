@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import unikl.disco.mgf.Arrival;
-import unikl.disco.mgf.GUI.Displayable;
+import unikl.disco.mgf.gui.Displayable;
 import unikl.disco.mgf.Service;
 
 /**

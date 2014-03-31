@@ -48,7 +48,7 @@ public class InverseBacklogBound implements Optimizable {
     public void prepare() {
         // Remove the parameter that represents the backlog from the other Hoelder parameters
         // TODO: Check this for correctness!
-        allHoelders.get(allHoelders.size()).setPValue(violationProb);
+        allHoelders.get(allHoelders.size()).setPValue(0);
 	allHoelders.remove(allHoelders.size());
     }
 

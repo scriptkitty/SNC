@@ -208,12 +208,8 @@ public class SimpleGradient extends AbstractOptimizer {
 			
 		//If needed, the parameter, which represents the backlog, must be separated from the other Hoelder parameters
 		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG){
-                    if(allparameters.size() != nw.getHOELDER_ID() - 1) {
-                        // Something is really wrong. This is only a temporary test, until the problem is sorted out
-                        throw new IllegalStateException("Fatal: Hoelder IDs do not match.");
-                    }
-                    allparameters.get(nw.getHOELDER_ID()-1).setPValue(bound);
-			allparameters.remove(nw.getHOELDER_ID()-1);
+                    allparameters.get(allparameters.size()).setPValue(bound);
+                    allparameters.remove(allparameters.size());
 		}
 		for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
 			entry.getValue().setPValue(2);
@@ -525,8 +521,8 @@ public class SimpleGradient extends AbstractOptimizer {
 			
 		//If needed, the parameter, which represents the backlog, must be separated from the other Hoelder parameters
 		if(boundtype == AbstractAnalysis.Boundtype.BACKLOG){
-			allparameters.get(nw.getHOELDER_ID()-1).setPValue(0);
-			allparameters.remove(nw.getHOELDER_ID()-1);
+			allparameters.get(allparameters.size()).setPValue(0);
+			allparameters.remove(allparameters.size());
 		}
 		System.out.println("allparameters:"+ allparameters.toString());
 		for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
