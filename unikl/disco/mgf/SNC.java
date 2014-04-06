@@ -122,6 +122,14 @@ public class SNC {
 	public boolean removeVertex(Vertex vertex, Network nw) {
 		return nw.removeVertex(vertex);
 	}
+        
+        public boolean removeVertex(int vertexID, int networkID) {
+            return getNetwork(networkID).removeVertex(vertexID);
+        }
+        
+        public Network getNetwork(int id) {
+            return nw;
+        }
 	
 	/**
 	 * Relays the command of adding a given <code>vertex</code> to the network

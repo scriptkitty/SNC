@@ -33,6 +33,7 @@ import javax.swing.*;
 
 import unikl.disco.mgf.*;
 import unikl.disco.mgf.network.*;
+import unikl.disco.misc.commands.AddVertexCommand;
 
 /**
  * A dialog for editing a vertex.
@@ -56,12 +57,12 @@ public class VertexEditor extends JDialog {
 	
 	//Constructors
 	
-	public VertexEditor(String title, Vertex vertex, Network nw){
-		this(title, nw);
+	public VertexEditor(String title, Vertex vertex, Network nw, SNC snc){
+		this(title, nw, snc);
 		this.vertex = vertex;
 	}
 	
-	public VertexEditor(String title, final Network nw){
+	public VertexEditor(String title, final Network nw, final SNC snc){
 		this.nw = nw;
 		//Constructs the dialog
 		this.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
@@ -131,13 +132,14 @@ public class VertexEditor extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				output = APPROVE_OPTION;
 				boolean correct = true;
+                                double rate = 0.0;
 	
 				//Constant arrival case
 				if(service.getSelectedItem() == CONSTANT){
 					//uses the vertex-constructor to submit information to main GUI. Do not use this vertex directly!
 					rateSigma rho;
 					try{
-						double rate = -Double.valueOf(constantRate.getText());
+						rate = -Double.valueOf(constantRate.getText());
 						rho = new rateSigma(rate);
 					}
 					catch(BadInitializationException exc){	
@@ -154,6 +156,8 @@ public class VertexEditor extends JDialog {
 					Service service = new Service(new ZeroFunction(), rho, nw);
 					
 					if(correct) {
+                                            // Network ID is made up
+                                            snc.invokeCommand(new AddVertexCommand(aliasField.getText(), rate, 0, snc));
 						vertex = new Vertex(-1, service, aliasField.getText(), nw);
 						vertex.getService().getServicedependencies().clear();
 					}

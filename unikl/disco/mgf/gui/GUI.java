@@ -43,7 +43,9 @@ import unikl.disco.mgf.network.Flow;
 import unikl.disco.mgf.network.Vertex;
 import unikl.disco.mgf.network.AnalysisType;
 import unikl.disco.mgf.network.ArrivalNotAvailableException;
+import unikl.disco.mgf.network.NetworkListener;
 import unikl.disco.mgf.optimization.OptimizationType;
+import unikl.disco.misc.commands.AddVertexCommand;
 
 /**
  * This is a first GUI, allowing the user easy manipulations of the network
@@ -57,7 +59,7 @@ import unikl.disco.mgf.optimization.OptimizationType;
  * @author Michael Beck
  *
  */
-public class GUI implements Runnable {
+public class GUI implements Runnable, NetworkListener {
 	
 	//Members
 	private static SNC snc;
@@ -70,7 +72,10 @@ public class GUI implements Runnable {
 	}
 	
 	@Override
-	public void run(){
+	public void run() {
+            
+            // Register this as a listener (hacked but okay until GUI is refactored)
+            snc.getCurrentNetwork().addListener(this);
 		
 		//Constructs the GUI
 		final JFrame MainFrame = new JFrame("disco - Stochastic Network Calculator");
@@ -210,10 +215,13 @@ public class GUI implements Runnable {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				VertexEditor dialog = new VertexEditor("Add Vertex", snc.getCurrentNetwork());
+				VertexEditor dialog = new VertexEditor("Add Vertex", snc.getCurrentNetwork(), snc);
 				int output = dialog.showVertexEditor();
 				if(output == VertexEditor.APPROVE_OPTION){
-					addVertex(dialog.getEditedVertex());
+                                    //Updates GUI
+                                    flowModel.fireTableDataChanged();
+                                    nodeModel.fireTableDataChanged();
+                                    updateGraph();
 				}
 			}
 		});
@@ -327,6 +335,42 @@ public class GUI implements Runnable {
 		controller.add(inverseButton, inverseGC);
 		
 		leftPanel.add(controller);
+                
+                JButton undoButton = new JButton("Undo");
+		
+		undoButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				snc.undo();
+			}
+			
+		});
+		GridBagConstraints undoGC = new GridBagConstraints();
+		analyzeGC.gridx = 3;
+		analyzeGC.gridy = 0;
+		analyzeGC.gridwidth = 1;
+		analyzeGC.gridheight = 1;
+		analyzeGC.anchor = GridBagConstraints.WEST;
+		controller.add(undoButton, undoGC);
+                
+                JButton redoButton = new JButton("Redo");
+		
+		redoButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				snc.redo();
+			}
+			
+		});
+		GridBagConstraints redoGC = new GridBagConstraints();
+		analyzeGC.gridx = 3;
+		analyzeGC.gridy = 1;
+		analyzeGC.gridwidth = 1;
+		analyzeGC.gridheight = 1;
+		analyzeGC.anchor = GridBagConstraints.WEST;
+		controller.add(redoButton, redoGC);
 		
 		//***************************************************
 		//Adds a flow and vertex table to the left lower side
@@ -589,16 +633,8 @@ public class GUI implements Runnable {
             updateGraph();
 	}
 	
-	private static void addVertex(Vertex vertex){
+	private static void addVertex(String alias, double rate, int networkID){
 		
-		//Alters the network via the caller
-		int newID = snc.addVertex(vertex, snc.getCurrentNetwork());
-		
-		//Console output
-		if(newID>0){
-			System.out.println(vertex.getAlias()+ " with ID "+newID+" added");
-		}
-		else System.out.println("Vertex can't be added.");
 		
 		//Updates GUI
 		flowModel.fireTableDataChanged();
@@ -646,5 +682,37 @@ public class GUI implements Runnable {
                 }
 		System.out.println("The bound in arrival-representation equals: "+bound.toString());
 	}
+
+    @Override
+    public void vertexAdded(Vertex newVertex) {
+        //Updates GUI
+	flowModel.fireTableDataChanged();
+	nodeModel.fireTableDataChanged();
+	updateGraph();
+    }
+
+    @Override
+    public void vertexRemoved(Vertex removedVertex) {
+        //Updates GUI
+	flowModel.fireTableDataChanged();
+	nodeModel.fireTableDataChanged();
+	updateGraph();
+    }
+
+    @Override
+    public void flowAdded(Flow newFlow) {
+        //Updates GUI
+	flowModel.fireTableDataChanged();
+	nodeModel.fireTableDataChanged();
+	updateGraph();
+    }
+
+    @Override
+    public void flowRemoved(Flow removedFlow) {
+        //Updates GUI
+	flowModel.fireTableDataChanged();
+	nodeModel.fireTableDataChanged();
+	updateGraph();
+    }
 
 }

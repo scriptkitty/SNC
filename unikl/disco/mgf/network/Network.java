@@ -28,6 +28,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import unikl.disco.mgf.Arrival;
@@ -57,6 +58,7 @@ public class Network {
 	private HashMap<Integer,Flow> flows;
 	private HashMap<Integer,Vertex> vertices;
 	private HashMap<Integer,Hoelder> hoelders;
+        private List<NetworkListener> listeners;
 	
 	// Constructor
 	
@@ -71,10 +73,18 @@ public class Network {
             FLOW_ID = this.flows.size() + 1;
             VERTEX_ID = this.vertices.size() + 1;
             HOELDER_ID = this.hoelders.size() + 1;
+            this.listeners = new ArrayList();
         }
 	
 	//Methods
 	
+        public boolean addListener(NetworkListener l) {
+            return listeners.add(l);
+        }
+        
+        public boolean removeListener(NetworkListener l) {
+            return listeners.remove(l);
+        }
 	/**
 	 * Creates a new Hoelder-Object and returns its id.
 	 * @return the newly created Hoelder-Object.
@@ -93,6 +103,10 @@ public class Network {
 		Vertex vertex = new Vertex(VERTEX_ID, alias, this);
 		vertices.put(VERTEX_ID, vertex);
 		incrementVERTEX_ID();
+                for (NetworkListener l : listeners) {
+                    l.vertexAdded(vertex);
+                
+            }
 	}
 	
 	/**
@@ -111,6 +125,10 @@ public class Network {
 		Vertex vertex = new Vertex(VERTEX_ID, service, alias, this);
 		vertices.put(VERTEX_ID, vertex);
 		incrementVERTEX_ID();
+                for (NetworkListener l : listeners) {
+                    l.vertexAdded(vertex);
+                
+            }
 	}
 	
 	/**
@@ -142,17 +160,25 @@ public class Network {
 	 * @return if removing the vertex was successful
 	 */
 	public boolean removeVertex(Vertex vertex) {
-		boolean success = false;
-		if(vertices.containsKey(vertex.getVertexID())){
-			for(int i : vertex.getAllFlowIDs().keySet()){
-				flows.get(i).removeVertex(vertex.getVertexID());
-			}
-			vertices.remove(vertex.getVertexID());
-			success = true;
-			
-		}
-		return success;
+            return removeVertex(vertex.getVertexID());
 	}
+        
+        public boolean removeVertex(int id) {
+            boolean success = false;
+		if(vertices.containsKey(id)){
+			for(int i : getVertex(id).getAllFlowIDs().keySet()){
+				flows.get(i).removeVertex(id);
+			}
+			vertices.remove(id);
+			success = true;
+		}
+                // Notify listeners
+                for (NetworkListener l : listeners) {
+                    l.vertexRemoved(getVertex(id));
+                
+            }
+            return success;
+        }
 
 	/**
 	 * Creates a new flow with an initial arrival and a complete
@@ -194,6 +220,12 @@ public class Network {
 		
 		//Increments the flow count
 		incrementFLOW_ID();
+                
+                // Notify the listeners
+                for (NetworkListener l : listeners) {
+                    l.flowAdded(flow);
+                
+            }
 	}
 
 	/**
@@ -226,6 +258,12 @@ public class Network {
 		
 		//Increments the flow count
 		incrementFLOW_ID();
+                
+                // Notify the listeners
+                for (NetworkListener l : listeners) {
+                    l.flowAdded(flow);
+                
+            }
 	}
 
 	/**
@@ -279,6 +317,11 @@ public class Network {
 			success = true;
 			
 		}
+                // Notify the listeners
+                for (NetworkListener l : listeners) {
+                    l.flowRemoved(flow);
+                
+            }
 		return success;
 	}
 	
