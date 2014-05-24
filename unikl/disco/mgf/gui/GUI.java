@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -182,7 +183,7 @@ public class GUI implements Runnable, NetworkListener {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				HashMap<Integer, Flow> flows = snc.getFlows();
+				Map<Integer, Flow> flows = snc.getFlows();
 				FlowChooser dialog = new FlowChooser("Remove Flow", flows);
 				int output = dialog.showFlowChooser();
 				if(output == FlowChooser.APPROVE_OPTION){
@@ -466,7 +467,7 @@ public class GUI implements Runnable, NetworkListener {
 						entry = ""+snc.getVertices().get(id).getVertexID();
 						break;
 					case 2:
-						entry = snc.getVertices().get(id).getAllFlowIDs().toString();
+						entry = snc.getVertices().get(id).getAllFlowPriorities().toString();
 						break;
 					default:
 						entry = "";

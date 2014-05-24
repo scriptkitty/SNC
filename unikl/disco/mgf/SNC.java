@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.SwingUtilities;
@@ -361,14 +362,14 @@ public class SNC {
 	}
 	
 	//Getter and Setter
-	public HashMap<Integer, Flow> getFlows(Network nw) {
+	public Map<Integer, Flow> getFlows(Network nw) {
             return nw.getFlows();
         }
         
-        public HashMap<Integer, Vertex> getVertices(Network nw) {
+        public Map<Integer, Vertex> getVertices(Network nw) {
             return nw.getVertices();
         }
-	public HashMap<Integer, Flow> getFlows(){
+	public Map<Integer, Flow> getFlows(){
 		return getFlows(getCurrentNetwork());
 	}
         
@@ -376,7 +377,7 @@ public class SNC {
 		return getCurrentNetwork().getFlow(id);
 	}
 	
-	public HashMap<Integer, Vertex> getVertices() {
+	public Map<Integer, Vertex> getVertices() {
 		return getVertices(getCurrentNetwork());
 	}
         

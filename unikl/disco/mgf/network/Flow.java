@@ -23,6 +23,7 @@ package unikl.disco.mgf.network;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.gui.Displayable;
@@ -47,9 +48,9 @@ public class Flow implements Serializable, Displayable {
 	//Members
 	
 	private static final long serialVersionUID = 7989846738211040015L;
-	private ArrayList<Integer> vertices;
-	private ArrayList<Arrival> arrivals;
-	private ArrayList<Integer> priorities;
+	private List<Integer> vertices;
+	private List<Arrival> arrivals;
+	private List<Integer> priorities;
 	
 	private int flow_ID;
 	private String alias;
@@ -80,8 +81,8 @@ public class Flow implements Serializable, Displayable {
      * @param nw The corresponding network to which the flow belongs to
 	 */
 	
-	public Flow(int flow_ID, ArrayList<Integer> vertices, ArrayList<Arrival> arrivals, 
-			ArrayList<Integer> priorities, String alias, Network nw){
+	public Flow(int flow_ID, List<Integer> vertices, List<Arrival> arrivals, 
+			List<Integer> priorities, String alias, Network nw){
 		this.vertices = vertices;
 		this.arrivals = arrivals;
 		this.priorities = priorities;
@@ -227,11 +228,11 @@ public class Flow implements Serializable, Displayable {
 		return alias;
 	}
 	
-	public ArrayList<Integer> getVerticeIDs(){
+	public List<Integer> getVerticeIDs(){
 		return vertices;
 	}
 
-	public ArrayList<Integer> getPriorities() {
+	public List<Integer> getPriorities() {
 		return priorities;
 	}
 

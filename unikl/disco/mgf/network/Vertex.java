@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.gui.Displayable;
@@ -57,9 +58,9 @@ public class Vertex implements Serializable, Displayable {
 	
 	private Service service;
 	private int prioritized_flow_id;
-	private HashMap<Integer, Integer> priorities;
+	private Map<Integer, Integer> priorities;
 	private int highest_priority;
-	private HashMap<Integer, Arrival> incoming;
+	private Map<Integer, Arrival> incoming;
         private Network nw;
 	
 	//Constructor
@@ -242,7 +243,7 @@ public class Vertex implements Serializable, Displayable {
 		if(prioritized_flow_id > 0)	highest_priority = priorities.get(prioritized_flow_id);
 		
 	}
-	
+     	
 	//Copy-Operator
 	
 	public Vertex copy(){
@@ -272,8 +273,19 @@ public class Vertex implements Serializable, Displayable {
 		return vertexID;
 	}
 
-	public HashMap<Integer, Integer> getAllFlowIDs() {
+	public Map<Integer, Integer> getAllFlowPriorities() {
 		return priorities;
 	}
 	
+        public Set<Integer> getAllFlowIDs() {
+            return incoming.keySet();
+        }
+        
+        public Arrival getArrivalOfFlow(int flowID) {
+            return incoming.get(flowID);
+        }
+        
+        public int getPriorityOfFlow(int flowID) {
+            return priorities.get(flowID);
+        }
 }

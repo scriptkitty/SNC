@@ -30,6 +30,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.*;
 
@@ -59,12 +60,12 @@ public class FlowEditor extends JDialog {
 	
 	//Constructors
 	
-	public FlowEditor(String title, final HashMap<Integer, Vertex> vertices, Flow flow, Network nw){
+	public FlowEditor(String title, final Map<Integer, Vertex> vertices, Flow flow, Network nw){
 		this(title, vertices, nw);
 		this.flow = flow;
 	}
 	
-	public FlowEditor(String title, final HashMap<Integer, Vertex> vertices, final Network nw){
+	public FlowEditor(String title, final Map<Integer, Vertex> vertices, final Network nw){
 		
                 this.nw = nw;
 		//Constructs the dialog

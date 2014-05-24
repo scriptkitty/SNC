@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.*;
 
@@ -52,7 +53,7 @@ public class VertexChooser extends JDialog {
 	
 	//Constructor
 	
-	public VertexChooser(String title, final HashMap<Integer, Vertex> vertices){
+	public VertexChooser(String title, final Map<Integer, Vertex> vertices){
 		
 		//Preparations
 		this.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);

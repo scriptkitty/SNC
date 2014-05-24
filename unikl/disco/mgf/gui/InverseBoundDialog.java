@@ -26,6 +26,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.*;
@@ -66,8 +67,8 @@ public class InverseBoundDialog extends JDialog {
 	
 	//Constructor
 	
-	public InverseBoundDialog(String title, final HashMap<Integer, Flow> flows, 
-			final HashMap<Integer, Vertex> vertices){
+	public InverseBoundDialog(String title, final Map<Integer, Flow> flows, 
+			final Map<Integer, Vertex> vertices){
 		
 		//Constructs the dialog
 		this.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
@@ -132,7 +133,7 @@ public class InverseBoundDialog extends JDialog {
 		JLabel FOILabel = new JLabel("Flow of interest:");
 		leftPanel.add(FOILabel);
 		
-		final HashMap<Integer, String> flowAliases = new HashMap<Integer, String>();
+		final Map<Integer, String> flowAliases = new HashMap<Integer, String>();
 		for(Entry<Integer, Flow> entry : flows.entrySet()){
 			if(entry.getValue().getAlias() != null) flowAliases.put(entry.getValue().getFlow_ID(), entry.getValue().getAlias());
 			else flowAliases.put(entry.getValue().getFlow_ID(), "ID "+entry.getValue().getFlow_ID());
@@ -161,7 +162,7 @@ public class InverseBoundDialog extends JDialog {
                 JLabel VOILabel2 = new JLabel("Second vertex of interest:");
                 rightPanel.add(VOILabel2);
 		
-		final HashMap<Integer, String> vertexAliases = new HashMap<Integer, String>();
+		final Map<Integer, String> vertexAliases = new HashMap<Integer, String>();
 		for(Entry<Integer, Vertex> entry : vertices.entrySet()){
 			if(entry.getValue().getAlias() != null) vertexAliases.put(entry.getValue().getVertexID(), entry.getValue().getAlias());
 			else vertexAliases.put(entry.getValue().getVertexID(), "ID "+entry.getValue().getVertexID());

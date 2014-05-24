@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.*;
 
@@ -52,7 +53,7 @@ public class FlowChooser extends JDialog {
 	
 	//Constructor
 	
-	public FlowChooser(String title, final HashMap<Integer, Flow> flows){
+	public FlowChooser(String title, final Map<Integer, Flow> flows){
 		
 		//Constructs the dialog
 		this.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.Hoelder;
@@ -55,9 +56,9 @@ public class Network {
 	private int FLOW_ID;
 	private int VERTEX_ID;
 	private int HOELDER_ID;
-	private HashMap<Integer,Flow> flows;
-	private HashMap<Integer,Vertex> vertices;
-	private HashMap<Integer,Hoelder> hoelders;
+	private Map<Integer,Flow> flows;
+	private Map<Integer,Vertex> vertices;
+	private Map<Integer,Hoelder> hoelders;
         private List<NetworkListener> listeners;
 	
 	// Constructor
@@ -66,7 +67,7 @@ public class Network {
             this(null, null, null);
         }
         
-        public Network(HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, HashMap<Integer, Hoelder> hoelders) {
+        public Network(Map<Integer, Vertex> vertices, Map<Integer, Flow> flows, Map<Integer, Hoelder> hoelders) {
             this.flows = (flows != null) ? flows : new HashMap<Integer, Flow>();
             this.vertices = (vertices != null) ? vertices : new HashMap<Integer, Vertex>();
             this.hoelders = (hoelders != null) ? hoelders : new HashMap<Integer, Hoelder>();
@@ -121,15 +122,32 @@ public class Network {
 	 * Adds a new vertex with predefined service and alias
 	 * @param service
 	 */
-	public void addVertex(Service service, String alias){
+	public Vertex addVertex(Service service, String alias){
 		Vertex vertex = new Vertex(VERTEX_ID, service, alias, this);
 		vertices.put(VERTEX_ID, vertex);
 		incrementVERTEX_ID();
                 for (NetworkListener l : listeners) {
                     l.vertexAdded(vertex);
-                
             }
+            return vertex;
 	}
+        
+        public void convolute(int vertex1ID, int vertex2ID) {
+            // Compute convoluted service, add a new vertex with that service
+            // and redirect all flows
+            Vertex v1 = getVertex(vertex1ID);
+            Vertex v2 = getVertex(vertex2ID);
+            Service convService = v1.getService().concatenate(v1.getService(), v2.getService());
+            Vertex convVertex = addVertex(convService, vertex1ID + " conv. " + vertex2ID);
+            Set<Integer> v1Flows = v1.getAllFlowIDs();
+            Set<Integer> v2Flows = v2.getAllFlowIDs();
+            v1Flows.addAll(v2Flows);
+            
+            for (Integer flowID : v1Flows) {
+                //convVertex.addArrival(priority, flowID, );
+            }
+            
+        }
 	
 	/**
 	 * Sets the service at a specific node in the network
@@ -166,7 +184,7 @@ public class Network {
         public boolean removeVertex(int id) {
             boolean success = false;
 		if(vertices.containsKey(id)){
-			for(int i : getVertex(id).getAllFlowIDs().keySet()){
+			for(int i : getVertex(id).getAllFlowPriorities().keySet()){
 				flows.get(i).removeVertex(id);
 			}
 			vertices.remove(id);
@@ -192,11 +210,11 @@ public class Network {
 	 * @param alias the alias of the new flow
 	 * @throws ArrivalNotAvailableException
 	 */
-	public void addFlow(Arrival initial_arrival, ArrayList<Integer> route, ArrayList<Integer> priorities,
+	public void addFlow(Arrival initial_arrival, List<Integer> route, List<Integer> priorities,
 								String alias) throws ArrivalNotAvailableException{
 
 		// Creates the dummy arrivals for all vertices after the first
-		ArrayList<Arrival> arrivals = new ArrayList<Arrival>(1);
+		List<Arrival> arrivals = new ArrayList<Arrival>(1);
 		arrivals.add(0, initial_arrival);
 		for(int i=1; i < route.size(); i++){
 			arrivals.add(new Arrival(this));
@@ -240,8 +258,8 @@ public class Network {
 	 * @param alias the alias of the new flow
 	 * @throws ArrivalNotAvailableException
 	 */
-	public void addFlow(ArrayList<Arrival> arrivals, ArrayList<Integer> route, 
-								ArrayList<Integer> priorities, String alias) throws ArrivalNotAvailableException{
+	public void addFlow(List<Arrival> arrivals, List<Integer> route, 
+								List<Integer> priorities, String alias) throws ArrivalNotAvailableException{
 
 		Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
 		
@@ -391,7 +409,7 @@ public class Network {
 		return HOELDER_ID;
 	}
 	
-	public HashMap<Integer, Vertex> getVertices(){
+	public Map<Integer, Vertex> getVertices(){
 		return vertices;
 	}
 	
@@ -405,15 +423,15 @@ public class Network {
      * hoelders (HashMap<Integer, Hoelder>)
      */
     public static Network load(File file) {
-        HashMap<Integer, Vertex> newVertices = null;
-        HashMap<Integer, Flow> newFlows = null;
-        HashMap<Integer, Hoelder> newHoelders = null;
+        Map<Integer, Vertex> newVertices = null;
+        Map<Integer, Flow> newFlows = null;
+        Map<Integer, Hoelder> newHoelders = null;
         try {
             FileInputStream fis = new FileInputStream(file);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            newVertices = (HashMap<Integer, Vertex>) ois.readObject();
-            newFlows = (HashMap<Integer, Flow>) ois.readObject();
-            newHoelders = (HashMap<Integer, Hoelder>) ois.readObject();
+            newVertices = (Map<Integer, Vertex>) ois.readObject();
+            newFlows = (Map<Integer, Flow>) ois.readObject();
+            newHoelders = (Map<Integer, Hoelder>) ois.readObject();
             ois.close();
         } catch (Exception exc) {
             System.out.println(exc.getMessage());
@@ -443,11 +461,11 @@ public class Network {
         }
     }
     
-    public HashMap<Integer, Flow> getFlows(){
+    public Map<Integer, Flow> getFlows(){
         return flows;
     }
 	
-    public HashMap<Integer, Hoelder> getHoelders(){
+    public Map<Integer, Hoelder> getHoelders(){
         return hoelders;
     }
 	
