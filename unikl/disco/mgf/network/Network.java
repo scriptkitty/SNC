@@ -132,7 +132,7 @@ public class Network {
             return vertex;
 	}
         
-        public void convolute(int vertex1ID, int vertex2ID) {
+        public int convolute(int vertex1ID, int vertex2ID) {
             // Compute convoluted service, add a new vertex with that service
             // and redirect all flows
             Vertex v1 = getVertex(vertex1ID);
@@ -146,7 +146,7 @@ public class Network {
             for (Integer flowID : v1Flows) {
                 //convVertex.addArrival(priority, flowID, );
             }
-            
+            return convVertex.getVertexID();
         }
 	
 	/**
@@ -327,11 +327,11 @@ public class Network {
 	 */
 	public boolean removeFlow(Flow flow) {
 		boolean success = false;
-		if(flows.containsKey(flow.getFlow_ID())){
+		if(flows.containsKey(flow.getFlowID())){
 			for(int i : flow.getVerticeIDs()){
-				vertices.get(i).removeFlow(flow.getFlow_ID());
+				vertices.get(i).removeFlow(flow.getFlowID());
 			}
-			flows.remove(flow.getFlow_ID());
+			flows.remove(flow.getFlowID());
 			success = true;
 			
 		}
@@ -381,7 +381,7 @@ public class Network {
 		}
 		result_string = result_string+"List of flows:\n";
 		for(Map.Entry<Integer, Flow> entry : flows.entrySet()){
-			result_string = result_string+"Flow-ID: "+entry.getValue().getFlow_ID()+
+			result_string = result_string+"Flow-ID: "+entry.getValue().getFlowID()+
 					"\t Flow-Alias: "+entry.getValue().getAlias()+"\t route:\n"+entry.getValue().getVerticeIDs().toString()+"\n";			
 		}
 		
@@ -412,6 +412,10 @@ public class Network {
 	public Map<Integer, Vertex> getVertices(){
 		return vertices;
 	}
+        
+        public Network copy() {
+           return new Network();
+        }
 	
 	
     /**

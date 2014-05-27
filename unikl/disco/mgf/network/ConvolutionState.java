@@ -18,45 +18,29 @@
  *  extensions to this software.
  *
  */
-package unikl.disco.misc;
+package unikl.disco.mgf.network;
 
-import java.util.Stack;
-import unikl.disco.misc.commands.Command;
+import unikl.disco.mgf.Arrival;
 
 /**
- * This class keeps track of all operations performed (e.g. addNode, deleteFlow, ...) and provides
- * functionality to Undo/Redo past operations.
+ *
  * @author Sebastian Henningsen
  */
-public class UndoRedoStack {
-    private final Stack undoStack;
-    private final Stack redoStack;
+public class ConvolutionState {
     
-    public UndoRedoStack() {
-        undoStack = new Stack();
-        redoStack = new Stack();
+    private final String operations;
+    private final Arrival arrival;
+    
+    public ConvolutionState(String operations, Arrival arrival) {
+        this.operations = operations;
+        this.arrival = arrival;
     }
     
-    public void undo() {
-        if(!undoStack.empty()) {
-            System.out.println("Undoing");
-            Command c = (Command)undoStack.pop();
-            redoStack.add(c);
-            c.undo();
-        }
+    public String getOperations() {
+        return operations;
     }
     
-    public void redo() {
-        if(!redoStack.empty()) {
-            System.out.println("Redoing");
-            Command c = (Command)redoStack.pop();
-            undoStack.add(c);
-            c.execute();
-        }
-    }
-    
-    public void insertIntoStack(Command c) {
-        undoStack.add(c);
-        redoStack.clear();
+    public Arrival getArrival() {
+        return arrival;
     }
 }

@@ -22,6 +22,7 @@
 package unikl.disco.mgf.network;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.BadInitializationException;
@@ -44,8 +45,8 @@ import unikl.disco.mgf.BadInitializationException;
  */
 public abstract class AbstractAnalysis implements Analyzer {
 	
-	protected HashMap<Integer, Vertex> vertices;
-	protected HashMap<Integer, Flow> flows;
+	protected Map<Integer, Vertex> vertices;
+	protected Map<Integer, Flow> flows;
 	
 	protected int flow_of_interest;
 	protected int vertex_of_interest;
@@ -59,7 +60,7 @@ public abstract class AbstractAnalysis implements Analyzer {
 	
         
 	// TODO
-	public AbstractAnalysis(Network nw, HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, 
+	public AbstractAnalysis(Network nw, Map<Integer, Vertex> vertices, Map<Integer, Flow> flows, 
 							int flow_of_interest, int vertex_of_interest, Boundtype boundtype){
 		this.vertices = vertices;
 		this.flows = flows;
@@ -76,11 +77,11 @@ public abstract class AbstractAnalysis implements Analyzer {
 		return vertex_of_interest;
 	}
 
-	public HashMap<Integer, Vertex> getVertices() {
+	public Map<Integer, Vertex> getVertices() {
 		return vertices;
 	}
 
-	public HashMap<Integer, Flow> getFlows() {
+	public Map<Integer, Flow> getFlows() {
 		return flows;
 	}
 

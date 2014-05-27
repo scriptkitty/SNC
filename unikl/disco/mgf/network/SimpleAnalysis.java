@@ -79,7 +79,7 @@ public class SimpleAnalysis extends AbstractAnalysis {
 	 * calculated. Note: All performance bounds are given in 
 	 * {@Arrival}-representation.
 	 */
-	public SimpleAnalysis(Network nw, HashMap<Integer, Vertex> vertices, HashMap<Integer, Flow> flows, int flow_of_interest, int vertex_of_interest,  Boundtype boundtype){
+	public SimpleAnalysis(Network nw, Map<Integer, Vertex> vertices, Map<Integer, Flow> flows, int flow_of_interest, int vertex_of_interest,  Boundtype boundtype){
 		super(nw, vertices, flows, flow_of_interest, vertex_of_interest, boundtype);
 		analyzableVertices = new Stack<>();
 	}
@@ -114,7 +114,7 @@ public class SimpleAnalysis extends AbstractAnalysis {
 			//Setup of service and flow
 			current_vertex = analyzableVertices.pop();
 			System.out.println("vertex "+current_vertex.getVertexID()+" popped");
-			int flowID = current_vertex.whoHasPriority();
+			int flowID = current_vertex.calculatePriority();
 			Vertex next_vertex;
 
 			//There might be no next vertex

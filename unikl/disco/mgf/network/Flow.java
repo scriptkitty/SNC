@@ -219,7 +219,7 @@ public class Flow implements Serializable, Displayable {
 		established_arrivals = i;
 	}
 
-	public int getFlow_ID() {
+	public int getFlowID() {
 		return flow_ID;
 	}
 

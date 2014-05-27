@@ -176,7 +176,7 @@ public class SNC {
 		int resetHoelderID = nw.getHOELDER_ID();
 		int resetVertexID = nw.getVERTEX_ID();
 		
-		Analyzer analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlow_ID(), vertex.getVertexID(), boundtype);
+		Analyzer analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlowID(), vertex.getVertexID(), boundtype);
                 try {
                         bound = analyzer.analyze();
                 } catch (ArrivalNotAvailableException e) {

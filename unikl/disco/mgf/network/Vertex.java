@@ -57,7 +57,7 @@ public class Vertex implements Serializable, Displayable {
 	private int vertexID;
 	
 	private Service service;
-	private int prioritized_flow_id;
+	private int prioritizedFlowID;
 	private Map<Integer, Integer> priorities;
 	private int highest_priority;
 	private Map<Integer, Arrival> incoming;
@@ -74,7 +74,7 @@ public class Vertex implements Serializable, Displayable {
 	
 	protected Vertex(int vertex_ID, String alias, Network nw){
 		service = new Service(nw);
-		prioritized_flow_id = 0;
+		prioritizedFlowID = 0;
 		highest_priority = 0;
 		priorities = new HashMap<>();
 		incoming = new HashMap<>();
@@ -95,7 +95,7 @@ public class Vertex implements Serializable, Displayable {
 	
 	public Vertex(int vertex_ID, Service service, String alias, Network nw){
 		this.service = service;
-		prioritized_flow_id = 0;
+		prioritizedFlowID = 0;
 		highest_priority = 0;
 		priorities = new HashMap<>();
 		incoming = new HashMap<>();
@@ -120,7 +120,7 @@ public class Vertex implements Serializable, Displayable {
 		
 		//Checks for a change in the highest priority
 		if(priority > highest_priority){
-			prioritized_flow_id = flow_id;
+			prioritizedFlowID = flow_id;
 			highest_priority = priority;
 		}
 	}
@@ -133,7 +133,7 @@ public class Vertex implements Serializable, Displayable {
 	public void addUnknownArrival(int priority, int flow_id){
 		priorities.put(flow_id, priority);
 		if(priority > highest_priority){
-			prioritized_flow_id = flow_id;
+			prioritizedFlowID = flow_id;
 			highest_priority = priority;
 		}
 	}
@@ -183,21 +183,21 @@ public class Vertex implements Serializable, Displayable {
 
 		else{	
 			//Calculates the output-bound
-			Arrival arrival = incoming.get(prioritized_flow_id);
+			Arrival arrival = incoming.get(prioritizedFlowID);
 			Arrival output = arrival.output(arrival, service);
 			
 			//Calculates the leftover service		
 			service = service.leftover(arrival, service);
 			
 			//Removes the served flow from the arrival-list
-			priorities.remove(prioritized_flow_id);
-			incoming.remove(prioritized_flow_id);
+			priorities.remove(prioritizedFlowID);
+			incoming.remove(prioritizedFlowID);
 			
-			//System.out.println("Flow with flow_id "+prioritized_flow_id+" and priority "+highest_priority+" served at node "+vertex_ID);
+			//System.out.println("Flow with flow_id "+prioritizedFlowID+" and priority "+highest_priority+" served at node "+vertex_ID);
 			
 			//Determines the next flow to serve
-			prioritized_flow_id = whoHasPriority();
-			if(prioritized_flow_id > 0)	highest_priority = priorities.get(prioritized_flow_id);
+			prioritizedFlowID = calculatePriority();
+			if(prioritizedFlowID > 0)	highest_priority = priorities.get(prioritizedFlowID);
 			
 			//Returns the output-bound
 			return output;
@@ -208,7 +208,7 @@ public class Vertex implements Serializable, Displayable {
 	 * Determines which flow has the highest priority.
 	 * @return the flow-id of the flow with the highest priority
 	 */
-	public int whoHasPriority(){
+	public int calculatePriority(){
 		int high = 0;
 		int higher_priority_id =0;
 		for(Map.Entry<Integer,Integer> entry : priorities.entrySet()){
@@ -219,6 +219,10 @@ public class Vertex implements Serializable, Displayable {
 		}
 		return higher_priority_id;
 	}
+        
+        public int getPrioritizedFlow() {
+            return prioritizedFlowID;
+        }
 	
 	/**
 	 * Determines if there is at least one non-established flow
@@ -239,8 +243,8 @@ public class Vertex implements Serializable, Displayable {
 	public void removeFlow(int id){
 		priorities.remove(id);
 		incoming.remove(id);
-		prioritized_flow_id = whoHasPriority();
-		if(prioritized_flow_id > 0)	highest_priority = priorities.get(prioritized_flow_id);
+		prioritizedFlowID = calculatePriority();
+		if(prioritizedFlowID > 0)	highest_priority = priorities.get(prioritizedFlowID);
 		
 	}
      	
