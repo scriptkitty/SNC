@@ -21,10 +21,7 @@
 
 package unikl.disco.mgf;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import unikl.disco.misc.SetUtils;
 
 /**
  * A class representing a function, which is the result of taking
@@ -154,7 +151,7 @@ public class NegativeAbsoluteDifference extends BinaryFunction implements Symbol
 	    
 	    double value1 = getValueOfFunction(theta, parameters, 1);
 	    double value2 = getValueOfFunction(theta, parameters, 2);
-	    return (value1 > value2 ? value1 - value2 : value2 - value1);
+	    return (value1 > value2 ? value2 - value1 : value1 - value2);
 	}
 
 	/**
