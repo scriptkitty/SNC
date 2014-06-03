@@ -27,15 +27,14 @@ import java.util.Stack;
 
 import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.BadInitializationException;
-import unikl.disco.mgf.FunctionIF;
-import unikl.disco.mgf.AddedFunctions;
+import unikl.disco.mgf.SymbolicFunction;
+import unikl.disco.mgf.AdditiveComposition;
 import unikl.disco.mgf.BFunction;
+import unikl.disco.mgf.ConstantFunction;
 import unikl.disco.mgf.Hoelder;
 import unikl.disco.mgf.NewParameter;
 import unikl.disco.mgf.scaledFunction;
 import unikl.disco.mgf.Service;
-import unikl.disco.mgf.ZeroFunction;
-import unikl.disco.mgf.network.Flow;
 import unikl.disco.misc.SetUtils;
 
 /**
@@ -187,34 +186,34 @@ public class SimpleAnalysis extends AbstractAnalysis {
 		switch(getBoundtype()){
 		case BACKLOG:
 			
-			FunctionIF preparation;
+			SymbolicFunction preparation;
 			
 			//Dependent Case
 			if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
 				Hoelder hoelder = nw.createHoelder();
-				preparation = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder), 
-						new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),hoelder)));
+				preparation = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma(),hoelder), 
+						new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho(),hoelder)));
 			}
 			
 			//Independent Case
 			else{
-				preparation = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma()), 
-												new BFunction(new AddedFunctions(arrival.getRho(),service.getRho())));	
+				preparation = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma()), 
+												new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho())));	
 			}
 			
 			//introduces the backlog-part in the backlog-bound as new variable. The sign must be negative!
-			FunctionIF backlog_part = new NewParameter(nw.createHoelder());
-			FunctionIF function = new AddedFunctions(preparation, backlog_part);
+			SymbolicFunction backlog_part = new NewParameter(nw.createHoelder());
+			SymbolicFunction function = new AdditiveComposition(preparation, backlog_part);
 
 			//In the vector of variables the backlog has Hoelder_ID equal to Network.HOELDER_ID-1.
-			result = new Arrival(function,new ZeroFunction(), nw);
+			result = new Arrival(function,new ConstantFunction(0), nw);
 			
 			break;
 		
 		case DELAY:
 			
-			FunctionIF sigma;
-			FunctionIF rho;
+			SymbolicFunction sigma;
+			SymbolicFunction rho;
 			
 			/* Debbugging:
 			System.out.println("Service dependencies of AoI:"+arrival.getServicedependencies().toString());
@@ -225,18 +224,18 @@ public class SimpleAnalysis extends AbstractAnalysis {
 			//Dependent Case
 			if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
 				Hoelder hoelder = nw.createHoelder();
-				FunctionIF prep1 = new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder);
-				FunctionIF prep2 = new AddedFunctions(arrival.getRho(),service.getRho(),hoelder);
+				SymbolicFunction prep1 = new AdditiveComposition(arrival.getSigma(),service.getSigma(),hoelder);
+				SymbolicFunction prep2 = new AdditiveComposition(arrival.getRho(),service.getRho(),hoelder);
 				
-				sigma = new AddedFunctions(prep1,new BFunction(prep2));
+				sigma = new AdditiveComposition(prep1,new BFunction(prep2));
 				rho = new scaledFunction(service.getRho(), hoelder, false);
 				System.out.println("Dependent case");
 			}
 			
 			//Independent Case
 			else{
-				sigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma()),
-						new BFunction(new AddedFunctions(arrival.getRho(),service.getRho())));
+				sigma = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma()),
+						new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho())));
 				rho = service.getRho();
 				System.out.println("Independent Case");
 			} 
@@ -247,19 +246,19 @@ public class SimpleAnalysis extends AbstractAnalysis {
 		
 		case OUTPUT:
 		
-			FunctionIF givensigma;
-			FunctionIF givenrho;
+			SymbolicFunction givensigma;
+			SymbolicFunction givenrho;
 			
 			//Dependent Case
 			if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
 				Hoelder hoelder = nw.createHoelder();
-				givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),hoelder)));
+				givensigma = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma(),hoelder),new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho(),hoelder)));
 				givenrho = new scaledFunction(arrival.getRho(),hoelder, false);
 			}
 			
 			//Independent Case
 			else{
-				givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma()),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho())));
+				givensigma = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma()),new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho())));
 				givenrho = arrival.getRho();
 			}
 			

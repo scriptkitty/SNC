@@ -44,6 +44,7 @@ public class Hoelder implements Serializable {
 
 	//Methods
 	
+	@Override
 	public String toString(){
 		return "p-value: "+p_value+"   q-value: "+q_value;
 	}

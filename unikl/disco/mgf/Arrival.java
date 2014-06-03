@@ -24,6 +24,7 @@ package unikl.disco.mgf;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import unikl.disco.mgf.network.Network;
@@ -34,7 +35,7 @@ import unikl.disco.misc.SetUtils;
  * arrival is bounded by its moment generating function (MGF).
  * Every MGF-Bound consists of three parameters, sigma, rho and 
  * theta, where sigma and rho are dependent on theta. Hence sigma
- * and rho are represented by {@link FunctionIF} objects. 
+ * and rho are represented by {@link SymbolicFunction} objects. 
  * Usually there is a maximal possible value for theta, which is 
  * given in <code>thetastar</code>. The  functions <code>rho</code> 
  * and <code>sigma</code> are only the variables inside the 
@@ -50,7 +51,7 @@ import unikl.disco.misc.SetUtils;
  * backlog- and delay-bounds. For this usage see {@link Analysis}.
  * @author Michael Beck
  * @see Analysis
- * @see FunctionIF
+ * @see SymbolicFunction
  */
 
 public class Arrival implements Serializable {
@@ -61,8 +62,8 @@ public class Arrival implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1079479343537123673L;
-	private FunctionIF rho;
-	private FunctionIF sigma;
+	private SymbolicFunction rho;
+	private SymbolicFunction sigma;
 	private Set<Integer> Arrivaldependencies;
 	private Set<Integer> Servicedependencies;
         private Network nw; // TODO: Maybe exchange for Node/Flow
@@ -75,8 +76,8 @@ public class Arrival implements Serializable {
 	 * {@link ZeroFunction}s.
 	 */
 	public Arrival(Network nw){ 
-		rho = new ZeroFunction();
-		sigma = new ZeroFunction();
+		rho = new ConstantFunction(0);
+		sigma = new ConstantFunction(0);
 		Arrivaldependencies = new HashSet<Integer>();
 		Servicedependencies = new HashSet<Integer>();
                 this.nw = nw;
@@ -88,9 +89,9 @@ public class Arrival implements Serializable {
 	 * <code>thetastar</code> is deduced from the two functions.
 	 * @param rho the time dependent part of the MGF-bound.
 	 * @param sigma the time independent part of the MGF-bound.
-	 * @see FunctionIF
+	 * @see SymbolicFunction
 	 */
-	public Arrival(FunctionIF sigma, FunctionIF rho, Network nw) {
+	public Arrival(SymbolicFunction sigma, SymbolicFunction rho, Network nw) {
 		this.rho = rho;
 		this.sigma = sigma;
 		Arrivaldependencies = new HashSet<Integer>();
@@ -110,10 +111,10 @@ public class Arrival implements Serializable {
 	 * @param sigma the time independent part of the MGF-bound.
 	 * @param flow_id id of the flow, which has this arrival as
 	 * initial arrival
-	 * @see FunctionIF
+	 * @see SymbolicFunction
 	 * @see Flow
 	 */
-	public Arrival(FunctionIF sigma, FunctionIF rho, int flow_id, Network nw) {
+	public Arrival(SymbolicFunction sigma, SymbolicFunction rho, int flow_id, Network nw) {
 		this.rho = rho;
 		this.sigma = sigma;
 		Arrivaldependencies = new HashSet<Integer>();
@@ -179,7 +180,7 @@ public class Arrival implements Serializable {
 	 * @return the value of the MGF at the given point
 	 * @throws ServerOverloadException 
 	 */
-	public double evaluate(double theta, HashMap<Integer, Hoelder> sigmaparameters, HashMap<Integer, Hoelder> rhoparameters, int n, int m)
+	public double evaluate(double theta, Map<Integer, Hoelder> sigmaparameters, Map<Integer, Hoelder> rhoparameters, int n, int m)
 			throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
 		
 		double value;
@@ -218,15 +219,15 @@ public class Arrival implements Serializable {
 		//Dependent case
 		if(!SetUtils.getIntersection(arrival1.getServicedependencies(),arrival2.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(arrival1.getArrivaldependencies(), arrival2.getArrivaldependencies()).isEmpty()){
 			Hoelder hoelder = nw.createHoelder();
-			FunctionIF givensigma = new AddedFunctions(arrival1.getSigma(),arrival2.getSigma(),hoelder);
-			FunctionIF givenrho = new AddedFunctions(arrival1.getRho(), arrival2.getRho(), hoelder);
+			SymbolicFunction givensigma = new AdditiveComposition(arrival1.getSigma(),arrival2.getSigma(),hoelder);
+			SymbolicFunction givenrho = new AdditiveComposition(arrival1.getRho(), arrival2.getRho(), hoelder);
 			arrival = new Arrival(givensigma, givenrho, nw);
 		}
 		
 		//Independent case
 		else{
-			FunctionIF givensigma = new AddedFunctions(arrival1.getSigma(),arrival2.getSigma());
-			FunctionIF givenrho = new AddedFunctions(arrival1.getRho(), arrival2.getRho());
+			SymbolicFunction givensigma = new AdditiveComposition(arrival1.getSigma(),arrival2.getSigma());
+			SymbolicFunction givenrho = new AdditiveComposition(arrival1.getRho(), arrival2.getRho());
 			arrival = new Arrival(givensigma, givenrho, nw);
 		}
 		
@@ -256,16 +257,16 @@ public class Arrival implements Serializable {
 		//Dependent case
 		if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
 			Hoelder hoelder = nw.createHoelder();
-			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho(),hoelder)));
-			FunctionIF givenrho = new scaledFunction(arrival.getRho(),hoelder, false);
+			SymbolicFunction givensigma = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma(),hoelder),new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho(),hoelder)));
+			SymbolicFunction givenrho = new scaledFunction(arrival.getRho(),hoelder, false);
 			output = new Arrival(givensigma, givenrho, nw);
 			//System.out.println("Dependent Case Output calculated");
 		}
 		
 		//Independent case
 		else{
-			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(arrival.getSigma(),service.getSigma()),new BFunction(new AddedFunctions(arrival.getRho(),service.getRho())));
-			FunctionIF givenrho = arrival.getRho();
+			SymbolicFunction givensigma = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma()),new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho())));
+			SymbolicFunction givenrho = arrival.getRho();
 			output = new Arrival(givensigma, givenrho, nw);
 			//System.out.println("Independent Case Output calculated");
 		}
@@ -303,20 +304,20 @@ public class Arrival implements Serializable {
 		return Math.min(rho.getmaxTheta(), sigma.getmaxTheta());
 	}
 
-	public FunctionIF getRho() {
+	public SymbolicFunction getRho() {
 		return rho;
 	}
 
-	public void setRho(FunctionIF rho) {
+	public void setRho(SymbolicFunction rho) {
 		this.rho = rho;
 		
 	}
 
-	public FunctionIF getSigma() {
+	public SymbolicFunction getSigma() {
 		return sigma;
 	}
 
-	public void setSigma(FunctionIF sigma) {
+	public void setSigma(SymbolicFunction sigma) {
 		this.sigma = sigma;
 	}
 

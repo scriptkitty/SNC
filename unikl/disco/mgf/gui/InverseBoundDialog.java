@@ -135,8 +135,8 @@ public class InverseBoundDialog extends JDialog {
 		
 		final Map<Integer, String> flowAliases = new HashMap<Integer, String>();
 		for(Entry<Integer, Flow> entry : flows.entrySet()){
-			if(entry.getValue().getAlias() != null) flowAliases.put(entry.getValue().getFlow_ID(), entry.getValue().getAlias());
-			else flowAliases.put(entry.getValue().getFlow_ID(), "ID "+entry.getValue().getFlow_ID());
+			if(entry.getValue().getAlias() != null) flowAliases.put(entry.getValue().getFlowID(), entry.getValue().getAlias());
+			else flowAliases.put(entry.getValue().getFlowID(), "ID "+entry.getValue().getFlowID());
 		}
 		final JComboBox<String> FOIBox = new JComboBox<String>(flowAliases.values().toArray(new String[0]));
 		leftPanel.add(FOIBox);

@@ -28,6 +28,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 
@@ -137,10 +140,14 @@ public class VertexEditor extends JDialog {
 				//Constant arrival case
 				if(service.getSelectedItem() == CONSTANT){
 					//uses the vertex-constructor to submit information to main GUI. Do not use this vertex directly!
-					rateSigma rho;
+					SymbolicFunction rho = null;
 					try{
-						rate = -Double.valueOf(constantRate.getText());
-						rho = new rateSigma(rate);
+						rate = Double.valueOf(constantRate.getText());
+						if(rate < 0) {
+						    throw new BadInitializationException("Rate must be positive", rate);
+						}
+						rho = new ConstantFunction(-rate);
+						System.out.println("Vertex rate: " + rho.getValue(1, new HashMap<Integer, Hoelder>(0)));
 					}
 					catch(BadInitializationException exc){	
 						System.out.println("The rate must be positive.");
@@ -151,13 +158,19 @@ public class VertexEditor extends JDialog {
 						System.out.println("The constant arrival rate must be a number.");
 						rho = null;
 						correct = false;
-					}
+					} catch (ThetaOutOfBoundException ex) {
+					    ex.printStackTrace();
+				    } catch (ParameterMismatchException ex) {
+					Logger.getLogger(VertexEditor.class.getName()).log(Level.SEVERE, null, ex);
+				    } catch (ServerOverloadException ex) {
+					Logger.getLogger(VertexEditor.class.getName()).log(Level.SEVERE, null, ex);
+				    }
 					
-					Service service = new Service(new ZeroFunction(), rho, nw);
+					Service service = new Service(new ConstantFunction(0), rho, nw);
 					
 					if(correct) {
                                             // Network ID is made up
-                                            snc.invokeCommand(new AddVertexCommand(aliasField.getText(), rate, 0, snc));
+                                            snc.invokeCommand(new AddVertexCommand(aliasField.getText(), -rate, 0, snc));
 						vertex = new Vertex(-1, service, aliasField.getText(), nw);
 						vertex.getService().getServicedependencies().clear();
 					}

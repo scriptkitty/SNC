@@ -22,6 +22,7 @@
 package unikl.disco.mgf;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /** Class representing the rho-part of the MGF-Bound of an arrival
  * with exponentially distributed interarrival times. The parameter of the underlying 
@@ -35,10 +36,10 @@ import java.util.HashMap;
  * with t being theta and phi being the MGF-Bound of the increment.
  * 
  * @author Michael Beck
- * @see FunctionIF
+ * @see SymbolicFunction
  * @see Arrival
  * @see BadInitializationException
- */public class PoissonRho implements FunctionIF {
+ */public class PoissonRho implements SymbolicFunction {
 	 
 	//Members
 
@@ -46,8 +47,8 @@ import java.util.HashMap;
 	 * 
 	 */
 	private static final long serialVersionUID = -3592398716087106351L;
-	private FunctionIF rho;
-	private HashMap<Integer, Hoelder> rhoParameters;
+	private SymbolicFunction rho;
+	private Map<Integer, Hoelder> rhoParameters;
 	private double mu;	
 
 	//Constructors
@@ -57,7 +58,7 @@ import java.util.HashMap;
 	 * @param mu the the intensity of the underlying Poisson process
 	 * @param rho the MGF bound on the increment
 	 */
-	public PoissonRho(FunctionIF rho, double mu){
+	public PoissonRho(SymbolicFunction rho, double mu){
 		this.rho = rho;
 		this.mu= mu;
 		this.rhoParameters= rho.getParameters();
@@ -69,7 +70,7 @@ import java.util.HashMap;
 	 * @param parameters its first parameter must be theta. 
 	 */
 	@Override
-	public double getValue(double theta, HashMap<Integer, Hoelder> parameters)
+	public double getValue(double theta, Map<Integer, Hoelder> parameters)
 			throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
 
 		//Checks for a mismatch in number of given and needed parameters
@@ -92,7 +93,7 @@ import java.util.HashMap;
 	}
 
 	@Override
-	public HashMap<Integer, Hoelder> getParameters() {
+	public Map<Integer, Hoelder> getParameters() {
 		return rhoParameters;
 	}
 

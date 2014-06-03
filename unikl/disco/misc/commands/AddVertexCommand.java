@@ -20,12 +20,10 @@
  */
 package unikl.disco.misc.commands;
 
-import unikl.disco.mgf.BadInitializationException;
+import unikl.disco.mgf.ConstantFunction;
 import unikl.disco.mgf.SNC;
 import unikl.disco.mgf.Service;
-import unikl.disco.mgf.ZeroFunction;
 import unikl.disco.mgf.network.Vertex;
-import unikl.disco.mgf.rateSigma;
 
 /**
  * This class represents the action to add a vertex with given properties in the target network.
@@ -50,18 +48,14 @@ public class AddVertexCommand implements Command {
     
     @Override
     public void execute() {
-        try {
-            // TODO: Make sure that rate is negative
-            vertexID = snc.addVertex(
-                    new Vertex(-1, 
-                            new Service(new ZeroFunction(), 
-                                    new rateSigma(rate), snc.getCurrentNetwork()), 
-                            alias, snc.getCurrentNetwork()), 
-                    snc.getCurrentNetwork());
-            success = true;
-        } catch (BadInitializationException ex) {
-            System.out.println("Creation of vertex failed.");
-        }
+	// TODO: Make sure that rate is negative
+	vertexID = snc.addVertex(
+		new Vertex(-1, 
+			new Service(new ConstantFunction(0), 
+				new ConstantFunction(rate), snc.getCurrentNetwork()), 
+			alias, snc.getCurrentNetwork()), 
+		snc.getCurrentNetwork());
+	success = true;
     }
 
     @Override

@@ -408,7 +408,7 @@ public class GUI implements Runnable, NetworkListener {
 						entry = snc.getFlows().get(id).getAlias();
 						break;
 					case 1:
-						entry = ""+snc.getFlows().get(id).getFlow_ID();
+						entry = ""+snc.getFlows().get(id).getFlowID();
 						break;
 					case 2: 
 						try{
@@ -592,7 +592,7 @@ public class GUI implements Runnable, NetworkListener {
 		boolean success = snc.removeFlow(flow, snc.getCurrentNetwork());
 		
 		//Console output
-		if(success) System.out.println(flow.getAlias()+ " with ID "+flow.getFlow_ID()+ " removed");
+		if(success) System.out.println(flow.getAlias()+ " with ID "+flow.getFlowID()+ " removed");
 		else System.out.println("Flow can not be removed. Possible reasons: The flow has already been removed.");
 		
 		//Updates GUI

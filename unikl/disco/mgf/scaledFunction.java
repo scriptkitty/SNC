@@ -24,14 +24,13 @@ package unikl.disco.mgf;
 import java.util.HashMap;
 import java.util.Map;
 
-import unikl.disco.mgf.network.Network;
 
 /** 
- * This alters an exisiting {@link FunctionIF} (called atom-function
+ * This alters an exisiting {@link SymbolicFunction} (called atom-function
  * in the sense that the theta is scaled by <code>
  * scale_parameter_ID</code>. In expression if <code>f(theta)</code>
- * is a theta-dependent function the result of this FunctionIF is:
- * <br><code>f(theta*scale_parameter_ID)</code>. This is needed for
+ is a theta-dependent function the result of this SymbolicFunction is:
+ <br><code>f(theta*scale_parameter_ID)</code>. This is needed for
  * performing the stochastically dependent versions of several other
  * operators, like {@link AddedFunctions} or 
  * {@link MaximumFunction}.
@@ -40,10 +39,10 @@ import unikl.disco.mgf.network.Network;
  * kind of scaling is used is determined by the boolean <code>
  * p_scale</code>.
  * @author Michael Beck
- * @see FunctionIF
+ * @see SymbolicFunction
  * @see BadInitializationException
  */
-public class scaledFunction implements FunctionIF {
+public class scaledFunction implements SymbolicFunction {
 	
 	//Members
 	
@@ -51,7 +50,7 @@ public class scaledFunction implements FunctionIF {
 	 * 
 	 */
 	private static final long serialVersionUID = -8546822282037420484L;
-	private FunctionIF original;
+	private SymbolicFunction original;
 	private Hoelder hoelder;
 	private boolean p_scale;
 	
@@ -70,7 +69,7 @@ public class scaledFunction implements FunctionIF {
 	 * @param p_scale wether the first or second part of a Hoelder-
 	 * coefficient should be used for scaling.
 	 */
-	/*public scaledFunction(FunctionIF function, boolean p_scale){
+	/*public scaledFunction(SymbolicFunction function, boolean p_scale){
 		this.original = function;
 		this.hoelder = Network.createHoelder();
 		this.p_scale = p_scale;
@@ -88,7 +87,7 @@ public class scaledFunction implements FunctionIF {
 	 * @param p_scale wether the first or second part of a Hoelder-
 	 * coefficient should be used for scaling.
 	 */
-	public scaledFunction(FunctionIF function, Hoelder hoelder, boolean p_scale){
+	public scaledFunction(SymbolicFunction function, Hoelder hoelder, boolean p_scale){
 		this.original = function;
 		this.hoelder = hoelder;
 		this.p_scale = p_scale;
@@ -110,7 +109,7 @@ public class scaledFunction implements FunctionIF {
 	 * @throws ServerOverloadException 
 	 */
 	@Override
-	public double getValue(double theta, HashMap<Integer, Hoelder> parameters)
+	public double getValue(double theta, Map<Integer, Hoelder> parameters)
 			throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
 		
 		//Checks if number of given and needed parameters matches
@@ -154,8 +153,8 @@ public class scaledFunction implements FunctionIF {
 	}
 
 	@Override
-	public HashMap<Integer, Hoelder> getParameters() {
-		HashMap<Integer, Hoelder> copy = original.getParameters();
+	public Map<Integer, Hoelder> getParameters() {
+		Map<Integer, Hoelder> copy = original.getParameters();
 		copy.put(hoelder.getHoelderID(), hoelder);
 		return copy;
 	}

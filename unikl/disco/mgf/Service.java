@@ -35,7 +35,7 @@ import unikl.disco.misc.SetUtils;
  * (negative) service is bounded by its moment generating function 
  * (MGF). Every MGF-Bound consists of three parameters, sigma, rho
  * and theta, where sigma and rho are dependent on theta. Hence 
- * sigma and rho are represented by {@link FunctionIF} objects. 
+ * sigma and rho are represented by {@link SymbolicFunction} objects. 
  * Usually there is a maximal possible value for theta, which is 
  * given in <code>thetastar</code>. The  functions <code>rho</code> 
  * and <code>sigma</code> are only the variables inside the 
@@ -49,7 +49,7 @@ import unikl.disco.misc.SetUtils;
  * 
  * @author Michael Beck
  * @see Analysis
- * @see FunctionIF
+ * @see SymbolicFunction
  */
 public class Service implements Serializable {
 	
@@ -60,8 +60,8 @@ public class Service implements Serializable {
 	 */
 	private static final long serialVersionUID = -3149240364532210267L;
 	private double thetastar;
-	private FunctionIF rho;
-	private FunctionIF sigma;
+	private SymbolicFunction rho;
+	private SymbolicFunction sigma;
 	private Set<Integer> Arrivaldependencies;
 	private Set<Integer> Servicedependencies;
         private Network nw; // TODO: Maybe exchange this for Node/Flow later on
@@ -73,8 +73,8 @@ public class Service implements Serializable {
 	 * {@link ZeroFunctions}s.
 	 */	
 	public Service(Network nw){ 
-		rho = new ZeroFunction();
-		sigma = new ZeroFunction();
+		rho = new ConstantFunction(0);
+		sigma = new ConstantFunction(0);
 		thetastar = Math.min(rho.getmaxTheta(), sigma.getmaxTheta());
 		Arrivaldependencies = new HashSet<Integer>();
 		Servicedependencies = new HashSet<Integer>();
@@ -88,9 +88,9 @@ public class Service implements Serializable {
 	 * <code>thetastar</code> is deduced from the two functions.
 	 * @param sigma the time independent part of the MGF-bound.
  	 * @param rho the time dependent part of the MGF-bound.
-	 * @see FunctionIF
+	 * @see SymbolicFunction
 	 */
-	public Service(FunctionIF sigma, FunctionIF rho, Network nw) {
+	public Service(SymbolicFunction sigma, SymbolicFunction rho, Network nw) {
 		this.rho = rho;
 		this.sigma = sigma;
 		thetastar = Math.min(rho.getmaxTheta(), sigma.getmaxTheta());
@@ -112,7 +112,7 @@ public class Service implements Serializable {
 	 * @param vertex_id the id of the vertex, with which this
 	 * service is associated.
 	 */
-	public Service(FunctionIF sigma, FunctionIF rho, int vertex_id, Network nw) {
+	public Service(SymbolicFunction sigma, SymbolicFunction rho, int vertex_id, Network nw) {
 		this.rho = rho;
 		this.sigma = sigma;
 		thetastar = Math.min(rho.getmaxTheta(), sigma.getmaxTheta());
@@ -199,15 +199,15 @@ public class Service implements Serializable {
 		//Dependent Case
 		if(!SetUtils.getIntersection(service1.getServicedependencies(),service2.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service1.getArrivaldependencies(), service2.getArrivaldependencies()).isEmpty()){
 			Hoelder hoelder = nw.createHoelder();
-			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(service1.getSigma(),service2.getSigma(),hoelder),new BFunction(new NegAbsDiffFunction(service1.getRho(),service2.getRho(),hoelder)));
-			FunctionIF givenrho = new MaximumFunction(service1.getRho(), service2.getRho(), hoelder);
+			SymbolicFunction givensigma = new AdditiveComposition(new AdditiveComposition(service1.getSigma(),service2.getSigma(),hoelder),new BFunction(new NegativeAbsoluteDifference(service1.getRho(),service2.getRho(),hoelder)));
+			SymbolicFunction givenrho = new MaximumFunction(service1.getRho(), service2.getRho(), hoelder);
 			service = new Service(givensigma, givenrho, nw);
 		}
 		
 		//Independent Case
 		else{
-			FunctionIF givensigma = new AddedFunctions(new AddedFunctions(service1.getSigma(),service2.getSigma()),new BFunction(new NegAbsDiffFunction(service1.getRho(),service2.getRho())));
-			FunctionIF givenrho = new MaximumFunction(service1.getRho(), service2.getRho());
+			SymbolicFunction givensigma = new AdditiveComposition(new AdditiveComposition(service1.getSigma(),service2.getSigma()),new BFunction(new NegativeAbsoluteDifference(service1.getRho(),service2.getRho())));
+			SymbolicFunction givenrho = new MaximumFunction(service1.getRho(), service2.getRho());
 			service = new Service(givensigma, givenrho, nw);
 		}
 		
@@ -234,19 +234,19 @@ public class Service implements Serializable {
 	public Service leftover(Arrival arrival, Service service){
 		Service leftoverservice;
 
-		//Dependent Case
+		//Dependent CaseedFunctions
 		if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
 			Hoelder hoelder = nw.createHoelder();
-			FunctionIF givensigma = new AddedFunctions(arrival.getSigma(),service.getSigma(),hoelder);
-			FunctionIF givenrho = new AddedFunctions(arrival.getRho(),service.getRho(),hoelder);
+			SymbolicFunction givensigma = new AdditiveComposition(arrival.getSigma(),service.getSigma(),hoelder);
+			SymbolicFunction givenrho = new AdditiveComposition(arrival.getRho(),service.getRho(),hoelder);
 			leftoverservice = new Service(givensigma, givenrho, nw);
 			System.out.println("Dependent Case Leftover calculated");
 		}
 		
 		//Independent Case
 		else{
-			FunctionIF givensigma = new AddedFunctions(arrival.getSigma(),service.getSigma());
-			FunctionIF givenrho = new AddedFunctions(arrival.getRho(),service.getRho());
+			SymbolicFunction givensigma = new AdditiveComposition(arrival.getSigma(),service.getSigma());
+			SymbolicFunction givenrho = new AdditiveComposition(arrival.getRho(),service.getRho());
 			leftoverservice = new Service(givensigma, givenrho, nw);
 			System.out.println("Independent Case Leftover calculated");
 		}
@@ -282,20 +282,20 @@ public class Service implements Serializable {
 		return thetastar;
 	}
 
-	public FunctionIF getRho() {
+	public SymbolicFunction getRho() {
 		return rho;
 	}
 
-	public void setRho(FunctionIF rho) {
+	public void setRho(SymbolicFunction rho) {
 		this.rho = rho;
 		thetastar = Math.min(rho.getmaxTheta(), sigma.getmaxTheta());
 	}
 
-	public FunctionIF getSigma() {
+	public SymbolicFunction getSigma() {
 		return sigma;
 	}
 
-	public void setSigma(FunctionIF sigma) {
+	public void setSigma(SymbolicFunction sigma) {
 		this.sigma = sigma;
 		thetastar = Math.min(rho.getmaxTheta(), sigma.getmaxTheta());
 	}

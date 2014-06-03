@@ -21,13 +21,17 @@
 
 package unikl.disco.mgf;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import unikl.disco.misc.SetUtils;
+
 /**
- * A class representing functions, which calculates the maximum
- * of two theta-dependent functions. Given by:<br>
- * max(f(t),g(t))<br>
- * The result aims at calculating MGF-bounds, hence a 
+ * A class representing a function, which is the result of taking
+ * the negative absolute difference between two theta-dependent 
+ * functions. Given by:<br>
+ * -|f(t)-g(t)|<br>
+ * The calculation aims at calculating MGF-bounds, hence a 
  * stochastically dependent version of it is implemented.
  * The original functions (called atom-functions) are denoted by
  * <code>first</code> and <code>second</code> and are 
@@ -38,27 +42,26 @@ import java.util.Map;
  * of the atom-functions is needed and represented in <code>
  * firstparameterIDs</code> and <code>secondparameterIDs</code>.
  * The integer <code>HoelderID</code> decides whether 
- * taking the maximum is proceeded normally (stochastically 
- * independent case: <code>HoelderID = 0</code>) or with an 
- * Hölder-coefficient (stochastically dependent case: <code>
- * HoelderID != 0</code>).
+ * taking the negative absolute difference is calculated normally 
+ * (stochastically independent case: <code>HoelderID = 0</code>) or
+ * with an Hölder-coefficient (stochastically dependent case: 
+ * <code>HoelderID != 0</code>).
  * @author Michael Beck
  * @see SymbolicFunction
- *
  */
-public class MaximumFunction extends BinaryFunction implements SymbolicFunction{
+public class NegativeAbsoluteDifference extends BinaryFunction implements SymbolicFunction{
 	
 	//Members
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8302274385750948237L;
+	private static final long serialVersionUID = -3367229262199782289L;
 	
 	//Constructors
 	
 	/**
-	 * Constructs an <code>MaximumFunction</code> entity. If 
+	 * Constructs an <code>NegAbsDiffFunction</code> entity. If 
 	 * <code>independent</code> is set <code>true</code>, the 
 	 * independent version is constructed.
 	 * If <code>independent</code> is set <code>false</code>, the 
@@ -73,7 +76,7 @@ public class MaximumFunction extends BinaryFunction implements SymbolicFunction{
 	 * @param independent determines if the stochastically dependent
 	 * or independent version is invoked.
 	 */
-	public MaximumFunction(SymbolicFunction first, SymbolicFunction second){
+	public NegativeAbsoluteDifference(SymbolicFunction first, SymbolicFunction second){
 	    super(first, second);
 	}
 	
@@ -92,8 +95,8 @@ public class MaximumFunction extends BinaryFunction implements SymbolicFunction{
 	 * @param second the second atom function
 	 * @param HoelderID determines if the stochastically dependent
 	 * or independent version is invoked.
-	 */
-	public MaximumFunction(SymbolicFunction first, SymbolicFunction second, Hoelder hoelder){
+	 */	
+	public NegativeAbsoluteDifference(SymbolicFunction first, SymbolicFunction second, Hoelder hoelder){
 	    super(first, second, hoelder);
 	}
 
@@ -115,32 +118,53 @@ public class MaximumFunction extends BinaryFunction implements SymbolicFunction{
 	@Override
 	public double getValue(double theta, Map<Integer, Hoelder> parameters)
 			throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
-	    if(checkForParameterMismatch(parameters))
-		throw new ParameterMismatchException("Total number of parameters does not match for atom functions");
-
-	    return Math.max(getValueOfFunction(theta, parameters, 1), getValueOfFunction(theta, parameters, 2));
-	}
+	    /*
+		//Checks for a mismatch in number of given and needed parameters
+		if((hoelder == null && parameters.size() != SetUtils.getUnion(firstparameters.keySet(), secondparameters.keySet()).size()) 
+				|| (hoelder != null && parameters.size() != SetUtils.getUnion(firstparameters.keySet(), secondparameters.keySet()).size() +1)){
+			throw new ParameterMismatchException("Total number of parameters does not match for atom functions (added)");
+		}
+		
+		//Constructs the parameter-arrays, serving as input for the atom-functions
+		HashMap<Integer, Hoelder> given1 = new HashMap<Integer, Hoelder>();
+		HashMap<Integer, Hoelder> given2 = new HashMap<Integer, Hoelder>();
 	
+		for(Map.Entry<Integer, Hoelder> entry : firstparameters.entrySet()){
+			// WRONG  if(parameters.containsKey(entry.getKey())) given1.put(entry.getKey(), entry.getValue());
+			if(parameters.containsKey(entry.getKey())) given1.put(entry.getKey(), parameters.get(entry.getKey()));
+			else throw new ParameterMismatchException("Needed hoelder_id is not found in given parameters.");
+		}
+		for(Map.Entry<Integer, Hoelder> entry : secondparameters.entrySet()){
+			//WRONG  if(parameters.containsKey(entry.getKey())) given2.put(entry.getKey(), entry.getValue());
+			if(parameters.containsKey(entry.getKey())) given2.put(entry.getKey(), parameters.get(entry.getKey()));
+			else throw new ParameterMismatchException("Needed hoelder_id is not found in given parameters.");
+		}
+	
+		//Introduces H�lder-coefficients, if needed
+		//Multiplies the H�lder-coefficients to theta, if needed
+		double theta1 = (hoelder == null) ? theta : theta*hoelder.getPValue();
+		double theta2 = (hoelder == null) ? theta : theta*hoelder.getQValue();
+
+		if(first.getValue(theta1, given1) > second.getValue(theta2, given2)){
+			return second.getValue(theta2, given2) - first.getValue(theta1, given1);
+		}
+		else return first.getValue(theta1, given1) - second.getValue(theta2, given2);*/
+	    if(checkForParameterMismatch(parameters))
+		throw new ParameterMismatchException("Total number of parameters does not match for atom functions (added)");
+	    
+	    double value1 = getValueOfFunction(theta, parameters, 1);
+	    double value2 = getValueOfFunction(theta, parameters, 2);
+	    return (value1 > value2 ? value1 - value2 : value2 - value1);
+	}
+
 	/**
-	 * Returns an representation of the function in polish notation.
-	 * That is: <code>max(f(t),g(t))</code>
+	 * Returns string representation of the function in polish
+	 * notation. Given by:<br>
+	 * <code>-|f(t)-g(t)|</code><br>
 	 * @return a String representation of the function.
 	 */
 	@Override
 	public String toString(){
-		String output = "max("+first.toString()+","+second.toString()+")";
-		return output;
+	    return "-| "+first.toString()+" - "+second.toString()+" |";
 	}
-
-	//Getter and Setter
-	
-	/**
-	 * The number of parameters, is the sum of the parameters needed
-	 * for the atom functions (parameters belonging to both 
-	 * functions are counted twice). If the atom-functions are 
-	 * stochastically dependent one further parameter (the 
-	 * Hölder-coefficient) is needed to calculate the values of the
-	 * resulting function.
-	 * @return a list of parameterIDs.
-	 */
 }

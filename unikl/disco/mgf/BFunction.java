@@ -22,6 +22,7 @@
 package unikl.disco.mgf;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A class representing functions, which are the result of one
@@ -33,7 +34,7 @@ import java.util.HashMap;
  * (backlog, delay, output) as well as for concatenate service
  * elements.
  * The original function (called atom-function) is denoted by
- * <code>exponent</code>and must be a {@link FunctionIF}. The 
+ * <code>exponent</code>and must be a {@link SymbolicFunction}. The 
  * maximal theta for which the resulting function is defined, is 
  * given by the maximal theta of the atom-function. 
  * To calculate values of the resulting function knowledge about the 
@@ -41,10 +42,10 @@ import java.util.HashMap;
  * <code>parameterIDs</code>.
  * 
  * @author Michael Beck
- * @see FunctionIF
+ * @see SymbolicFunction
  *
  */
-public class BFunction implements FunctionIF {
+public class BFunction implements SymbolicFunction {
 	
 	//Members
 	
@@ -52,13 +53,13 @@ public class BFunction implements FunctionIF {
 	 * 
 	 */
 	private static final long serialVersionUID = -393050275685989790L;
-	FunctionIF exponent;
+	SymbolicFunction exponent;
 	double maxtheta;
-	private HashMap<Integer, Hoelder> parameters;
+	private Map<Integer, Hoelder> parameters;
 	
 	//Constructor
 	
-	public BFunction(FunctionIF exponent){
+	public BFunction(SymbolicFunction exponent){
 		this.exponent = exponent;
 		maxtheta = exponent.getmaxTheta();
 		this.parameters = exponent.getParameters();
@@ -76,7 +77,7 @@ public class BFunction implements FunctionIF {
 	 * @throws ParameterMismatchException 
 	 */
 	@Override
-	public double getValue(double theta, HashMap<Integer, Hoelder> parameters)
+	public double getValue(double theta, Map<Integer, Hoelder> parameters)
 			throws ThetaOutOfBoundException, ServerOverloadException, ParameterMismatchException {
 
 		//Checks for a mismatch in number of given and needed parameters
@@ -106,10 +107,8 @@ public class BFunction implements FunctionIF {
 		return output;
 	}
 
-	//Getter and Setter
-	
-	@Override
-	public HashMap<Integer, Hoelder> getParameters() {
+	//Getter and SetterMaperride
+	public Map<Integer, Hoelder> getParameters() {
 		return parameters;
 	}
 	

@@ -22,6 +22,7 @@
 package unikl.disco.mgf;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /** Class representing the MGF-Bound of an exponentially
  * distributed increment. The parameter of the underlying 
@@ -34,11 +35,11 @@ import java.util.HashMap;
  * is needed.
  * 
  * @author Michael Beck
- * @see FunctionIF
+ * @see SymbolicFunction
  * @see Arrival
  * @see BadInitializationException
  */
-public class ExponentialSigma implements FunctionIF{
+public class ExponentialSigma implements SymbolicFunction{
 	
 	//Members
 	
@@ -66,7 +67,7 @@ public class ExponentialSigma implements FunctionIF{
 	 * it must consist of only one parameter.
 	 */
 	@Override
-	public double getValue(double theta, HashMap<Integer, Hoelder> parameters)
+	public double getValue(double theta, Map<Integer, Hoelder> parameters)
 			throws ThetaOutOfBoundException, ParameterMismatchException {
 		
 		//Checks if only one parameter is given
@@ -100,7 +101,7 @@ public class ExponentialSigma implements FunctionIF{
 	}
 
 	@Override
-	public HashMap<Integer, Hoelder> getParameters() {
+	public Map<Integer, Hoelder> getParameters() {
 		return new HashMap<Integer, Hoelder>(0);
 	}
 }

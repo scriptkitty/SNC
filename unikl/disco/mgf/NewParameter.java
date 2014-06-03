@@ -22,11 +22,12 @@
 package unikl.disco.mgf;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import unikl.disco.mgf.network.Network;
 
 /**
- * This introduces a new parameter in form of a {@link FunctionIF}.
+ * This introduces a new parameter in form of a {@link SymbolicFunction}.
  * It is needed for calculating the backlog-bound for a certain
  * backlog <code>x</code>, which has its own <code>parameter_id
  * </code>. The function acts as identity-function and just returns
@@ -35,9 +36,9 @@ import unikl.disco.mgf.network.Network;
  * function.
  * @author Michael Beck
  * @see Analysis
- * @see FunctionIF
+ * @see SymbolicFunction
  */
-public class NewParameter implements FunctionIF {
+public class NewParameter implements SymbolicFunction {
 
 	//Members
 	
@@ -64,13 +65,13 @@ public class NewParameter implements FunctionIF {
 	 * first entry in <code>parameters</code> should be theta, but
 	 * is however not used. The special form of the input <code>
 	 * parameters</code> is just needed to serve the overall 
-	 * structure of {@link FunctionIF}s.
+	 * structure of {@link SymbolicFunction}s.
 	 * @param parameters an array consisting of theta (first entry)
 	 * and the new parameter (second entry).
 	 * @return the new parameter as given.
 	 */
 	@Override
-	public double getValue(double theta, HashMap<Integer, Hoelder> parameters) throws ParameterMismatchException{
+	public double getValue(double theta, Map<Integer, Hoelder> parameters) throws ParameterMismatchException{
 		if(parameters.size() != 1) throw new ParameterMismatchException("NewParameter has exactly one parameter.");
 		return hoelder.getPValue();
 	}
@@ -96,7 +97,7 @@ public class NewParameter implements FunctionIF {
 	}
 
 	@Override
-	public HashMap<Integer, Hoelder> getParameters() {
+	public Map<Integer, Hoelder> getParameters() {
 		HashMap<Integer, Hoelder> parameter_ids = new  HashMap<Integer, Hoelder>(0);
 		parameter_ids.put(hoelder.getHoelderID(), hoelder);
 		return parameter_ids;

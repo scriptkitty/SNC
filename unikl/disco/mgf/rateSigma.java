@@ -22,6 +22,7 @@
 package unikl.disco.mgf;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /** Class representing the MGF-Bound of a constant rate
  * server. The constant rate is given by the parameter <code>
@@ -36,11 +37,11 @@ import java.util.HashMap;
  * negative value. Hence in the constructor <code>c</code> should
  * be negative.
  * @author Michael Beck
- * @see FunctionIF
+ * @see SymbolicFunction
  * @see Vertex
  * @see BadInitializationException
  */
-public class rateSigma implements FunctionIF {
+public class rateSigma implements SymbolicFunction {
 	
 	//Members
 	
@@ -60,7 +61,7 @@ public class rateSigma implements FunctionIF {
 	//Methods
 	
 	@Override
-	public double getValue(double theta, HashMap<Integer, Hoelder> parameters)
+	public double getValue(double theta, Map<Integer, Hoelder> parameters)
 			throws ThetaOutOfBoundException, ParameterMismatchException {
 		
 		//Checks for a mismatch of given and needed parameters
@@ -84,13 +85,7 @@ public class rateSigma implements FunctionIF {
 	}
 
 	@Override
-	public HashMap<Integer, Hoelder> getParameters() {
-		return new HashMap<Integer, Hoelder>(0);
+	public Map<Integer, Hoelder> getParameters() {
+		return new HashMap<>(0);
 	}
-
-	public void setRate(double rate){
-		//TODO: Delete this function after testing!
-		this.c =rate;
-	}
-
 }
