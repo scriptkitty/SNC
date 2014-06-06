@@ -18,45 +18,15 @@
  *  extensions to this software.
  *
  */
-package unikl.disco.misc;
-
-import java.util.Stack;
-import unikl.disco.calculator.commands.Command;
+package unikl.disco.calculator.network;
 
 /**
- * This class keeps track of all operations performed (e.g. addNode, deleteFlow, ...) and provides
- * functionality to Undo/Redo past operations.
+ *
  * @author Sebastian Henningsen
  */
-public class UndoRedoStack {
-    private final Stack undoStack;
-    private final Stack redoStack;
-    
-    public UndoRedoStack() {
-        undoStack = new Stack();
-        redoStack = new Stack();
-    }
-    
-    public void undo() {
-        if(!undoStack.empty()) {
-            System.out.println("Undoing");
-            Command c = (Command)undoStack.pop();
-            redoStack.add(c);
-            c.undo();
-        }
-    }
-    
-    public void redo() {
-        if(!redoStack.empty()) {
-            System.out.println("Redoing");
-            Command c = (Command)redoStack.pop();
-            undoStack.add(c);
-            c.execute();
-        }
-    }
-    
-    public void insertIntoStack(Command c) {
-        undoStack.add(c);
-        redoStack.clear();
-    }
+public interface NetworkListener {
+    public void vertexAdded(Vertex newVertex);
+    public void vertexRemoved(Vertex removedVertex);
+    public void flowAdded(Flow newFlow);
+    public void flowRemoved(Flow removedFlow);
 }

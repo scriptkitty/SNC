@@ -18,45 +18,34 @@
  *  extensions to this software.
  *
  */
-package unikl.disco.misc;
+package unikl.disco.calculator.commands;
 
-import java.util.Stack;
-import unikl.disco.calculator.commands.Command;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import unikl.disco.calculator.SNC;
 
 /**
- * This class keeps track of all operations performed (e.g. addNode, deleteFlow, ...) and provides
- * functionality to Undo/Redo past operations.
+ * This class represents the action to add a vertex with given properties in the target network.
  * @author Sebastian Henningsen
  */
-public class UndoRedoStack {
-    private final Stack undoStack;
-    private final Stack redoStack;
+public class RemoveFlowCommand implements Command {
+    int networkID;
+    SNC snc;
+    int flowID;
     
-    public UndoRedoStack() {
-        undoStack = new Stack();
-        redoStack = new Stack();
+    public RemoveFlowCommand(int flowID, int networkID, SNC snc) {
+        this.networkID = networkID;
+        this.snc = snc;
+	this.flowID = flowID;
     }
     
+    @Override
+    public void execute() {
+	snc.getCurrentNetwork().removeFlow(snc.getCurrentNetwork().getFlow(flowID));
+    }
+
+    @Override
     public void undo() {
-        if(!undoStack.empty()) {
-            System.out.println("Undoing");
-            Command c = (Command)undoStack.pop();
-            redoStack.add(c);
-            c.undo();
-        }
+	throw new NotImplementedException();
     }
     
-    public void redo() {
-        if(!redoStack.empty()) {
-            System.out.println("Redoing");
-            Command c = (Command)redoStack.pop();
-            undoStack.add(c);
-            c.execute();
-        }
-    }
-    
-    public void insertIntoStack(Command c) {
-        undoStack.add(c);
-        redoStack.clear();
-    }
 }

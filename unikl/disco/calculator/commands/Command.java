@@ -18,45 +18,22 @@
  *  extensions to this software.
  *
  */
-package unikl.disco.misc;
-
-import java.util.Stack;
-import unikl.disco.calculator.commands.Command;
+package unikl.disco.calculator.commands;
 
 /**
- * This class keeps track of all operations performed (e.g. addNode, deleteFlow, ...) and provides
- * functionality to Undo/Redo past operations.
+ * The command abstraction interface which is used to communicate with the controller
+ * and to implement a Undo/Redo mechanism.
  * @author Sebastian Henningsen
  */
-public class UndoRedoStack {
-    private final Stack undoStack;
-    private final Stack redoStack;
-    
-    public UndoRedoStack() {
-        undoStack = new Stack();
-        redoStack = new Stack();
-    }
-    
-    public void undo() {
-        if(!undoStack.empty()) {
-            System.out.println("Undoing");
-            Command c = (Command)undoStack.pop();
-            redoStack.add(c);
-            c.undo();
-        }
-    }
-    
-    public void redo() {
-        if(!redoStack.empty()) {
-            System.out.println("Redoing");
-            Command c = (Command)redoStack.pop();
-            undoStack.add(c);
-            c.execute();
-        }
-    }
-    
-    public void insertIntoStack(Command c) {
-        undoStack.add(c);
-        redoStack.clear();
-    }
+public interface Command {
+
+    /**
+     * The main function of the command
+     */
+    public void execute();
+
+    /**
+     * Used to undo the actions that were performed during execution of the command.
+     */
+    public void undo();
 }

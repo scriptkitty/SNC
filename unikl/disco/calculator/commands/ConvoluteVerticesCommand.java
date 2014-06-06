@@ -18,45 +18,36 @@
  *  extensions to this software.
  *
  */
-package unikl.disco.misc;
+package unikl.disco.calculator.commands;
 
-import java.util.Stack;
-import unikl.disco.calculator.commands.Command;
+import unikl.disco.calculator.SNC;
 
 /**
- * This class keeps track of all operations performed (e.g. addNode, deleteFlow, ...) and provides
- * functionality to Undo/Redo past operations.
+ * This class represents the action to convolute two adjacent vertices in a given target network
  * @author Sebastian Henningsen
  */
-public class UndoRedoStack {
-    private final Stack undoStack;
-    private final Stack redoStack;
+public class ConvoluteVerticesCommand implements Command {
+     
+    int vertex1ID;
+    int vertex2ID;
+    int networkID;
+    SNC snc;
     
-    public UndoRedoStack() {
-        undoStack = new Stack();
-        redoStack = new Stack();
+    public ConvoluteVerticesCommand(int vertex1ID, int vertex2ID, int networkID, SNC snc) {
+        this.vertex1ID = vertex1ID;
+        this.vertex2ID = vertex2ID;
+        this.networkID = networkID;
     }
     
+    @Override
+    public void execute() {
+        snc.getCurrentNetwork().convolute(vertex1ID, vertex2ID);
+    }
+
+    @Override
     public void undo() {
-        if(!undoStack.empty()) {
-            System.out.println("Undoing");
-            Command c = (Command)undoStack.pop();
-            redoStack.add(c);
-            c.undo();
-        }
+        // TODO
+        System.out.println("Undo Action for convolution not implemented yet.");
     }
     
-    public void redo() {
-        if(!redoStack.empty()) {
-            System.out.println("Redoing");
-            Command c = (Command)redoStack.pop();
-            undoStack.add(c);
-            c.execute();
-        }
-    }
-    
-    public void insertIntoStack(Command c) {
-        undoStack.add(c);
-        redoStack.clear();
-    }
 }

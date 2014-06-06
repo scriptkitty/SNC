@@ -1,4 +1,4 @@
- /*
+/*
  *  (c) 2013 Michael A. Beck, disco | Distributed Computer Systems Lab
  *                                  University of Kaiserslautern, Germany
  *         All Rights Reserved.
@@ -18,45 +18,24 @@
  *  extensions to this software.
  *
  */
-package unikl.disco.misc;
 
-import java.util.Stack;
-import unikl.disco.calculator.commands.Command;
+package unikl.disco.calculator.network;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * This class keeps track of all operations performed (e.g. addNode, deleteFlow, ...) and provides
- * functionality to Undo/Redo past operations.
+ *
  * @author Sebastian Henningsen
  */
-public class UndoRedoStack {
-    private final Stack undoStack;
-    private final Stack redoStack;
+public class AnalysisFactory {
     
-    public UndoRedoStack() {
-        undoStack = new Stack();
-        redoStack = new Stack();
-    }
-    
-    public void undo() {
-        if(!undoStack.empty()) {
-            System.out.println("Undoing");
-            Command c = (Command)undoStack.pop();
-            redoStack.add(c);
-            c.undo();
+    public static Analyzer getAnalyzer(AnalysisType type, Network nw, Map<Integer, Vertex> vertices, Map<Integer, Flow> flows, int flow_of_interest, int vertex_of_interest, AbstractAnalysis.Boundtype boundtype) {
+        switch(type) {
+            case SIMPLE_ANA:
+                return new SimpleAnalysis(nw, vertices, flows, flow_of_interest, vertex_of_interest, boundtype);
+            default:
+                throw new IllegalArgumentException("Analysis Type: " + type.toString() + " not known.");
         }
-    }
-    
-    public void redo() {
-        if(!redoStack.empty()) {
-            System.out.println("Redoing");
-            Command c = (Command)redoStack.pop();
-            undoStack.add(c);
-            c.execute();
-        }
-    }
-    
-    public void insertIntoStack(Command c) {
-        undoStack.add(c);
-        redoStack.clear();
     }
 }

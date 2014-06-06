@@ -18,45 +18,55 @@
  *  extensions to this software.
  *
  */
-package unikl.disco.misc;
-
-import java.util.Stack;
-import unikl.disco.calculator.commands.Command;
+package unikl.disco.calculator.optimization;
 
 /**
- * This class keeps track of all operations performed (e.g. addNode, deleteFlow, ...) and provides
- * functionality to Undo/Redo past operations.
+ * A list of available bounds, somewhat redundant to @link AbstractAnalysis.Boundtypes.
+ * These two enums will be merged in the future
  * @author Sebastian Henningsen
  */
-public class UndoRedoStack {
-    private final Stack undoStack;
-    private final Stack redoStack;
-    
-    public UndoRedoStack() {
-        undoStack = new Stack();
-        redoStack = new Stack();
-    }
-    
-    public void undo() {
-        if(!undoStack.empty()) {
-            System.out.println("Undoing");
-            Command c = (Command)undoStack.pop();
-            redoStack.add(c);
-            c.undo();
+// TODO: Merge with AbstractAnalysis.Boundtypes
+public enum BoundType {
+
+    /**
+     * The backlog bound
+     */
+    BACKLOG {
+        @Override
+        public String toString() {
+            return "BacklogBound";
         }
-    }
-    
-    public void redo() {
-        if(!redoStack.empty()) {
-            System.out.println("Redoing");
-            Command c = (Command)redoStack.pop();
-            undoStack.add(c);
-            c.execute();
+    },
+
+    /**
+     * The inverse backlog bound
+     */
+    INVERSE_BACKLOG {
+        @Override
+        public String toString() {
+            return "Inverse BacklogBound";
         }
+    },
+
+    /**
+     * The delay bound
+     */
+    DELAY {
+        @Override
+        public String toString() {
+            return "DelayBound";
+        }
+    },
+
+    /**
+     * the inverse delay bound
+     */
+    INVERSE_DELAY {
+        @Override
+        public String toString() {
+            return "Inverse DelayBound";
+        }
+        
     }
     
-    public void insertIntoStack(Command c) {
-        undoStack.add(c);
-        redoStack.clear();
-    }
 }
