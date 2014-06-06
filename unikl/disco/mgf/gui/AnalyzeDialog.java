@@ -52,12 +52,12 @@ public class AnalyzeDialog extends JDialog {
 	public AnalyzeDialog(String title, final SNC snc) {
             // Use ids, if there is no alias?
             List<ComboBoxItem> flowBox = new ArrayList<>();
-            for(Entry<Integer, Flow> entry : snc.getFlows().entrySet()) {
+            for(Entry<Integer, Flow> entry : snc.getCurrentNetwork().getFlows().entrySet()) {
                 flowBox.add(new ComboBoxItem(entry.getKey(), entry.getValue().getAlias()));
             }
             
             List<ComboBoxItem> vertexBox = new ArrayList<>();
-            for(Entry<Integer, Vertex> entry : snc.getVertices().entrySet()) {
+            for(Entry<Integer, Vertex> entry : snc.getCurrentNetwork().getVertices().entrySet()) {
                 vertexBox.add(new ComboBoxItem(entry.getKey(), entry.getValue().getAlias()));
             }
             
@@ -136,7 +136,7 @@ public class AnalyzeDialog extends JDialog {
                                 AnalysisType anaType = (AnalysisType)analyBox.getSelectedItem();
                                 AbstractAnalysis.Boundtype boundType = (AbstractAnalysis.Boundtype)typeBox.getSelectedItem();
 
-				snc.analyzeNetwork(snc.getFlow(selectedFlow.getId()), snc.getVertex(selectedVertex.getId()), anaType, boundType, snc.getCurrentNetwork());
+				snc.analyzeNetwork(snc.getCurrentNetwork().getFlow(selectedFlow.getId()), snc.getCurrentNetwork().getVertex(selectedVertex.getId()), anaType, boundType, snc.getCurrentNetwork());
 				dispose();
 			}
 			

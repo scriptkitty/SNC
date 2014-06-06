@@ -47,6 +47,8 @@ import unikl.disco.mgf.network.ArrivalNotAvailableException;
 import unikl.disco.mgf.network.NetworkListener;
 import unikl.disco.mgf.optimization.OptimizationType;
 import unikl.disco.misc.commands.AddVertexCommand;
+import unikl.disco.misc.commands.RemoveFlowCommand;
+import unikl.disco.misc.commands.RemoveVertexCommand;
 
 /**
  * This is a first GUI, allowing the user easy manipulations of the network
@@ -162,7 +164,7 @@ public class GUI implements Runnable, NetworkListener {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				FlowEditor dialog = new FlowEditor("Add Flow", snc.getVertices(), snc.getCurrentNetwork());
+				FlowEditor dialog = new FlowEditor("Add Flow", snc.getVertices(), snc.getCurrentNetwork(), snc);
 				int output = dialog.showFlowEditor();
 				if(output == FlowEditor.APPROVE_OPTION){
 					if(dialog.getEditedFlow() != null) addFlow(dialog.getEditedFlow());
@@ -587,7 +589,8 @@ public class GUI implements Runnable, NetworkListener {
 	
 	//Alters the network
 	private static void removeFlow(Flow flow){
-		
+	    snc.invokeCommand(new RemoveFlowCommand(flow.getFlowID(), -1, snc));
+		/*
 		//Alters the network via the caller
 		boolean success = snc.removeFlow(flow, snc.getCurrentNetwork());
 		
@@ -598,11 +601,12 @@ public class GUI implements Runnable, NetworkListener {
 		//Updates GUI
 		flowModel.fireTableDataChanged();
 		nodeModel.fireTableDataChanged();
-		updateGraph();
+		updateGraph();*/
 	}
 	
 	private static void removeVertex(Vertex vertex){
-		
+	    snc.invokeCommand(new RemoveVertexCommand(vertex.getVertexID(), -1, snc));
+		/*
 		//Alters the network via the caller
 		boolean success = snc.removeVertex(vertex, snc.getCurrentNetwork());
 		
@@ -613,13 +617,13 @@ public class GUI implements Runnable, NetworkListener {
 		//Updates GUI
 		flowModel.fireTableDataChanged();
 		nodeModel.fireTableDataChanged();
-		updateGraph();
+		updateGraph();*/
 	}
 
 	private static void addFlow(Flow flow){
 
             //Alters the network via the caller
-            try {
+            /*try {
                 int newID = snc.addFlow(flow, snc.getCurrentNetwork());
                 System.out.println(flow.getAlias()+ " with ID "+newID+ " added");
 		System.out.println("Route: "+flow.getVerticeIDs());
@@ -631,7 +635,7 @@ public class GUI implements Runnable, NetworkListener {
             //Updates GUI
             flowModel.fireTableDataChanged();
             nodeModel.fireTableDataChanged();
-            updateGraph();
+            updateGraph();*/
 	}
 	
 	private static void addVertex(String alias, double rate, int networkID){

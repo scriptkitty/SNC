@@ -85,67 +85,10 @@ public class SNC {
         public void loadNetwork(File file) {
             nw = Network.load(file);
         }
-	/**
-	 * Relays the command of removing a given <code>flow</code> from the
-	 * network to the {@link Network}-class.  
-	 * @param flow the <code>Flow</code> being removed.
-	 * @return Returns <code>true</code> if the flow has been successfully
-	 * removed and <code>false</code> otherwise.
-	 */
-	public boolean removeFlow(Flow flow, Network nw) {
-		return nw.removeFlow(flow);
-	}
-	
-	/**
-	 * Relays the command of adding a given <code>flow</code> to the network
-	 * to the {@link Network}-class. Pay attention to the stochastic dependencies
-	 * the given <code>flow</code> might have been initialized with. They will be
-	 * forwarded to the flow added to the network. 
-	 * @param flow the flow, which will be added to the network.
-	 * @return For the case that the flow was successfully added to the network the
-	 * flow-id will be returned. In the case that the flow could not been added 
-	 * the return will be <code>-1</code> instead.
-	 */
-	public int addFlow(Flow flow, Network nw) throws ArrivalNotAvailableException {
-	
-            nw.addFlow(flow.getInitialArrival(), flow.getVerticeIDs(), 
-					flow.getPriorities(), flow.getAlias());
-            return nw.getFLOW_ID()-1;
-	}
-	
-	/**
-	 * Relays the command of removing a given <code>vertex</code> from the
-	 * network to the {@link Network}-class.  
-	 * @param vertex the <code>Vertex</code> being removed.
-	 * @return Returns <code>true</code> if the vertex has been successfully
-	 * removed and <code>false</code> otherwise.
-	 */
-	public boolean removeVertex(Vertex vertex, Network nw) {
-		return nw.removeVertex(vertex);
-	}
-        
-        public boolean removeVertex(int vertexID, int networkID) {
-            return getNetwork(networkID).removeVertex(vertexID);
-        }
         
         public Network getNetwork(int id) {
             return nw;
         }
-	
-	/**
-	 * Relays the command of adding a given <code>vertex</code> to the network
-	 * to the {@link Network}-class. Pay attention to the stochastic dependencies
-	 * the given <code>vertex</code> might have been initialized with. They will be
-	 * forwarded to the vertex added to the network. 
-	 * @param vertex the <code>Vertex</code>, which will be added to the network.
-	 * @return For the case that the vertex was successfully added to the network the
-	 * vertex-id will be returned. In the case that the vertex could not been added 
-	 * the return will be <code>-1</code> instead.
-	 */
-	public int addVertex(Vertex vertex, Network nw){
-            nw.addVertex(vertex.getService(), vertex.getAlias());
-            return nw.getVERTEX_ID()-1;
-	}
 	
 	/**
 	 * This relays the command of calculating a symbolic (not optimized) 
@@ -179,11 +122,7 @@ public class SNC {
 		Analyzer analyzer = AnalysisFactory.getAnalyzer(anaType, nw, givenVertices, givenFlows, flow.getFlowID(), vertex.getVertexID(), boundtype);
                 try {
                         bound = analyzer.analyze();
-                } catch (ArrivalNotAvailableException e) {
-                        e.printStackTrace();
-                } catch (DeadlockException e) {
-                        e.printStackTrace();
-                } catch (BadInitializationException e) {
+                } catch (    ArrivalNotAvailableException | DeadlockException | BadInitializationException e) {
                         e.printStackTrace();
                 }
 		
@@ -372,16 +311,8 @@ public class SNC {
 	public Map<Integer, Flow> getFlows(){
 		return getFlows(getCurrentNetwork());
 	}
-        
-	public Flow getFlow(int id) {
-		return getCurrentNetwork().getFlow(id);
-	}
 	
 	public Map<Integer, Vertex> getVertices() {
 		return getVertices(getCurrentNetwork());
 	}
-        
-        public Vertex getVertex(int id) {
-            return getCurrentNetwork().getVertex(id);
-        }
 }

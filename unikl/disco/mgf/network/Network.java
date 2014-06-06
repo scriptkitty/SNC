@@ -210,7 +210,7 @@ public class Network {
 	 * @param alias the alias of the new flow
 	 * @throws ArrivalNotAvailableException
 	 */
-	public void addFlow(Arrival initial_arrival, List<Integer> route, List<Integer> priorities,
+	public int addFlow(Arrival initial_arrival, List<Integer> route, List<Integer> priorities,
 								String alias) throws ArrivalNotAvailableException{
 
 		// Creates the dummy arrivals for all vertices after the first
@@ -242,8 +242,8 @@ public class Network {
                 // Notify the listeners
                 for (NetworkListener l : listeners) {
                     l.flowAdded(flow);
-                
             }
+	    return flow.getFlowID();
 	}
 
 	/**

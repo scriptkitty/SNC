@@ -147,7 +147,6 @@ public class VertexEditor extends JDialog {
 						    throw new BadInitializationException("Rate must be positive", rate);
 						}
 						rho = new ConstantFunction(-rate);
-						System.out.println("Vertex rate: " + rho.getValue(1, new HashMap<Integer, Hoelder>(0)));
 					}
 					catch(BadInitializationException exc){	
 						System.out.println("The rate must be positive.");
@@ -158,14 +157,7 @@ public class VertexEditor extends JDialog {
 						System.out.println("The constant arrival rate must be a number.");
 						rho = null;
 						correct = false;
-					} catch (ThetaOutOfBoundException ex) {
-					    ex.printStackTrace();
-				    } catch (ParameterMismatchException ex) {
-					Logger.getLogger(VertexEditor.class.getName()).log(Level.SEVERE, null, ex);
-				    } catch (ServerOverloadException ex) {
-					Logger.getLogger(VertexEditor.class.getName()).log(Level.SEVERE, null, ex);
-				    }
-					
+					} 
 					Service service = new Service(new ConstantFunction(0), rho, nw);
 					
 					if(correct) {

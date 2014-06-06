@@ -20,53 +20,53 @@
  */
 package unikl.disco.misc.commands;
 
-import unikl.disco.mgf.ConstantFunction;
+import java.util.List;
+import unikl.disco.mgf.Arrival;
 import unikl.disco.mgf.SNC;
-import unikl.disco.mgf.Service;
-import unikl.disco.mgf.network.Network;
-import unikl.disco.mgf.network.Vertex;
+import unikl.disco.mgf.network.ArrivalNotAvailableException;
 
 /**
  * This class represents the action to add a vertex with given properties in the target network.
  * @author Sebastian Henningsen
  */
-public class AddVertexCommand implements Command {
+public class AddFlowCommand implements Command {
     private String alias;
-    double rate;
     int networkID;
     SNC snc;
     boolean success;
-    int vertexID;
+    int flowID;
+    Arrival arrival;
+    List<Integer> route;
+    List<Integer> priorities;
     
-    public AddVertexCommand(String alias, double rate, int networkID, SNC snc) {
+    public AddFlowCommand(String alias, Arrival arrival, List<Integer> route, List<Integer> priorities, int networkID, SNC snc) {
         this.alias = alias != null ? alias : "";
-        this.rate = rate;
         this.networkID = networkID;
         this.snc = snc;
         this.success = false;
-        this.vertexID = -1;
+	this.arrival = arrival;
+	this.route = route;
+	this.priorities = priorities;
     }
     
     @Override
     public void execute() {
-	if(rate > 0) {
-	    success = false;
-	    // TODO: Introduce a more general framework for asynchronous exception handling
-	    throw new IllegalArgumentException("Rate has to be negative.");
-	}
-	Network nw = snc.getCurrentNetwork();
-	vertexID = nw.addVertex(new Service(new ConstantFunction(0), 
-				new ConstantFunction(rate), snc.getCurrentNetwork()), alias).getVertexID();
-	// Why is this?
-	snc.getCurrentNetwork().getVertex(vertexID).getService().getServicedependencies().clear();
+	try {
+	    flowID = snc.getCurrentNetwork().addFlow(arrival, route, priorities, alias);
+	    // TODO: Why is this?
+	    snc.getCurrentNetwork().getFlow(flowID).getInitialArrival().getArrivaldependencies().clear();
 
-	success = true;
+	} catch (ArrivalNotAvailableException ex) {
+	    ex.printStackTrace();
+	    success = false;
+	}
+
     }
 
     @Override
     public void undo() {
         if(success) {
-            snc.getCurrentNetwork().removeVertex(vertexID);
+            snc.getCurrentNetwork().removeFlow(snc.getCurrentNetwork().getFlow(flowID));
         }
     }
     

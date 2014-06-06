@@ -21,7 +21,6 @@
 
 package unikl.disco.mgf;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -47,11 +46,6 @@ import java.util.Map;
  */
 public class BFunction implements SymbolicFunction {
 	
-	//Members
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -393050275685989790L;
 	SymbolicFunction exponent;
 	double maxtheta;
@@ -64,8 +58,6 @@ public class BFunction implements SymbolicFunction {
 		maxtheta = exponent.getmaxTheta();
 		this.parameters = exponent.getParameters();
 	}
-	
-	//Methods
 	
 	/**
 	 * Calculates the value of the resulting B-function at theta 

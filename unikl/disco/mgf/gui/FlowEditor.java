@@ -35,6 +35,7 @@ import javax.swing.*;
 
 import unikl.disco.mgf.*;
 import unikl.disco.mgf.network.*;
+import unikl.disco.misc.commands.AddFlowCommand;
 
 /**
  * Dialog for editing a flow.
@@ -58,12 +59,12 @@ public class FlowEditor extends JDialog {
     private final JPanel bottomCardContainer = new JPanel();
 
 	//Constructors
-    public FlowEditor(String title, final Map<Integer, Vertex> vertices, Flow flow, Network nw) {
-	this(title, vertices, nw);
+    public FlowEditor(String title, final Map<Integer, Vertex> vertices, Flow flow, Network nw, SNC snc) {
+	this(title, vertices, nw, snc);
 	this.flow = flow;
     }
 
-    public FlowEditor(String title, final Map<Integer, Vertex> vertices, final Network nw) {
+    public FlowEditor(String title, final Map<Integer, Vertex> vertices, final Network nw, final SNC snc) {
 
 	this.nw = nw;
 	//Constructs the dialog
@@ -247,7 +248,7 @@ public class FlowEditor extends JDialog {
 		    PoissonRho rho = null;
 
 		    if (correct) {
-			FlowEditor dialog = new FlowEditor("Define Increment", vertices, nw);
+			FlowEditor dialog = new FlowEditor("Define Increment", vertices, nw, snc);
 			int output = dialog.showFlowEditor();
 			if (output == FlowEditor.APPROVE_OPTION) {
 			    if (dialog.getEditedFlow() != null) {
@@ -271,6 +272,8 @@ public class FlowEditor extends JDialog {
 		    }
 		}
 		//Add further arrivals types...
+		// Network ID is not needed yet
+		snc.invokeCommand(new AddFlowCommand(flow.getAlias(), flow.getInitialArrival(), route, priorities, -1, snc));
 		dispose();
 	    }
 	});

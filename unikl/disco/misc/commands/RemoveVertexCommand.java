@@ -20,54 +20,32 @@
  */
 package unikl.disco.misc.commands;
 
-import unikl.disco.mgf.ConstantFunction;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import unikl.disco.mgf.SNC;
-import unikl.disco.mgf.Service;
-import unikl.disco.mgf.network.Network;
-import unikl.disco.mgf.network.Vertex;
 
 /**
  * This class represents the action to add a vertex with given properties in the target network.
  * @author Sebastian Henningsen
  */
-public class AddVertexCommand implements Command {
-    private String alias;
-    double rate;
+public class RemoveVertexCommand implements Command {
     int networkID;
     SNC snc;
-    boolean success;
     int vertexID;
     
-    public AddVertexCommand(String alias, double rate, int networkID, SNC snc) {
-        this.alias = alias != null ? alias : "";
-        this.rate = rate;
+    public RemoveVertexCommand(int vertexID, int networkID, SNC snc) {
         this.networkID = networkID;
         this.snc = snc;
-        this.success = false;
-        this.vertexID = -1;
+	this.vertexID = vertexID;
     }
     
     @Override
     public void execute() {
-	if(rate > 0) {
-	    success = false;
-	    // TODO: Introduce a more general framework for asynchronous exception handling
-	    throw new IllegalArgumentException("Rate has to be negative.");
-	}
-	Network nw = snc.getCurrentNetwork();
-	vertexID = nw.addVertex(new Service(new ConstantFunction(0), 
-				new ConstantFunction(rate), snc.getCurrentNetwork()), alias).getVertexID();
-	// Why is this?
-	snc.getCurrentNetwork().getVertex(vertexID).getService().getServicedependencies().clear();
-
-	success = true;
+	snc.getCurrentNetwork().removeVertex(snc.getCurrentNetwork().getVertex(vertexID));
     }
 
     @Override
     public void undo() {
-        if(success) {
-            snc.getCurrentNetwork().removeVertex(vertexID);
-        }
+	throw new NotImplementedException();
     }
     
 }
