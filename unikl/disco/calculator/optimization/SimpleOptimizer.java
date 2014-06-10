@@ -61,7 +61,7 @@ public class SimpleOptimizer extends AbstractOptimizer {
         public double minimize(double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
             bound.prepare();
             // Initilializes the list of Hoelder-Parameters
-            HashMap<Integer, Hoelder> allparameters = bound.getHoelderParameters();
+            Map<Integer, Hoelder> allparameters = bound.getHoelderParameters();
             IncrementList hoelderlist = new IncrementList(hoeldergranularity);
             for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
                 hoelderlist.add(entry.getValue());
@@ -72,7 +72,7 @@ public class SimpleOptimizer extends AbstractOptimizer {
             }
             
             //Initializes further values
-            double maxTheta = bound.getMaximumTheta();
+            maxTheta = bound.getMaximumTheta();
             double theta = thetagranularity;
 
             boolean breakCondition = false;

@@ -67,7 +67,7 @@ public class SimpleGradient extends AbstractOptimizer {
         public double minimize(double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
             bound.prepare();
             // Initilializes the list of Hoelder-Parameters
-            HashMap<Integer, Hoelder> allparameters = bound.getHoelderParameters();
+            Map<Integer, Hoelder> allparameters = bound.getHoelderParameters();
             
             for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()) {
                 entry.getValue().setPValue(2);
@@ -208,7 +208,7 @@ public class SimpleGradient extends AbstractOptimizer {
 		double result;
 		
 		//Initializes the list of Hoelder-Parameters...
-		HashMap<Integer, Hoelder> allparameters = new HashMap<Integer, Hoelder>(0);
+		Map<Integer, Hoelder> allparameters = new HashMap<>(0);
 		allparameters.putAll(input.getSigma().getParameters());
 		allparameters.putAll(input.getRho().getParameters());
 			

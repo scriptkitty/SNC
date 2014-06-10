@@ -20,7 +20,7 @@
  */
 package unikl.disco.calculator.optimization;
 
-import java.util.HashMap;
+import java.util.Map;
 import unikl.disco.calculator.symbolic_math.Hoelder;
 import unikl.disco.calculator.symbolic_math.ParameterMismatchException;
 import unikl.disco.calculator.symbolic_math.ServerOverloadException;
@@ -54,7 +54,7 @@ public interface Optimizable {
      * Returns all hoelder parameters (if any)
      * @return
      */
-    public HashMap<Integer, Hoelder> getHoelderParameters();
+    public Map<Integer, Hoelder> getHoelderParameters();
 
     /**
      * Returns the maximum value for theta 
