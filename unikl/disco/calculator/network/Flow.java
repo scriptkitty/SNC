@@ -239,4 +239,14 @@ public class Flow implements Serializable, Displayable {
 	public Arrival getInitialArrival() throws IndexOutOfBoundsException {
 		return arrivals.get(0);
 	}
+        
+        public void replaceFirstOccurence(int vid1, int vid2, Vertex newVertex) {
+            for(int i = 0;i < vertices.size();i++) {
+                if(vertices.get(i) == vid1 || vertices.get(i) == vid2) {
+                    vertices.set(i, newVertex.getVertexID());
+                    priorities.set(i, newVertex.getPriorityOfFlow(flow_ID));
+                    break;
+                }
+            }
+        }
 }

@@ -37,6 +37,7 @@ public class ConvoluteVerticesCommand implements Command {
         this.vertex1ID = vertex1ID;
         this.vertex2ID = vertex2ID;
         this.networkID = networkID;
+        this.snc = snc;
     }
     
     @Override

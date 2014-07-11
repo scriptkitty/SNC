@@ -51,7 +51,9 @@ public class SimpleEndToEndConvolutor {
             List<Integer> route = flowOfInterest.getVerticeIDs();
             for(int i = 0, j = 1;j < route.size() - 1;i++, j++) {
                 // Convolution
-                Network convNetwork = nw.copy();
+                Network convNetwork = nw.deepCopy();
+                
+                
                 int newID = convNetwork.convolute(route.get(i), route.get(j));
                 vertex1ID = vertex1ID == i || vertex1ID == j ? newID : vertex1ID;
                 vertex2ID = vertex2ID == i || vertex1ID == j ? newID : vertex2ID;
@@ -60,7 +62,7 @@ public class SimpleEndToEndConvolutor {
                         + " (" + i + "), " + convNetwork.getVertex(j).getAlias() + " (" + j + ")", vertex1ID, vertex2ID, convNetwork));
                 
                 // Subtract
-                Network subtNetwork = nw.copy();
+                Network subtNetwork = nw.deepCopy();
                 Vertex current = subtNetwork.getVertex(i);
                 if(current.getPrioritizedFlow() != flowOfInterest.getFlowID()) {
                     try {
