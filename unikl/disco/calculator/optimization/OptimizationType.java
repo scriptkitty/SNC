@@ -42,7 +42,7 @@ public enum OptimizationType {
     SIMPLE_OPT {
         @Override
 	public String toString() {
-            return "Simple Optimization";
+            return "Brute Force Optimization";
 	}
     }
 		
