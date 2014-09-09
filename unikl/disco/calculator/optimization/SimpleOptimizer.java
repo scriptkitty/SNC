@@ -73,6 +73,7 @@ public class SimpleOptimizer extends AbstractOptimizer {
             
             //Initializes further values
             maxTheta = bound.getMaximumTheta();
+            System.out.println("Max Theta: " + maxTheta);
             double theta = thetagranularity;
 
             boolean breakCondition = false;

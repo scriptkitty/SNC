@@ -75,6 +75,7 @@ public class SimpleGradient extends AbstractOptimizer {
             
             // Initializes parameters
             maxTheta = bound.getMaximumTheta();
+            System.out.println("Max Theta: " + maxTheta);
             double theta = thetagranularity;
             int changedHoelder = Integer.MAX_VALUE;
             boolean improved = true;
@@ -195,8 +196,8 @@ public class SimpleGradient extends AbstractOptimizer {
                         improved = false;
                         break;
                 }
-                System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+optValue);
         }
+        System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+optValue);
 
         return optValue; 
         }
