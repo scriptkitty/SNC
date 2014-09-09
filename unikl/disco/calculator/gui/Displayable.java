@@ -26,5 +26,5 @@ package unikl.disco.calculator.gui;
  */
 public interface Displayable {
     public String getAlias();
-    
+    public int getID();
 }
