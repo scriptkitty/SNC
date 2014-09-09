@@ -64,7 +64,7 @@ public class SimpleEndToEndConvolutor {
                 // Subtract
                 Network subtNetwork = nw.deepCopy();
                 Vertex current = subtNetwork.getVertex(i);
-                if(current.getPrioritizedFlow() != flowOfInterest.getFlowID()) {
+                if(current.getPrioritizedFlow() != flowOfInterest.getID()) {
                     try {
                         current.serve();
                     } catch (ArrivalNotAvailableException ex) {
@@ -78,7 +78,7 @@ public class SimpleEndToEndConvolutor {
             // Only one node in network
             results = new ArrayList<>();
             
-            Analyzer analyzer = AnalysisFactory.getAnalyzer(AnalysisType.SIMPLE_ANA, nw, nw.getVertices(), nw.getFlows(), flowOfInterest.getFlowID(), vertex1ID, AbstractAnalysis.Boundtype.DELAY);
+            Analyzer analyzer = AnalysisFactory.getAnalyzer(AnalysisType.SIMPLE_ANA, nw, nw.getVertices(), nw.getFlows(), flowOfInterest.getID(), vertex1ID, AbstractAnalysis.Boundtype.DELAY);
             try {
                 bound = analyzer.analyze();
             } catch (    ArrivalNotAvailableException | DeadlockException | BadInitializationException ex) {

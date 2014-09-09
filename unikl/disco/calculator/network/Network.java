@@ -140,7 +140,7 @@ public class Network {
 
     // Adds a vertex with a given ID, overwrites any existing vertices
     public Vertex addVertex(Vertex vertex) {
-        vertices.put(vertex.getVertexID(), vertex);
+        vertices.put(vertex.getID(), vertex);
         for (NetworkListener l : listeners) {
             l.vertexAdded(vertex);
         }
@@ -166,7 +166,7 @@ public class Network {
                 convVertex.addUnknownArrival(v1.getPriorityOfFlow(flowID), flowID);
             }
             Flow f = getFlow(flowID);
-            f.replaceFirstOccurence(v1.getVertexID(), v2.getVertexID(), convVertex);
+            f.replaceFirstOccurence(v1.getID(), v2.getID(), convVertex);
         }
 
         for (Integer flowID : v2Flows) {
@@ -178,11 +178,11 @@ public class Network {
             }
             // TODO: Make priorities unique again
             Flow f = getFlow(flowID);
-            f.replaceFirstOccurence(v1.getVertexID(), v2.getVertexID(), convVertex);
+            f.replaceFirstOccurence(v1.getID(), v2.getID(), convVertex);
         }
         removeVertex(v1);
         removeVertex(v2);
-        return convVertex.getVertexID();
+        return convVertex.getID();
     }
 
     /**
@@ -215,11 +215,12 @@ public class Network {
      * @return if removing the vertex was successful
      */
     public boolean removeVertex(Vertex vertex) {
-        return removeVertex(vertex.getVertexID());
+        return removeVertex(vertex.getID());
     }
 
     public boolean removeVertex(int id) {
         boolean success = false;
+        Vertex vertex = getVertex(id);
         if (vertices.containsKey(id)) {
             for (int i : getVertex(id).getAllFlowPriorities().keySet()) {
                 flows.get(i).removeVertex(id);
@@ -229,8 +230,7 @@ public class Network {
         }
         // Notify listeners
         for (NetworkListener l : listeners) {
-            l.vertexRemoved(getVertex(id));
-
+            l.vertexRemoved(vertex);
         }
         return success;
     }
@@ -280,7 +280,7 @@ public class Network {
         for (NetworkListener l : listeners) {
             l.flowAdded(flow);
         }
-        return flow.getFlowID();
+        return flow.getID();
     }
 
     /**
@@ -365,11 +365,11 @@ public class Network {
      */
     public boolean removeFlow(Flow flow) {
         boolean success = false;
-        if (flows.containsKey(flow.getFlowID())) {
+        if (flows.containsKey(flow.getID())) {
             for (int i : flow.getVerticeIDs()) {
-                vertices.get(i).removeFlow(flow.getFlowID());
+                vertices.get(i).removeFlow(flow.getID());
             }
-            flows.remove(flow.getFlowID());
+            flows.remove(flow.getID());
             success = true;
 
         }
@@ -414,12 +414,12 @@ public class Network {
     public String getStringRepresentation() {
         String result_string = "List of vertices:\n";
         for (Map.Entry<Integer, Vertex> entry : vertices.entrySet()) {
-            result_string = result_string + "Vertex-ID: " + entry.getValue().getVertexID()
+            result_string = result_string + "Vertex-ID: " + entry.getValue().getID()
                     + "\t Vertex-Alias: " + entry.getValue().getAlias() + "\n";
         }
         result_string = result_string + "List of flows:\n";
         for (Map.Entry<Integer, Flow> entry : flows.entrySet()) {
-            result_string = result_string + "Flow-ID: " + entry.getValue().getFlowID()
+            result_string = result_string + "Flow-ID: " + entry.getValue().getID()
                     + "\t Flow-Alias: " + entry.getValue().getAlias() + "\t route:\n" + entry.getValue().getVerticeIDs().toString() + "\n";
         }
 

@@ -410,7 +410,7 @@ public class GUI implements Runnable, NetworkListener {
 						entry = snc.getFlows().get(id).getAlias();
 						break;
 					case 1:
-						entry = ""+snc.getFlows().get(id).getFlowID();
+						entry = ""+snc.getFlows().get(id).getID();
 						break;
 					case 2: 
 						try{
@@ -466,7 +466,7 @@ public class GUI implements Runnable, NetworkListener {
 						entry = snc.getVertices().get(id).getAlias();
 						break;
 					case 1:
-						entry = ""+snc.getVertices().get(id).getVertexID();
+						entry = ""+snc.getVertices().get(id).getID();
 						break;
 					case 2:
 						entry = snc.getVertices().get(id).getAllFlowPriorities().toString();
@@ -589,13 +589,13 @@ public class GUI implements Runnable, NetworkListener {
 	
 	//Alters the network
 	private static void removeFlow(Flow flow){
-	    snc.invokeCommand(new RemoveFlowCommand(flow.getFlowID(), -1, snc));
+	    snc.invokeCommand(new RemoveFlowCommand(flow.getID(), -1, snc));
 		/*
 		//Alters the network via the caller
 		boolean success = snc.removeFlow(flow, snc.getCurrentNetwork());
 		
 		//Console output
-		if(success) System.out.println(flow.getAlias()+ " with ID "+flow.getFlowID()+ " removed");
+		if(success) System.out.println(flow.getAlias()+ " with ID "+flow.getID()+ " removed");
 		else System.out.println("Flow can not be removed. Possible reasons: The flow has already been removed.");
 		
 		//Updates GUI
@@ -605,13 +605,13 @@ public class GUI implements Runnable, NetworkListener {
 	}
 	
 	private static void removeVertex(Vertex vertex){
-	    snc.invokeCommand(new RemoveVertexCommand(vertex.getVertexID(), -1, snc));
+	    snc.invokeCommand(new RemoveVertexCommand(vertex.getID(), -1, snc));
 		/*
 		//Alters the network via the caller
 		boolean success = snc.removeVertex(vertex, snc.getCurrentNetwork());
 		
 		//Console output
-		if(success) System.out.println(vertex.getAlias()+ " with ID "+vertex.getVertexID()+" removed");
+		if(success) System.out.println(vertex.getAlias()+ " with ID "+vertex.getID()+" removed");
 		else System.out.println("Vertex can not be removed. Possible reasons: The vertex has already been removed.");
 		
 		//Updates GUI

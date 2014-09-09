@@ -54,7 +54,7 @@ public class Vertex implements Serializable, Displayable {
 	
 	private static final long serialVersionUID = -8696545130808777213L;
 	private String alias;
-	private int vertexID;
+	private int ID;
 	
 	private Service service;
 	private int prioritizedFlowID;
@@ -78,7 +78,7 @@ public class Vertex implements Serializable, Displayable {
 		highest_priority = 0;
 		priorities = new HashMap<>();
 		incoming = new HashMap<>();
-		this.vertexID = vertex_ID;
+		this.ID = vertex_ID;
 		service.addServiceDependency(vertex_ID);
 		this.alias = alias == null ? "" : alias;
                 this.nw = nw;
@@ -99,7 +99,7 @@ public class Vertex implements Serializable, Displayable {
 		highest_priority = 0;
 		priorities = new HashMap<>();
 		incoming = new HashMap<>();
-		this.vertexID = vertex_ID;
+		this.ID = vertex_ID;
 		service.addServiceDependency(vertex_ID);
 		this.alias = alias == null ? "" : alias;
                 this.nw = nw;
@@ -251,7 +251,7 @@ public class Vertex implements Serializable, Displayable {
 	//Copy-Operator
 	
 	public Vertex copy(){
-		Vertex copy = new Vertex(vertexID, service, alias, nw);
+		Vertex copy = new Vertex(ID, service, alias, nw);
 		for(Entry<Integer, Integer> entry : priorities.entrySet()){
 			if(incoming.containsKey(entry.getKey())) copy.addArrival(entry.getValue(), entry.getKey(), incoming.get(entry.getKey()));
 			else copy.addUnknownArrival(entry.getValue(), entry.getKey());
@@ -273,8 +273,9 @@ public class Vertex implements Serializable, Displayable {
 		return alias;
 	}
 	
-	public int getVertexID(){
-		return vertexID;
+        @Override
+	public int getID(){
+		return ID;
 	}
 
 	public Map<Integer, Integer> getAllFlowPriorities() {
@@ -291,5 +292,10 @@ public class Vertex implements Serializable, Displayable {
         
         public int getPriorityOfFlow(int flowID) {
             return priorities.get(flowID);
+        }
+        
+        @Override
+        public String toString() {
+            return this.ID + ", " + this.alias;
         }
 }

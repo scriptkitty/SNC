@@ -52,7 +52,7 @@ public class Flow implements Serializable, Displayable {
 	private List<Arrival> arrivals;
 	private List<Integer> priorities;
 	
-	private int flow_ID;
+	private int ID;
 	private String alias;
 	
 	private int established_arrivals;
@@ -87,7 +87,7 @@ public class Flow implements Serializable, Displayable {
 		this.arrivals = arrivals;
 		this.priorities = priorities;
 		established_arrivals = 1;
-		this.flow_ID = flow_ID;
+		this.ID = flow_ID;
 		this.alias = alias == null ? "" : alias;
 		arrivals.get(0).addArrivalDependency(flow_ID);
                 this.nw = nw;
@@ -147,7 +147,7 @@ public class Flow implements Serializable, Displayable {
      * @return  A copy of this flow.
 	 */
 	public Flow copy(){
-		Flow copy = new Flow(flow_ID, vertices, arrivals, priorities, alias, nw);
+		Flow copy = new Flow(ID, vertices, arrivals, priorities, alias, nw);
 		copy.setEstablishedArrivals(getNumberOfEstablishedArrivals());
 		return copy;
 	}
@@ -165,7 +165,7 @@ public class Flow implements Serializable, Displayable {
 	 */
 	public void setInitialArrival(Arrival arrival){
 		arrivals.add(0, arrival);
-		arrivals.get(0).addArrivalDependency(flow_ID);
+		arrivals.get(0).addArrivalDependency(ID);
 		established_arrivals = 1;
 	}
 	
@@ -219,8 +219,9 @@ public class Flow implements Serializable, Displayable {
 		established_arrivals = i;
 	}
 
-	public int getFlowID() {
-		return flow_ID;
+        @Override
+	public int getID() {
+		return ID;
 	}
 
         @Override
@@ -243,10 +244,15 @@ public class Flow implements Serializable, Displayable {
         public void replaceFirstOccurence(int vid1, int vid2, Vertex newVertex) {
             for(int i = 0;i < vertices.size();i++) {
                 if(vertices.get(i) == vid1 || vertices.get(i) == vid2) {
-                    vertices.set(i, newVertex.getVertexID());
-                    priorities.set(i, newVertex.getPriorityOfFlow(flow_ID));
+                    vertices.set(i, newVertex.getID());
+                    priorities.set(i, newVertex.getPriorityOfFlow(ID));
                     break;
                 }
             }
+        }
+        
+        @Override
+        public String toString() {
+            return this.ID + ", " + this.alias;
         }
 }

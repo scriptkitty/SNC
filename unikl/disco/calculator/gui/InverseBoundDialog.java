@@ -135,8 +135,8 @@ public class InverseBoundDialog extends JDialog {
 		
 		final Map<Integer, String> flowAliases = new HashMap<Integer, String>();
 		for(Entry<Integer, Flow> entry : flows.entrySet()){
-			if(entry.getValue().getAlias() != null) flowAliases.put(entry.getValue().getFlowID(), entry.getValue().getAlias());
-			else flowAliases.put(entry.getValue().getFlowID(), "ID "+entry.getValue().getFlowID());
+			if(entry.getValue().getAlias() != null) flowAliases.put(entry.getValue().getID(), entry.getValue().getAlias());
+			else flowAliases.put(entry.getValue().getID(), "ID "+entry.getValue().getID());
 		}
 		final JComboBox<String> FOIBox = new JComboBox<String>(flowAliases.values().toArray(new String[0]));
 		leftPanel.add(FOIBox);
@@ -164,8 +164,8 @@ public class InverseBoundDialog extends JDialog {
 		
 		final Map<Integer, String> vertexAliases = new HashMap<Integer, String>();
 		for(Entry<Integer, Vertex> entry : vertices.entrySet()){
-			if(entry.getValue().getAlias() != null) vertexAliases.put(entry.getValue().getVertexID(), entry.getValue().getAlias());
-			else vertexAliases.put(entry.getValue().getVertexID(), "ID "+entry.getValue().getVertexID());
+			if(entry.getValue().getAlias() != null) vertexAliases.put(entry.getValue().getID(), entry.getValue().getAlias());
+			else vertexAliases.put(entry.getValue().getID(), "ID "+entry.getValue().getID());
 		}
 		final JComboBox<String> VOIBox = new JComboBox<String>(vertexAliases.values().toArray(new String[0]));
                 final JComboBox<String> VOIBox2 = new JComboBox<String>(vertexAliases.values().toArray(new String[0]));
