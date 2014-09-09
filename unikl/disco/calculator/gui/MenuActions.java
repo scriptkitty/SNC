@@ -21,8 +21,11 @@
 package unikl.disco.calculator.gui;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JFileChooser;
+import javax.swing.KeyStroke;
 import unikl.disco.calculator.SNC;
 
 /**
@@ -32,11 +35,13 @@ import unikl.disco.calculator.SNC;
 public class MenuActions {
 
     static class LoadNetworkAction extends AbstractAction {
-        
+
         public LoadNetworkAction(String name) {
             super(name);
+            this.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+                    KeyEvent.VK_O, ActionEvent.CTRL_MASK));
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent ae) {
             JFileChooser chooser = new JFileChooser();
@@ -46,15 +51,17 @@ public class MenuActions {
                 System.out.println("Load Network");
             }
         }
-        
+
     }
 
     static class SaveNetworkAction extends AbstractAction {
-        
+
         public SaveNetworkAction(String name) {
             super(name);
+            this.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+                    KeyEvent.VK_S, ActionEvent.CTRL_MASK));
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent ae) {
             JFileChooser chooser = new JFileChooser();
@@ -66,28 +73,31 @@ public class MenuActions {
         }
 
     }
-    
-     static class ExitAction extends AbstractAction {
+
+    static class ExitAction extends AbstractAction {
+
         MainWindow gui;
-        
+
         public ExitAction(String name, MainWindow gui) {
             super(name);
             this.gui = gui;
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent ae) {
             gui.close();
         }
 
     }
-    
+
     static class UndoAction extends AbstractAction {
-        
+
         public UndoAction(String name) {
             super(name);
+            this.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+                    KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent ae) {
             SNC.getInstance().undo();
@@ -95,13 +105,15 @@ public class MenuActions {
         }
 
     }
-    
+
     static class RedoAction extends AbstractAction {
-        
+
         public RedoAction(String name) {
             super(name);
+            this.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+                    KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent ae) {
             SNC.getInstance().redo();
