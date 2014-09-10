@@ -66,16 +66,8 @@ public class ControlPanelActions {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            Displayable[] selectables;
-            Map<Integer, Vertex> vertices = SNC.getInstance().getVertices();
-            if (!vertices.isEmpty()) {
-                selectables = new Displayable[vertices.size()];
-                int counter = 0;
-                for (Map.Entry<Integer, Vertex> entry : vertices.entrySet()) {
-                    Vertex vertex = entry.getValue();
-                    selectables[counter] = vertex;
-                    counter++;
-                }
+            Displayable[] selectables = MainWindow.convertDisplayables(SNC.getInstance().getCurrentNetwork().getVertices());
+            if (selectables.length != 0) {
                 Displayable d = (Displayable) JOptionPane.showInputDialog(
                         null,
                         "Please Choose a vertex: ",
@@ -108,16 +100,8 @@ public class ControlPanelActions {
             // Show a dialog where the user can select a flow that will be removed
             // Box from a Map of IDs and Flows to an Array of Displayables which is needed for
             // the JComboBox
-            Displayable[] selectables;
-            Map<Integer, Flow> flows = SNC.getInstance().getFlows();
-            if (!flows.isEmpty()) {
-                selectables = new Displayable[flows.size()];
-                int counter = 0;
-                for (Map.Entry<Integer, Flow> entry : flows.entrySet()) {
-                    Flow flow = entry.getValue();
-                    selectables[counter] = flow;
-                    counter++;
-                }
+            Displayable[] selectables = MainWindow.convertDisplayables(SNC.getInstance().getCurrentNetwork().getFlows());
+            if (selectables.length != 0) {
                 Displayable d = (Displayable) JOptionPane.showInputDialog(
                         null,
                         "Please choose a flow: ",

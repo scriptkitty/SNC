@@ -31,6 +31,9 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.network.AnalysisType;
+import unikl.disco.calculator.network.Flow;
+import unikl.disco.calculator.network.Network;
+import unikl.disco.calculator.network.Vertex;
 import unikl.disco.calculator.optimization.BoundType;
 import unikl.disco.calculator.optimization.OptimizationType;
 
@@ -115,7 +118,21 @@ public class OptimizationDialog {
             if (valueField.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(panel, "You must specify a bound/probability!");
             } else {
-            // Delegate from here
+                Network nw = SNC.getInstance().getCurrentNetwork();
+                int flowID = ((Displayable) flowSelector.getSelectedItem()).getID();
+                Flow flow = nw.getFlow(flowID);
+                int vertexID = ((Displayable) vertexSelector.getSelectedItem()).getID();
+                Vertex vertex = nw.getVertex(vertexID);
+                SNC.getInstance().optimizeSymbolicFunction(flow, vertex, 
+                        (double)(thetaGran.getModel().getValue()),
+                        (double)(hoelderGran.getModel().getValue()),
+                        (AnalysisType)analysisSelector.getSelectedItem(),
+                        (OptimizationType)optSelector.getSelectedItem(),
+                        (BoundType)boundSelector.getSelectedItem(),
+                        Double.parseDouble(valueField.getText()),
+                        nw);
+            
+            // Just for debugging
             System.out.println(vertexSelector.getSelectedItem()
                     + " " + flowSelector.getSelectedItem()
                     + " " + analysisSelector.getSelectedItem()

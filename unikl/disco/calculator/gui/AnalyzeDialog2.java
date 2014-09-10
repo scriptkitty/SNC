@@ -26,7 +26,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import unikl.disco.calculator.SNC;
+import unikl.disco.calculator.network.AbstractAnalysis;
 import unikl.disco.calculator.network.AnalysisType;
+import unikl.disco.calculator.network.Flow;
+import unikl.disco.calculator.network.Network;
+import unikl.disco.calculator.network.Vertex;
 import unikl.disco.calculator.optimization.BoundType;
 
 /**
@@ -58,11 +62,11 @@ public class AnalyzeDialog2 {
         flowSelector = new JComboBox(MainWindow.convertDisplayables(SNC.getInstance().getCurrentNetwork().getFlows()));
 
         analysisSelector = new JComboBox(AnalysisType.values());
-        boundSelector = new JComboBox(BoundType.values());
-        
-        layout = new GridLayout(0,2);
+        boundSelector = new JComboBox(AbstractAnalysis.Boundtype.values());
+
+        layout = new GridLayout(0, 2);
         panel.setLayout(layout);
-        
+
         panel.add(vertexOfInterest);
         panel.add(vertexSelector);
         panel.add(flowOfInterest);
@@ -77,7 +81,15 @@ public class AnalyzeDialog2 {
         int result = JOptionPane.showConfirmDialog(null, panel, "Analyze Dialog",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
-            // Delegate from here
+            Network nw = SNC.getInstance().getCurrentNetwork();
+            int flowID = ((Displayable) flowSelector.getSelectedItem()).getID();
+            Flow flow = nw.getFlow(flowID);
+            int vertexID = ((Displayable) vertexSelector.getSelectedItem()).getID();
+            Vertex vertex = nw.getVertex(vertexID);
+
+            SNC.getInstance().analyzeNetwork(flow, vertex, (AnalysisType) analysisSelector.getSelectedItem(),
+                    (AbstractAnalysis.Boundtype) boundSelector.getSelectedItem(), nw);
+            // Just for debugging
             System.out.println(vertexSelector.getSelectedItem()
                     + " " + flowSelector.getSelectedItem()
                     + " " + analysisSelector.getSelectedItem()
@@ -89,8 +101,8 @@ public class AnalyzeDialog2 {
              AbstractAnalysis.Boundtype boundType = (AbstractAnalysis.Boundtype)typeBox.getSelectedItem();
 
              snc.analyzeNetwork(snc.getCurrentNetwork().getFlow(selectedFlow.getId()), 
-                                    snc.getCurrentNetwork().getVertex(selectedVertex.getId()), 
-                                    anaType, boundType, snc.getCurrentNetwork());*/
+             snc.getCurrentNetwork().getVertex(selectedVertex.getId()), 
+             anaType, boundType, snc.getCurrentNetwork());*/
         }
     }
 }

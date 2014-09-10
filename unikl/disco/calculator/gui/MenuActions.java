@@ -121,4 +121,17 @@ public class MenuActions {
         }
 
     }
+
+    static class AboutAction extends AbstractAction {
+
+        public AboutAction(String name) {
+            super(name);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            System.out.println("About");
+        }
+
+    }
 }

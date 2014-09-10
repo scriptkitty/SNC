@@ -33,6 +33,7 @@ public class MenuBar {
     private final JMenuBar menuBar;
     private final JMenu fileMenu;
     private final JMenu editMenu;
+    private final JMenu helpMenu;
     
     private final JMenuItem loadFileItem;
     private final JMenuItem saveFileItem;
@@ -40,6 +41,8 @@ public class MenuBar {
     
     private final JMenuItem undoMenuItem;
     private final JMenuItem redoMenuItem;
+    
+    private final JMenuItem aboutMenuItem;
     
     MenuBar(MainWindow mainWindow) {
         menuBar = new JMenuBar();
@@ -73,8 +76,14 @@ public class MenuBar {
         editMenu.add(redoMenuItem);
         menuBar.add(editMenu);
         
+        helpMenu = new JMenu("Help");
+        helpMenu.setMnemonic(KeyEvent.VK_H);
         
+        aboutMenuItem = new JMenuItem();
+        aboutMenuItem.setAction(new MenuActions.AboutAction("About"));
         
+        helpMenu.add(aboutMenuItem);
+        menuBar.add(helpMenu);
     }
     
     public JMenuBar getMenuBar() {

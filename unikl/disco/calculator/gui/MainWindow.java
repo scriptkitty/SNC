@@ -33,6 +33,7 @@ import javax.swing.JSplitPane;
  * @author Sebastian Henningsen
  */
 public class MainWindow {
+
     private JFrame mainFrame;
     private MenuBar menuBar;
     private VertexTablePanel vertexTablePanel;
@@ -44,16 +45,16 @@ public class MainWindow {
     private JSplitPane rightHorizontalSplitPane;
     private ControlPanel controllerPanel;
     private NetworkVisualizationPanel visPanel;
-    
+
     public void createGUI() {
         // Create all necessary components and add them to the main JFrame
         mainFrame = new JFrame("Disco Stochastic Network Calculator");
-	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        
+
         menuBar = new MenuBar(this);
         mainFrame.setJMenuBar(menuBar.getMenuBar());
-        
+
         horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         mainFrame.add(horizontalSplitPane);
         verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
@@ -65,7 +66,7 @@ public class MainWindow {
         tables.add(vertexTablePanel.getPanel());
         tables.add(flowTablePanel.getPanel());
         horizontalSplitPane.setTopComponent(tables);
-        
+
         rightHorizontalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
         verticalSplitPane.setBottomComponent(rightHorizontalSplitPane);
 
@@ -76,33 +77,28 @@ public class MainWindow {
 
         visPanel = new NetworkVisualizationPanel(new Dimension(300, 300));
         rightHorizontalSplitPane.setTopComponent(visPanel.getPanel());
-        
+
         controllerPanel = new ControlPanel();
         verticalSplitPane.setTopComponent(controllerPanel.getPanel());
-        
-        
-        
+
         // Layout Part: Set the Layout Manager and arrange the components
         layoutManager = new GridBagLayout();
         //mainFrame.setLayout(layoutManager);
         mainFrame.pack();
         mainFrame.setVisible(true);
     }
-    
+
     public void close() {
         mainFrame.dispose();
     }
-    
+
     public static <T extends Displayable> Displayable[] convertDisplayables(Map<Integer, T> map) {
-        Displayable[] selectables = new Displayable[0];
-        if (!map.isEmpty()) {
-            selectables = new Displayable[map.size()];
-            int counter = 0;
-            for (Map.Entry<Integer, T> entry : map.entrySet()) {
-                T val = entry.getValue();
-                selectables[counter] = val;
-                counter++;
-            }
+        Displayable[] selectables = new Displayable[map.size()];
+        int counter = 0;
+        for (Map.Entry<Integer, T> entry : map.entrySet()) {
+            T val = entry.getValue();
+            selectables[counter] = val;
+            counter++;
         }
         return selectables;
     }
