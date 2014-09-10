@@ -27,6 +27,8 @@ package unikl.disco.calculator.network;
 public interface NetworkListener {
     public void vertexAdded(Vertex newVertex);
     public void vertexRemoved(Vertex removedVertex);
+    public void vertexChanged(Vertex changedVertex);
     public void flowAdded(Flow newFlow);
     public void flowRemoved(Flow removedFlow);
+    public void flowChanged(Flow changedFlow);
 }

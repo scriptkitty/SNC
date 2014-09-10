@@ -253,6 +253,6 @@ public class Flow implements Serializable, Displayable {
         
         @Override
         public String toString() {
-            return this.ID + ", " + this.alias;
+            return (this.alias != null ? this.alias : String.valueOf(this.ID));
         }
 }

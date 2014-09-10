@@ -88,6 +88,14 @@ public class NetworkVisualizationPanel {
         @Override
         public void flowRemoved(Flow removedFlow) {
         }
+
+        @Override
+        public void flowChanged(Flow changedFlow) {
+        }
+
+        @Override
+        public void vertexChanged(Vertex changedVertex) {
+        }
         
     }
 }

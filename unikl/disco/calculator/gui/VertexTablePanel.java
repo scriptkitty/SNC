@@ -80,5 +80,25 @@ public class VertexTablePanel {
             // Not of concern for us
         }
 
+        @Override
+        public void flowChanged(Flow changedFlow) {
+            // Not of concern for us
+        }
+
+        @Override
+        public void vertexChanged(Vertex changedVertex) {
+            Object[] data = {changedVertex.getID(), changedVertex.getAlias(), changedVertex.getService()};
+
+            int id;
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                id = (Integer) tableModel.getValueAt(i, 0);
+                if (id == changedVertex.getID()) {
+                    tableModel.removeRow(i);
+                    tableModel.insertRow(i, data);
+                    break;
+                }
+            }
+        }
+
     }
 }

@@ -20,11 +20,13 @@
  */
 package unikl.disco.calculator.gui;
 
+import java.util.List;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.network.Flow;
+import unikl.disco.calculator.network.Network;
 import unikl.disco.calculator.network.NetworkListener;
 import unikl.disco.calculator.network.Vertex;
 
@@ -33,10 +35,11 @@ import unikl.disco.calculator.network.Vertex;
  * @author Sebastian Henningsen
  */
 public class FlowTablePanel {
+
     private final JScrollPane scrollPane;
     private final JTable table;
     private final DefaultTableModel tableModel;
-    
+
     FlowTablePanel() {
         String[] colNames = {"ID", "Name", "Arrival", "Route", "Priorities"};
         tableModel = new DefaultTableModel(colNames, 0);
@@ -44,11 +47,11 @@ public class FlowTablePanel {
         scrollPane = new JScrollPane(table);
         SNC.getInstance().registerNetworkListener(new NetworkChangeListener());
     }
-    
+
     public JScrollPane getPanel() {
         return scrollPane;
     }
-    
+
     private class NetworkChangeListener implements NetworkListener {
 
         @Override
@@ -58,7 +61,7 @@ public class FlowTablePanel {
 
         @Override
         public void vertexRemoved(Vertex removedVertex) {
-            // Not of concern for us
+            // Not of concern for us, will be handled by flowChanged
         }
 
         @Override
@@ -69,8 +72,35 @@ public class FlowTablePanel {
 
         @Override
         public void flowRemoved(Flow removedFlow) {
+            int id;
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                id = (Integer) tableModel.getValueAt(i, 0);
+                if (id == removedFlow.getID()) {
+                    tableModel.removeRow(i);
+                    break;
+                }
+            }
         }
-        
+
+        @Override
+        public void flowChanged(Flow changedFlow) {
+            Object[] data = {changedFlow.getID(), changedFlow.getAlias(), changedFlow.getInitialArrival(), changedFlow.getVerticeIDs().toString(), changedFlow.getPriorities().toString()};
+
+            int id;
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                id = (Integer) tableModel.getValueAt(i, 0);
+                if (id == changedFlow.getID()) {
+                    tableModel.removeRow(i);
+                    tableModel.insertRow(i, data);
+                    break;
+                }
+            }
+        }
+
+        @Override
+        public void vertexChanged(Vertex changedVertex) {
+            // Only of concern for us if the priorities changed
+        }
+
     }
 }
-
