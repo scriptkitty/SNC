@@ -25,6 +25,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import unikl.disco.calculator.SNC;
 
@@ -130,7 +131,8 @@ public class MenuActions {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            System.out.println("About");
+            AboutDialog dialog = new AboutDialog();
+            dialog.display();
         }
 
     }
