@@ -32,8 +32,7 @@ import unikl.disco.calculator.commands.AddVertexCommand;
 import unikl.disco.calculator.commands.Command;
 import unikl.disco.calculator.commands.RemoveFlowCommand;
 import unikl.disco.calculator.commands.RemoveVertexCommand;
-import unikl.disco.calculator.network.Flow;
-import unikl.disco.calculator.network.Vertex;
+import unikl.disco.calculator.network.Network;
 import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
 
@@ -51,10 +50,8 @@ public class ControlPanelActions {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            System.out.println("Add Node");
-            SNC snc = SNC.getInstance();
-            Command cmd = new AddVertexCommand("test", -1.0, -1, snc);
-            snc.invokeCommand(cmd);
+            AddVertexDialog dialog = new AddVertexDialog();
+            dialog.display();
         }
     }
 
@@ -131,12 +128,12 @@ public class ControlPanelActions {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            System.out.println("Add Flow");
-            SNC snc = SNC.getInstance();
-            List<Integer> dummyList = new ArrayList();
-            dummyList.add(1);
-            Command cmd = new AddFlowCommand("test", new Arrival(new ConstantFunction(0), new ConstantFunction(1), snc.getCurrentNetwork()), dummyList, dummyList, -1, snc);
-            snc.invokeCommand(cmd);
+            Network nw = SNC.getInstance().getCurrentNetwork();
+            FlowEditor dialog = new FlowEditor("Add Flow", nw.getVertices(), nw, SNC.getInstance());
+            dialog.showFlowEditor();
+            //AddFlowDialog dialog = new AddFlowDialog();
+            //dialog.display();
+            
         }
     }
 

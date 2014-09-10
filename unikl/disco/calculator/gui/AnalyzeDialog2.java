@@ -94,15 +94,6 @@ public class AnalyzeDialog2 {
                     + " " + flowSelector.getSelectedItem()
                     + " " + analysisSelector.getSelectedItem()
                     + " " + boundSelector.getSelectedItem());
-
-            /*ComboBoxItem selectedFlow = (ComboBoxItem)FOIBox.getSelectedItem();
-             ComboBoxItem selectedVertex = (ComboBoxItem)VOIBox.getSelectedItem();
-             AnalysisType anaType = (AnalysisType)analyBox.getSelectedItem();
-             AbstractAnalysis.Boundtype boundType = (AbstractAnalysis.Boundtype)typeBox.getSelectedItem();
-
-             snc.analyzeNetwork(snc.getCurrentNetwork().getFlow(selectedFlow.getId()), 
-             snc.getCurrentNetwork().getVertex(selectedVertex.getId()), 
-             anaType, boundType, snc.getCurrentNetwork());*/
         }
     }
 }

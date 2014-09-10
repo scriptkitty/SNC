@@ -63,7 +63,7 @@ public class FlowTablePanel {
 
         @Override
         public void flowAdded(Flow newFlow) {
-            Object[] data = {newFlow.getID(), newFlow.getAlias(), newFlow.getInitialArrival(), newFlow.getPriorities(), newFlow.getVerticeIDs()};
+            Object[] data = {newFlow.getID(), newFlow.getAlias(), newFlow.getInitialArrival(), newFlow.getVerticeIDs().toString(), newFlow.getPriorities().toString()};
             tableModel.addRow(data);
         }
 

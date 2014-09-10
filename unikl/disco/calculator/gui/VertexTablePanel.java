@@ -39,7 +39,7 @@ public class VertexTablePanel {
     private final DefaultTableModel tableModel;
 
     VertexTablePanel() {
-        String[] colNames = {"ID", "Name", "Service"};
+        String[] colNames = {"ID", "Name", "Service"}; // Flows entry missing
         tableModel = new DefaultTableModel(colNames, 0);
         table = new JTable(tableModel);
         scrollPane = new JScrollPane(table);
