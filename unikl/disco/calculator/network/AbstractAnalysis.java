@@ -21,7 +21,6 @@
 
 package unikl.disco.calculator.network;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import unikl.disco.calculator.symbolic_math.Arrival;
@@ -54,7 +53,7 @@ public abstract class AbstractAnalysis implements Analyzer {
         protected Network nw;
 	
 	public enum Boundtype{
-		BACKLOG, DELAY, OUTPUT, END_TO_END_DELAY
+		BACKLOG, DELAY, OUTPUT
 	};
 	protected Boundtype boundtype;
 	

@@ -145,7 +145,7 @@ public class ControlPanelActions {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            AnalyzeDialog2 dialog = new AnalyzeDialog2();
+            AnalyzeDialog dialog = new AnalyzeDialog();
             dialog.display();
         }
     }

@@ -63,7 +63,7 @@ public class OptimizationDialog {
     private SpinnerModel thetaModel;
     private JTextField valueField;
     private GridLayout layout;
-    
+
     public OptimizationDialog() {
         panel = new JPanel();
 
@@ -86,10 +86,10 @@ public class OptimizationDialog {
         thetaModel = new SpinnerNumberModel(0.01, 0.0, null, 0.001);
         hoelderGran = new JSpinner(hoelderModel);
         thetaGran = new JSpinner(thetaModel);
-        
+
         valueField = new JTextField(10);
-        
-        layout = new GridLayout(0,2);
+
+        layout = new GridLayout(0, 2);
         panel.setLayout(layout);
 
         panel.add(vertexOfInterest);
@@ -108,7 +108,7 @@ public class OptimizationDialog {
         panel.add(thetaGran);
         panel.add(boundValue);
         panel.add(valueField);
-        
+
     }
 
     public void display() {
@@ -123,24 +123,28 @@ public class OptimizationDialog {
                 Flow flow = nw.getFlow(flowID);
                 int vertexID = ((Displayable) vertexSelector.getSelectedItem()).getID();
                 Vertex vertex = nw.getVertex(vertexID);
-                SNC.getInstance().optimizeSymbolicFunction(flow, vertex, 
-                        (double)(thetaGran.getModel().getValue()),
-                        (double)(hoelderGran.getModel().getValue()),
-                        (AnalysisType)analysisSelector.getSelectedItem(),
-                        (OptimizationType)optSelector.getSelectedItem(),
-                        (BoundType)boundSelector.getSelectedItem(),
+
+                // Just for debugging
+                System.out.println("You entered: ");
+                System.out.println(vertexSelector.getSelectedItem()
+                        + " " + flowSelector.getSelectedItem()
+                        + " " + analysisSelector.getSelectedItem()
+                        + " " + boundSelector.getSelectedItem()
+                        + " " + optSelector.getSelectedItem()
+                        + " " + (double) (hoelderGran.getModel().getValue())
+                        + " " + (double) (thetaGran.getModel().getValue())
+                        + " " + Double.parseDouble(valueField.getText()));
+                
+                System.out.println("The result of the optimization is: ");
+                System.out.println(SNC.getInstance().optimizeSymbolicFunction(flow, vertex,
+                        (double) (thetaGran.getModel().getValue()),
+                        (double) (hoelderGran.getModel().getValue()),
+                        (AnalysisType) analysisSelector.getSelectedItem(),
+                        (OptimizationType) optSelector.getSelectedItem(),
+                        (BoundType) boundSelector.getSelectedItem(),
                         Double.parseDouble(valueField.getText()),
-                        nw);
-            
-            // Just for debugging
-            System.out.println(vertexSelector.getSelectedItem()
-                    + " " + flowSelector.getSelectedItem()
-                    + " " + analysisSelector.getSelectedItem()
-                    + " " + boundSelector.getSelectedItem()
-                    + " " + optSelector.getSelectedItem()
-                    + " " + (double)(hoelderGran.getModel().getValue())
-                    + " " + (double)(thetaGran.getModel().getValue())
-                    + " " + Double.parseDouble(valueField.getText()));
+                        nw));
+
             }
         }
     }

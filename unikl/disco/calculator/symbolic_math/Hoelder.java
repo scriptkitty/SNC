@@ -73,4 +73,7 @@ public class Hoelder implements Serializable {
 		this.p_value = 1/(1-1/q_value);
 	}
 	
+        public Hoelder copy() {
+            return new Hoelder(this.hoelder_id, this.p_value);
+        }
 }
