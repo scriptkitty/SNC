@@ -50,12 +50,15 @@ import unikl.disco.misc.UndoRedoStack;
  */
 public class SNC {
 
-    // TODO
-    private static Network nw;
-    private static UndoRedoStack undoRedoStack;
+    private final UndoRedoStack undoRedoStack;
     private static SNC singletonInstance;
-
+    private final List<Network> networks;
+    private int currentNetworkPosition;
+    
     private SNC() {
+        networks = new ArrayList<>();
+        undoRedoStack = new UndoRedoStack();
+        networks.add(new Network());    // Create an initially empty Network
     }
 
     public static SNC getInstance() {
@@ -69,11 +72,8 @@ public class SNC {
     public static void main(String[] args) throws InvocationTargetException, InterruptedException,
             ArrivalNotAvailableException, BadInitializationException, DeadlockException, ThetaOutOfBoundException,
             ParameterMismatchException, ServerOverloadException {
-
-        // TODO
+        
         SNC snc = SNC.getInstance();
-        nw = new Network();
-        undoRedoStack = new UndoRedoStack();
         final MainWindow main = new MainWindow();
 
         Runnable runnable = new Runnable() {
@@ -106,7 +106,7 @@ public class SNC {
     }
 
     public Network getCurrentNetwork() {
-        return nw;
+        return networks.get(currentNetworkPosition);
     }
 
     public void saveNetwork(File file) {
@@ -114,11 +114,11 @@ public class SNC {
     }
 
     public void loadNetwork(File file) {
-        nw = Network.load(file);
+        networks.set(currentNetworkPosition, Network.load(file));
     }
 
     public Network getNetwork(int id) {
-        return nw;
+        return networks.get(currentNetworkPosition);
     }
 
     /**
@@ -216,6 +216,7 @@ public class SNC {
     // Temp:
     private void ConvolutionTest() {
         System.out.println("Convolution Test:");
+        Network nw = getCurrentNetwork();
         Command addV1 = new AddVertexCommand("V1", -2.0, -1, SNC.getInstance());
         Command addV2 = new AddVertexCommand("V2", -1.0, -1, SNC.getInstance());
         List<Integer> f1Route = new ArrayList<>();

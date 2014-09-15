@@ -21,6 +21,7 @@
 package unikl.disco.calculator.optimization;
 
 import java.util.HashMap;
+import java.util.Map;
 import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.symbolic_math.Hoelder;
 import unikl.disco.calculator.symbolic_math.ParameterMismatchException;
@@ -37,7 +38,7 @@ public class BacklogBound implements Optimizable {
     
     private Arrival input;
     private double bound;
-    private HashMap<Integer, Hoelder> allHoelders;
+    private Map<Integer, Hoelder> allHoelders;
     
     /**
      * Creates a backlog bound 
@@ -72,7 +73,6 @@ public class BacklogBound implements Optimizable {
     @Override
     public void prepare() {
         // Remove the parameter that represents the backlog from the other Hoelder parameters
-        // TODO: Check this for correctness!
         allHoelders.get(allHoelders.size()).setPValue(bound);
 	allHoelders.remove(allHoelders.size());
     }
@@ -82,7 +82,7 @@ public class BacklogBound implements Optimizable {
      * @return
      */
     @Override
-    public HashMap<Integer, Hoelder> getHoelderParameters() {
+    public Map<Integer, Hoelder> getHoelderParameters() {
         return allHoelders;
     }
 

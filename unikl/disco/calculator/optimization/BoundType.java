@@ -25,7 +25,6 @@ package unikl.disco.calculator.optimization;
  * These two enums will be merged in the future
  * @author Sebastian Henningsen
  */
-// TODO: Merge with AbstractAnalysis.Boundtypes
 public enum BoundType {
 
     /**
