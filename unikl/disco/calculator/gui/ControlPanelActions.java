@@ -21,23 +21,18 @@
 package unikl.disco.calculator.gui;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 import unikl.disco.calculator.SNC;
-import unikl.disco.calculator.commands.AddFlowCommand;
-import unikl.disco.calculator.commands.AddVertexCommand;
 import unikl.disco.calculator.commands.Command;
+import unikl.disco.calculator.commands.ConvoluteVerticesCommand;
 import unikl.disco.calculator.commands.RemoveFlowCommand;
 import unikl.disco.calculator.commands.RemoveVertexCommand;
+import unikl.disco.calculator.commands.SubtractFlowCommand;
 import unikl.disco.calculator.network.Network;
-import unikl.disco.calculator.symbolic_math.Arrival;
-import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
 
 /**
- *
+ * This static factory serves as collection of all actions corresponding to the {@link ControlPanel}.
  * @author Sebastian Henningsen
  */
 public class ControlPanelActions {
@@ -159,6 +154,53 @@ public class ControlPanelActions {
         @Override
         public void actionPerformed(ActionEvent ae) {
             OptimizationDialog dialog = new OptimizationDialog();
+            dialog.display();
+        }
+    }
+    
+    static class SubtractAction extends AbstractAction {
+
+        public SubtractAction(String name) {
+            super(name);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            // Choose vertex and compute left over service
+            // Box from a Map of IDs and Vertices to an Array of Displayables which is needed for
+            // the JComboBox
+            Displayable[] selectables = MainWindow.convertDisplayables(SNC.getInstance().getCurrentNetwork().getVertices());
+            if (selectables.length != 0) {
+                Displayable d = (Displayable) JOptionPane.showInputDialog(
+                        null,
+                        "Please choose a vertex: ",
+                        "Customized Dialog",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        selectables,
+                        selectables[0]);
+                if (d != null) {
+                    Command cmd = new SubtractFlowCommand(d.getID(), -1, SNC.getInstance());
+                    SNC.getInstance().invokeCommand(cmd);
+                } else {
+                    System.out.println("No vertex selected.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "There are no flows in the network!");
+            }
+        }
+    }
+    
+    static class ConvoluteAction extends AbstractAction {
+
+        public ConvoluteAction(String name) {
+            super(name);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            // Choose vertices and flow of interest
+            ConvoluteVerticesDialog dialog = new ConvoluteVerticesDialog();
             dialog.display();
         }
     }

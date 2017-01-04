@@ -43,7 +43,11 @@ public class ConstantFunction implements SymbolicFunction {
 	private final double rate;
 	private final double maxTheta;
 	
-	public ConstantFunction(double rate) {
+    /**
+     *
+     * @param rate
+     */
+    public ConstantFunction(double rate) {
 	    this.rate = rate;
 	    this.maxTheta = Double.POSITIVE_INFINITY;
 	}
@@ -61,12 +65,20 @@ public class ConstantFunction implements SymbolicFunction {
 		return Double.toString(rate);
 	}
 	
-	@Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public double getmaxTheta(){
 		return maxTheta;
 	}
 
-	@Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public Map<Integer, Hoelder> getParameters() {
 	    return new HashMap<>(0);
 	}

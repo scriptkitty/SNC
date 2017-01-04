@@ -47,6 +47,12 @@ public class BadInitializationException extends Exception {
 	
 	//Constructor
 	
+    /**
+     *
+     * @param s
+     * @param initvalue
+     */
+    	
 	public BadInitializationException(String s, double initvalue){
 		super(s);
 		this.initvalue = initvalue;

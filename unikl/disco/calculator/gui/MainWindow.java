@@ -29,7 +29,8 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 /**
- *
+ * The main window of the GUI. This is where all the initialization and composition of
+ * different components takes place.
  * @author Sebastian Henningsen
  */
 public class MainWindow {
@@ -46,8 +47,20 @@ public class MainWindow {
     private ControlPanel controllerPanel;
     private NetworkVisualizationPanel visPanel;
 
+    /**
+     * Creates all necessary components and adds them to the main JFrame.
+     * Since this method contains Swing components, it should only be called inside
+     * the event queue. For example (from {@link SNC}):
+     * <code>Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                main.createGUI();
+            }
+        };
+        EventQueue.invokeLater(runnable);
+        </code>
+     */
     public void createGUI() {
-        // Create all necessary components and add them to the main JFrame
         mainFrame = new JFrame("Disco Stochastic Network Calculator");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -88,10 +101,20 @@ public class MainWindow {
         mainFrame.setVisible(true);
     }
 
+    /**
+     * Closes the main window.
+     */
     public void close() {
         mainFrame.dispose();
     }
 
+    /**
+     * Converts a map of {@link Displayable} elements to an array. This is used
+     * to convert from the output of SNC to {@link JComboBox}.
+     * @param <T>
+     * @param map
+     * @return
+     */
     public static <T extends Displayable> Displayable[] convertDisplayables(Map<Integer, T> map) {
         Displayable[] selectables = new Displayable[map.size()];
         int counter = 0;

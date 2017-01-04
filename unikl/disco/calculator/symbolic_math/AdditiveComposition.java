@@ -66,8 +66,6 @@ public class AdditiveComposition extends BinaryFunction implements SymbolicFunct
 	 * the corresponding coefficient given by: 1/(1-1/p)). 
 	 * @param first the first atom function
 	 * @param second the second atom function
-	 * @param independent determines if the stochastically dependent
-	 * or independent version is invoked.
 	 */
 	public AdditiveComposition(SymbolicFunction first, SymbolicFunction second){
 	    super(first, second);
@@ -86,6 +84,7 @@ public class AdditiveComposition extends BinaryFunction implements SymbolicFunct
 	 * the corresponding coefficient given by: 1/(1-1/p)). 
 	 * @param first the first atom function
 	 * @param second the second atom function
+     * @param hoelder
 	 * @param HoelderID determines if the stochastically dependent
 	 * or independent version is invoked.
 	 */
@@ -99,6 +98,7 @@ public class AdditiveComposition extends BinaryFunction implements SymbolicFunct
 	 * Calculates the value of the resulting function at theta 
 	 * (first entry in <code>parameters</code>), with given 
 	 * <code>parameters</code>.
+     * @param theta
 	 * @param parameters contains the needed parameters (including
 	 * theta, as first entry) to calculate the value of the 
 	 * function. Entries indexed from 1 to 
@@ -106,7 +106,9 @@ public class AdditiveComposition extends BinaryFunction implements SymbolicFunct
 	 * function, following entries to the second atom-function.
 	 * @return the value of the added functions, evaluated at the
 	 * given parameters.
+     * @throws unikl.disco.calculator.symbolic_math.ThetaOutOfBoundException
 	 * @throws ServerOverloadException 
+     * @throws unikl.disco.calculator.symbolic_math.ParameterMismatchException 
 	 */
 	@Override
 	public double getValue(double theta, Map<Integer, Hoelder> parameters)

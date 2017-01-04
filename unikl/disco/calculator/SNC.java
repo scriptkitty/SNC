@@ -23,7 +23,6 @@ import unikl.disco.calculator.network.Flow;
 import unikl.disco.calculator.network.Network;
 import unikl.disco.calculator.network.NetworkListener;
 import unikl.disco.calculator.network.Vertex;
-import unikl.disco.calculator.optimization.AbstractOptimizer;
 import unikl.disco.calculator.optimization.BoundFactory;
 import unikl.disco.calculator.optimization.BoundType;
 import unikl.disco.calculator.optimization.Optimizable;
@@ -41,9 +40,10 @@ import unikl.disco.misc.UndoRedoStack;
 /**
  * This class contains the main method, which starts and prepares the GUI. It
  * also serves as interface relaying the commands from the user to the
- * corresponding classes {@link Network}, {@SimpleAnalysis} etc. Alternatively
- * the implemented methods can be used directly in the main-method to construct
- * a network and perform calculations on it.
+ * corresponding classes {@link Network}, {@link SimpleAnalysis} etc. Additionally,
+ * methods for analyzing networks as well as a simple Undo/Redo functionality is provided.
+ * Note that this class follows the Singleton Pattern, which may, however, be changed
+ * in the near future.
  *
  * @author Michael Beck
  *
@@ -53,14 +53,19 @@ public class SNC {
     private final UndoRedoStack undoRedoStack;
     private static SNC singletonInstance;
     private final List<Network> networks;
-    private int currentNetworkPosition;
+    private final int currentNetworkPosition;
     
     private SNC() {
         networks = new ArrayList<>();
         undoRedoStack = new UndoRedoStack();
         networks.add(new Network());    // Create an initially empty Network
+        currentNetworkPosition = 0;
     }
 
+    /**
+     * Returns the singleton instance, creates a new one if none exists
+     * @return
+     */
     public static SNC getInstance() {
         if (singletonInstance == null) {
             singletonInstance = new SNC();
@@ -68,8 +73,19 @@ public class SNC {
         return singletonInstance;
     }
 
-    //Main-Method
-    public static void main(String[] args) throws InvocationTargetException, InterruptedException,
+    /**
+     * The main method of the program, used to start the GUI and initialize everything
+     * @param args Command line arguments - not used at the moment
+     * @throws InvocationTargetException
+     * @throws InterruptedException
+     * @throws ArrivalNotAvailableException
+     * @throws BadInitializationException
+     * @throws DeadlockException
+     * @throws ThetaOutOfBoundException
+     * @throws ParameterMismatchException
+     * @throws ServerOverloadException
+     */
+        public static void main(String[] args) throws InvocationTargetException, InterruptedException,
             ArrivalNotAvailableException, BadInitializationException, DeadlockException, ThetaOutOfBoundException,
             ParameterMismatchException, ServerOverloadException {
         
@@ -88,35 +104,71 @@ public class SNC {
 
     }
 
+    /**
+     * Registers a new {@link NetworkListener} on the current network
+     * @param listener The listener that should be added
+     */
     public void registerNetworkListener(NetworkListener listener) {
         SNC.getInstance().getCurrentNetwork().addListener(listener);
     }
 
+    /**
+     * Reverts the effects of the last {@link Command}
+     */
     public void undo() {
         undoRedoStack.undo();
     }
 
+    /**
+     * Redos the last {@link Command} that was un-done
+     */
     public void redo() {
         undoRedoStack.redo();
     }
 
+    /**
+     * Executes the given {@link Command} and adds it to the {@link UndoRedoStack}
+     * @param c The command to be invoked.
+     */
     public void invokeCommand(Command c) {
         undoRedoStack.insertIntoStack(c);
         c.execute();
     }
 
+    /**
+     * Returns the currently accessed {@link Network}. Note that only one network
+     * can be opened at a time, at the moment.
+     * @return The current network
+     */
     public Network getCurrentNetwork() {
         return networks.get(currentNetworkPosition);
     }
 
+    /**
+     * Saves the currently accessed {@link Network} to the file specified by the parameter.
+     * @param file The file to which the network should be saved.
+     */
     public void saveNetwork(File file) {
         getCurrentNetwork().save(file);
     }
 
+    /**
+     * Load a {@link Network} from the file specified by the parameter.
+     * Since, at the moment, only one network can be opened at a time, the currently accessed
+     * network is overwritten.
+     * @param file The file in which the network is saved.
+     */
     public void loadNetwork(File file) {
         networks.set(currentNetworkPosition, Network.load(file));
     }
 
+    /**
+     * Returns the {@link Network} with the corresponding ID, if it exists.
+     * If not, an exception is thrown. At the moment the current network position
+     * will be returned.
+     * @param id The ID of the desired network.
+     * @return The current network
+     */
     public Network getNetwork(int id) {
         return networks.get(currentNetworkPosition);
     }
@@ -130,6 +182,7 @@ public class SNC {
      * @param vertex the <code>Vertex</code> of interest.
      * @param anaType the type of analysis used
      * @param boundtype the type of bound, which needs to be computed.
+     * @param nw the <code>Network</code> to which the other parameters belong
      * @return the result of the analysis in arrival-representation.
      */
     public Arrival analyzeNetwork(Flow flow, Vertex vertex, AnalysisType anaType, AbstractAnalysis.Boundtype boundtype, Network nw) {
@@ -137,12 +190,12 @@ public class SNC {
         //Preparations
         Arrival bound = null;
 
-        Map<Integer, Vertex> givenVertices = new HashMap<Integer, Vertex>();
+        Map<Integer, Vertex> givenVertices = new HashMap<>();
         for (Entry<Integer, Vertex> entry : nw.getVertices().entrySet()) {
             givenVertices.put(entry.getKey(), entry.getValue().copy());
         }
 
-        Map<Integer, Flow> givenFlows = new HashMap<Integer, Flow>();
+        Map<Integer, Flow> givenFlows = new HashMap<>();
         for (Entry<Integer, Flow> entry : nw.getFlows().entrySet()) {
             givenFlows.put(entry.getKey(), entry.getValue().copy());
         }
@@ -166,6 +219,20 @@ public class SNC {
         return bound;
     }
 
+    /**
+     * Computes an optimized bound for the desired {@link Flow} and {@link Vertex}.
+     * @param flow The {@link Flow} of interest
+     * @param vertex The {@link Vertex} of interest
+     * @param thetaGran Specifies the optimization granularity of the theta-parameter
+     * @param hoelderGran Specifies the optimization granularity of the hoelder-parameter
+     * @param analysisType The desired analysis algorithm (see {@link AnalysisType})
+     * @param optAlgorithm The desired optimization algorithm (see {@link OptimizationType})
+     * @param boundType The desired {@link BoundType}
+     * @param value Depending on the boundType parameter this is either: A violation probability (in case of
+     * an inverse bound) or a bound value (otherwise)
+     * @param nw The network to which the <code>flow</code> and <code>vertex</code> belong to
+     * @return An optimal bound
+     */
     public double optimizeSymbolicFunction(Flow flow, Vertex vertex, double thetaGran, double hoelderGran,
             AnalysisType analysisType, OptimizationType optAlgorithm, BoundType boundType, double value, Network nw) {
 
@@ -201,7 +268,13 @@ public class SNC {
         return result;
     }
 
-    public AbstractAnalysis.Boundtype convertBoundTypes(BoundType boundType) {
+    /**
+     * Helper function to convert between AbstractAnalysis.BoundType and 
+     * BoundType
+     * @param boundType The BoundType that should be converted
+     * @return An appropriate AbstractAnalysis.BoundType
+     */
+    AbstractAnalysis.Boundtype convertBoundTypes(BoundType boundType) {
         AbstractAnalysis.Boundtype targetBoundType = null;
         if (boundType == BoundType.BACKLOG || boundType == BoundType.INVERSE_BACKLOG) {
             targetBoundType = AbstractAnalysis.Boundtype.BACKLOG;
@@ -227,11 +300,11 @@ public class SNC {
         f1Prio.add(1);
         Arrival arrival = new Arrival(new ConstantFunction(0), new ConstantFunction(0.5), nw);
         Command addF1 = new AddFlowCommand("F1", arrival, f1Route, f1Prio, -1, SNC.getInstance());
-        Command convV1V2 = new ConvoluteVerticesCommand(1, 2, -1, SNC.getInstance());
+        //Command convV1V2 = new ConvoluteVerticesCommand(1, 2, -1, SNC.getInstance());
         invokeCommand(addV1);
         invokeCommand(addV2);
         invokeCommand(addF1);
-        invokeCommand(convV1V2);
+        //invokeCommand(convV1V2);
 
         Map<Integer, Vertex> vertices = nw.getVertices();
         Map<Integer, Flow> flows = nw.getFlows();

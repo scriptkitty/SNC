@@ -43,6 +43,11 @@ public class ServerOverloadException extends Exception {
 	
 	//Constructor
 	
+    /**
+     *
+     * @param s
+     */
+    	
 	public ServerOverloadException(String s){
 		super(s);
 	}

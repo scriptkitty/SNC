@@ -31,25 +31,27 @@ import unikl.disco.calculator.network.AnalysisType;
 import unikl.disco.calculator.network.Flow;
 import unikl.disco.calculator.network.Network;
 import unikl.disco.calculator.network.Vertex;
-import unikl.disco.calculator.optimization.BoundType;
 
 /**
- *
+ * A dialog to poll the user for input to compute a symbolic bound for a {@Network}
  * @author Sebastian Henningsen
  */
 public class AnalyzeDialog {
 
-    private JPanel panel;
-    private JLabel vertexOfInterest;
-    private JLabel flowOfInterest;
-    private JLabel analysisType;
-    private JLabel boundType;
-    private JComboBox<Displayable> vertexSelector;
-    private JComboBox<Displayable> flowSelector;
-    private JComboBox<AnalysisType> analysisSelector;
-    private JComboBox boundSelector;
-    private GridLayout layout;
+    private final JPanel panel;
+    private final JLabel vertexOfInterest;
+    private final JLabel flowOfInterest;
+    private final JLabel analysisType;
+    private final JLabel boundType;
+    private final JComboBox<Displayable> vertexSelector;
+    private final JComboBox<Displayable> flowSelector;
+    private final JComboBox<AnalysisType> analysisSelector;
+    private final JComboBox boundSelector;
+    private final GridLayout layout;
 
+    /**
+     * Construct the dialog and initializes all necessary fields.
+     */
     public AnalyzeDialog() {
         panel = new JPanel();
 
@@ -77,6 +79,9 @@ public class AnalyzeDialog {
         panel.add(boundSelector);
     }
 
+    /**
+     * Displays the dialog.
+     */
     public void display() {
         int result = JOptionPane.showConfirmDialog(null, panel, "Analyze Dialog",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);

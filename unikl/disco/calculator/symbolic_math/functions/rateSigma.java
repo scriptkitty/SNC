@@ -58,6 +58,12 @@ public class rateSigma implements SymbolicFunction {
 	
 	//Constructors
 	
+    /**
+     *
+     * @param c
+     * @throws BadInitializationException
+     */
+    	
 	public rateSigma(double c) throws BadInitializationException{
 		if(c > 0) throw new BadInitializationException("Constant rate server should be initialised with a negative value", c);
 		this.c = c;
@@ -83,13 +89,22 @@ public class rateSigma implements SymbolicFunction {
 
 	//Getter and Setter
 	
+    /**
+     *
+     * @return
+     */
+    	
 	@Override
 	public double getmaxTheta() {
 		double maxtheta = Double.POSITIVE_INFINITY;
 		return maxtheta;
 	}
 
-	@Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public Map<Integer, Hoelder> getParameters() {
 		return new HashMap<>(0);
 	}

@@ -25,48 +25,50 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import unikl.disco.calculator.SNC;
-import unikl.disco.calculator.commands.AddVertexCommand;
 import unikl.disco.calculator.commands.Command;
-import unikl.disco.calculator.symbolic_math.ServiceType;
+import unikl.disco.calculator.commands.ConvoluteVerticesCommand;
+import unikl.disco.calculator.network.Network;
 
 /**
- * A dialog to get input from the user in order to add a vertex to a network.
+ * A dialog to get input from the user in order to convolute two vertices.
+ *
  * @author Sebastian Henningsen
  */
-public class AddVertexDialog {
+public class ConvoluteVerticesDialog {
 
     private final JPanel panel;
-    private final JLabel alias;
-    private final JLabel service;
-    private final JLabel rate;
-    private final JTextField aliasField;
-    private final JTextField rateField;
-    private final JComboBox<ServiceType> serviceTypes;
+    private final JLabel vertex1;
+    private final JLabel vertex2;
+    private final JLabel flow;
+    private final JComboBox<Displayable> vertex1Chooser;
+    private final JComboBox<Displayable> vertex2Chooser;
+    private final JComboBox<Displayable> flowChooser;
+
     private final GridLayout layout;
 
     /**
      * Constructs the dialog and initializes all necessary fields.
      */
-    public AddVertexDialog() {
+    public ConvoluteVerticesDialog() {
         panel = new JPanel();
-        
-        alias = new JLabel("Alias of the vertex: ");
-        service = new JLabel("Service Type: ");
-        rate = new JLabel("Rate: ");
-        aliasField = new JTextField();
-        rateField = new JTextField(10);
-       
-        serviceTypes = new JComboBox<>(ServiceType.values());
-        
-        panel.add(alias);
-        panel.add(aliasField);
-        panel.add(service);
-        panel.add(serviceTypes);
-        panel.add(rate);
-        panel.add(rateField);
-        
+        Network nw = SNC.getInstance().getCurrentNetwork();
+
+        vertex1 = new JLabel("Vertex 1: ");
+        vertex2 = new JLabel("Vertex 2: ");
+        flow = new JLabel("Flow of interest: ");
+
+        vertex1Chooser = new JComboBox(MainWindow.convertDisplayables(nw.getVertices()));
+        vertex2Chooser = new JComboBox(MainWindow.convertDisplayables(nw.getVertices()));
+        flowChooser = new JComboBox(MainWindow.convertDisplayables(nw.getFlows()));
+
+        panel.add(vertex1);
+        panel.add(vertex1Chooser);
+        panel.add(vertex2);
+        panel.add(vertex2Chooser);
+        panel.add(flow);
+        panel.add(flowChooser);
+
         layout = new GridLayout(0, 1);
         panel.setLayout(layout);
     }
@@ -75,12 +77,15 @@ public class AddVertexDialog {
      * Displays the dialog
      */
     public void display() {
-        int result = JOptionPane.showConfirmDialog(null, panel, "Add Vertex",
+        int result = JOptionPane.showConfirmDialog(null, panel, "Convolute vertices",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             SNC snc = SNC.getInstance();
-            double rate = Double.parseDouble(rateField.getText());
-            Command cmd = new AddVertexCommand(aliasField.getText(), -1*rate, -1, snc);
+            int vertex1ID = ((Displayable) vertex1Chooser.getSelectedItem()).getID();
+            int vertex2ID = ((Displayable) vertex2Chooser.getSelectedItem()).getID();
+            int flowID = ((Displayable) flowChooser.getSelectedItem()).getID();
+            // v1, v2, flow, nw, snc
+            Command cmd = new ConvoluteVerticesCommand(vertex1ID, vertex2ID, flowID, -1, SNC.getInstance());
             snc.invokeCommand(cmd);
             // Just for debugging
             //System.out.println(aliasField.getText());

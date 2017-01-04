@@ -76,6 +76,7 @@ public class Arrival implements Serializable {
 	 * Creates an <code>Arrival</code> instance, with 
 	 * <code>rho</code> and <code>sigma</code> being 
 	 * {@link ZeroFunction}s.
+     * @param nw
 	 */
 	public Arrival(Network nw){ 
 		rho = new ConstantFunction(0);
@@ -91,6 +92,7 @@ public class Arrival implements Serializable {
 	 * <code>thetastar</code> is deduced from the two functions.
 	 * @param rho the time dependent part of the MGF-bound.
 	 * @param sigma the time independent part of the MGF-bound.
+     * @param nw
 	 * @see SymbolicFunction
 	 */
 	public Arrival(SymbolicFunction sigma, SymbolicFunction rho, Network nw) {
@@ -113,6 +115,7 @@ public class Arrival implements Serializable {
 	 * @param sigma the time independent part of the MGF-bound.
 	 * @param flow_id id of the flow, which has this arrival as
 	 * initial arrival
+     * @param nw
 	 * @see SymbolicFunction
 	 * @see Flow
 	 */
@@ -171,6 +174,7 @@ public class Arrival implements Serializable {
 	 * The return is the evaluation of the MGF-bound at the points 
 	 * <code>sigmaparameters</code> and <code>rhoparameters</code>,
 	 * within the time interval (m,n].
+     * @param theta
 	 * @param sigmaparameters the point at which the MGF is
 	 * evaluated. It has to match the number of parameters needed 
 	 * to calculate sigma. The first parameter needs to be theta.
@@ -180,6 +184,8 @@ public class Arrival implements Serializable {
 	 * @param n the end of the time interval (m,n]
 	 * @param m the beginning of the time interval (m,n]
 	 * @return the value of the MGF at the given point
+     * @throws unikl.disco.calculator.symbolic_math.ThetaOutOfBoundException
+     * @throws unikl.disco.calculator.symbolic_math.ParameterMismatchException
 	 * @throws ServerOverloadException 
 	 */
 	public double evaluate(double theta, Map<Integer, Hoelder> sigmaparameters, Map<Integer, Hoelder> rhoparameters, int n, int m)
@@ -199,7 +205,17 @@ public class Arrival implements Serializable {
 		return value;
 	}
 	
-	public double evaluate(double theta, int n, int m) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException{
+    /**
+     *
+     * @param theta
+     * @param n
+     * @param m
+     * @return
+     * @throws ThetaOutOfBoundException
+     * @throws ParameterMismatchException
+     * @throws ServerOverloadException
+     */
+    public double evaluate(double theta, int n, int m) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException{
 		double value = evaluate(theta, sigma.getParameters(), rho.getParameters(), n, m);
 		return value;
 	}
@@ -289,6 +305,7 @@ public class Arrival implements Serializable {
 	 * <code>exp(t*f + t*g*(n-m))</code>
 	 * the corresponding bound is expressed by:
 	 * <code>(f,g)</code>
+     * @return 
 	 */
 	@Override
 	public String toString(){
@@ -302,32 +319,61 @@ public class Arrival implements Serializable {
 	
 	//Getter and Setter
 	
+    /**
+     *
+     * @return
+     */
+    	
 	public double getThetastar() {
 		return Math.min(rho.getmaxTheta(), sigma.getmaxTheta());
 	}
 
-	public SymbolicFunction getRho() {
+    /**
+     *
+     * @return
+     */
+    public SymbolicFunction getRho() {
 		return rho;
 	}
 
-	public void setRho(SymbolicFunction rho) {
+    /**
+     *
+     * @param rho
+     */
+    public void setRho(SymbolicFunction rho) {
 		this.rho = rho;
 		
 	}
 
-	public SymbolicFunction getSigma() {
+    /**
+     *
+     * @return
+     */
+    public SymbolicFunction getSigma() {
 		return sigma;
 	}
 
-	public void setSigma(SymbolicFunction sigma) {
+    /**
+     *
+     * @param sigma
+     */
+    public void setSigma(SymbolicFunction sigma) {
 		this.sigma = sigma;
 	}
 
-	public Set<Integer> getArrivaldependencies() {
+    /**
+     *
+     * @return
+     */
+    public Set<Integer> getArrivaldependencies() {
 		return Arrivaldependencies;
 	}
 
-	public Set<Integer> getServicedependencies() {
+    /**
+     *
+     * @return
+     */
+    public Set<Integer> getServicedependencies() {
 		return Servicedependencies;
 	}
 

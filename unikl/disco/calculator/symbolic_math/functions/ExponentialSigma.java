@@ -56,6 +56,12 @@ public class ExponentialSigma implements SymbolicFunction{
 	
 	//Constructor
 	
+    /**
+     *
+     * @param lambda
+     * @throws BadInitializationException
+     */
+    	
 	public ExponentialSigma(double lambda) throws BadInitializationException{
 		if(lambda < 0 || lambda == 0){
 			throw new BadInitializationException("lambda must be larger zero", lambda);
@@ -68,8 +74,11 @@ public class ExponentialSigma implements SymbolicFunction{
 	/**
 	 * Calculates the value of the exponential increment in the 
 	 * sigma-rho-notation. 
+     * @param theta
 	 * @param parameters its first parameter must be theta. Further
 	 * it must consist of only one parameter.
+     * @throws unikl.disco.calculator.symbolic_math.ThetaOutOfBoundException
+     * @throws unikl.disco.calculator.symbolic_math.ParameterMismatchException
 	 */
 	@Override
 	public double getValue(double theta, Map<Integer, Hoelder> parameters)
@@ -91,6 +100,7 @@ public class ExponentialSigma implements SymbolicFunction{
 	/**
 	 * Returns a string representation of the exponential 
 	 * increments in the form <code>exp_arr(lambda)</code>
+     * @return 
 	 */
 	@Override
 	public String toString(){
@@ -100,12 +110,21 @@ public class ExponentialSigma implements SymbolicFunction{
 	
 	//Getter and Setter
 	
+    /**
+     *
+     * @return
+     */
+    	
 	@Override
 	public double getmaxTheta() {
 		return lambda;
 	}
 
-	@Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public Map<Integer, Hoelder> getParameters() {
 		return new HashMap<Integer, Hoelder>(0);
 	}

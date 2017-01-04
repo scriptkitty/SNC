@@ -32,10 +32,10 @@ import unikl.disco.calculator.commands.Command;
 import unikl.disco.calculator.symbolic_math.ServiceType;
 
 /**
- * A dialog to get input from the user in order to add a vertex to a network.
+ * A dialog to get input from the user in order to compute the leftover service of a flow.
  * @author Sebastian Henningsen
  */
-public class AddVertexDialog {
+public class SubtractFlowDialog {
 
     private final JPanel panel;
     private final JLabel alias;
@@ -49,7 +49,7 @@ public class AddVertexDialog {
     /**
      * Constructs the dialog and initializes all necessary fields.
      */
-    public AddVertexDialog() {
+    public SubtractFlowDialog() {
         panel = new JPanel();
         
         alias = new JLabel("Alias of the vertex: ");

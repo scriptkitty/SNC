@@ -70,8 +70,6 @@ public class MaximumFunction extends BinaryFunction implements SymbolicFunction{
 	 * the corresponding coefficient given by: 1/(1-1/p)). 
 	 * @param first the first atom function
 	 * @param second the second atom function
-	 * @param independent determines if the stochastically dependent
-	 * or independent version is invoked.
 	 */
 	public MaximumFunction(SymbolicFunction first, SymbolicFunction second){
 	    super(first, second);
@@ -90,8 +88,7 @@ public class MaximumFunction extends BinaryFunction implements SymbolicFunction{
 	 * the corresponding coefficient given by: 1/(1-1/p)). 
 	 * @param first the first atom function
 	 * @param second the second atom function
-	 * @param HoelderID determines if the stochastically dependent
-	 * or independent version is invoked.
+     * @param hoelder
 	 */
 	public MaximumFunction(SymbolicFunction first, SymbolicFunction second, Hoelder hoelder){
 	    super(first, second, hoelder);
@@ -103,6 +100,7 @@ public class MaximumFunction extends BinaryFunction implements SymbolicFunction{
 	 * Calculates the value of the resulting function at theta 
 	 * (first entry in <code>parameters</code>), with given 
 	 * <code>parameters</code>.
+     * @param theta
 	 * @param parameters contains the needed parameters (including
 	 * theta, as first entry) to calculate the value of the 
 	 * function. Entries indexed from 1 to 
@@ -110,6 +108,8 @@ public class MaximumFunction extends BinaryFunction implements SymbolicFunction{
 	 * function, following entries to the second atom-function.
 	 * @return the value of the added functions, evaluated at the
 	 * given parameters.
+     * @throws unikl.disco.calculator.symbolic_math.ThetaOutOfBoundException
+     * @throws unikl.disco.calculator.symbolic_math.ParameterMismatchException
 	 * @throws ServerOverloadException 
 	 */
 	@Override

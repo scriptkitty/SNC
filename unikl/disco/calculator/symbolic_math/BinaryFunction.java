@@ -38,6 +38,11 @@ public abstract class BinaryFunction implements SymbolicFunction {
     private Map<Integer, Hoelder> secondParameters;
     Hoelder hoelder;
 
+    /**
+     *
+     * @param first
+     * @param second
+     */
     public BinaryFunction(SymbolicFunction first, SymbolicFunction second) {
 	this.first = first;
 	this.second = second;
@@ -45,6 +50,12 @@ public abstract class BinaryFunction implements SymbolicFunction {
 	this.secondParameters = second.getParameters();
     }
 
+    /**
+     *
+     * @param first
+     * @param second
+     * @param hoelder
+     */
     public BinaryFunction(SymbolicFunction first, SymbolicFunction second, Hoelder hoelder) {
 	this(first, second);
 	this.hoelder = hoelder;
@@ -102,6 +113,10 @@ public abstract class BinaryFunction implements SymbolicFunction {
 		|| (hoelder != null && parameters.size() != SetUtils.getUnion(firstParameters.keySet(), secondParameters.keySet()).size() + 1));
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public double getmaxTheta() {
 	if (hoelder == null) {

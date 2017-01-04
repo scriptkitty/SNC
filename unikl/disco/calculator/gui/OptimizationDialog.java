@@ -38,32 +38,36 @@ import unikl.disco.calculator.optimization.BoundType;
 import unikl.disco.calculator.optimization.OptimizationType;
 
 /**
- *
+ * A dialog that asks the user for the necessary input to perform an optimization
+ * of a symbolic bound.
  * @author Sebastian Henningsen
  */
 public class OptimizationDialog {
 
-    private JPanel panel;
-    private JLabel vertexOfInterest;
-    private JLabel flowOfInterest;
-    private JLabel analysisType;
-    private JLabel boundType;
-    private JLabel hoelderGranularity;
-    private JLabel thetaGranularity;
-    private JLabel optimizationAlgorithm;
-    private JLabel boundValue;
-    private JComboBox<Displayable> vertexSelector;
-    private JComboBox<Displayable> flowSelector;
-    private JComboBox<AnalysisType> analysisSelector;
-    private JComboBox<BoundType> boundSelector;
-    private JComboBox<OptimizationType> optSelector;
-    private JSpinner hoelderGran;
-    private JSpinner thetaGran;
-    private SpinnerModel hoelderModel;
-    private SpinnerModel thetaModel;
-    private JTextField valueField;
-    private GridLayout layout;
+    private final JPanel panel;
+    private final JLabel vertexOfInterest;
+    private final JLabel flowOfInterest;
+    private final JLabel analysisType;
+    private final JLabel boundType;
+    private final JLabel hoelderGranularity;
+    private final JLabel thetaGranularity;
+    private final JLabel optimizationAlgorithm;
+    private final JLabel boundValue;
+    private final JComboBox<Displayable> vertexSelector;
+    private final JComboBox<Displayable> flowSelector;
+    private final JComboBox<AnalysisType> analysisSelector;
+    private final JComboBox<BoundType> boundSelector;
+    private final JComboBox<OptimizationType> optSelector;
+    private final JSpinner hoelderGran;
+    private final JSpinner thetaGran;
+    private final SpinnerModel hoelderModel;
+    private final SpinnerModel thetaModel;
+    private final JTextField valueField;
+    private final GridLayout layout;
 
+    /**
+     * Constructs a new dialog.
+     */
     public OptimizationDialog() {
         panel = new JPanel();
 
@@ -111,6 +115,9 @@ public class OptimizationDialog {
 
     }
 
+    /**
+     * Displays the dialog.
+     */
     public void display() {
         int result = JOptionPane.showConfirmDialog(null, panel, "Analyze Dialog",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);

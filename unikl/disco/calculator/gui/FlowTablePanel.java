@@ -20,18 +20,18 @@
  */
 package unikl.disco.calculator.gui;
 
-import java.util.List;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.network.Flow;
-import unikl.disco.calculator.network.Network;
 import unikl.disco.calculator.network.NetworkListener;
 import unikl.disco.calculator.network.Vertex;
 
 /**
- *
+ * This class enables the GUI to display a table of all {@link Flow} and their attributes of
+ * a given {@link Network}. Note that at the moment, only one network is possible.
+ * It uses a {@link NetworkListener} to keep track of changes.
  * @author Sebastian Henningsen
  */
 public class FlowTablePanel {
@@ -48,6 +48,10 @@ public class FlowTablePanel {
         SNC.getInstance().registerNetworkListener(new NetworkChangeListener());
     }
 
+    /**
+     * Returns the JPanel on which everything is displayed.
+     * @return
+     */
     public JScrollPane getPanel() {
         return scrollPane;
     }

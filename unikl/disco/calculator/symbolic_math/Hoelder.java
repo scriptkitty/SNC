@@ -2,6 +2,10 @@ package unikl.disco.calculator.symbolic_math;
 
 import java.io.Serializable;
 
+/**
+ *
+ * @author sebi
+ */
 public class Hoelder implements Serializable {
 
 	//Members
@@ -24,13 +28,24 @@ public class Hoelder implements Serializable {
 		this.hoelder_id = hoelder_id;
 	}
 	
-	public Hoelder(int hoelder_id, double p_value){
+    /**
+     *
+     * @param hoelder_id
+     * @param p_value
+     */
+    public Hoelder(int hoelder_id, double p_value){
 		this.hoelder_id = hoelder_id;
 		this.p_value = p_value;
 		this.q_value = 1/(1-1/p_value);
 	}
 	
-	public Hoelder(int hoelder_id, double value, boolean p_value){
+    /**
+     *
+     * @param hoelder_id
+     * @param value
+     * @param p_value
+     */
+    public Hoelder(int hoelder_id, double value, boolean p_value){
 		this.hoelder_id = hoelder_id;
 		if(p_value){
 			this.p_value = value;
@@ -44,6 +59,11 @@ public class Hoelder implements Serializable {
 
 	//Methods
 	
+    /**
+     *
+     * @return
+     */
+    	
 	@Override
 	public String toString(){
 		return "p-value: "+p_value+"   q-value: "+q_value;
@@ -51,29 +71,54 @@ public class Hoelder implements Serializable {
 	
 	//Getter and Setter
 	
+    /**
+     *
+     * @return
+     */
+    	
 	public int getHoelderID() {
 		return hoelder_id;
 	}
 
-	public double getPValue() {
+    /**
+     *
+     * @return
+     */
+    public double getPValue() {
 		return p_value;
 	}
 
-	public void setPValue(double p_value) {
+    /**
+     *
+     * @param p_value
+     */
+    public void setPValue(double p_value) {
 		this.p_value = p_value;
 		this.q_value = 1/(1-1/p_value);
 	}
 
-	public double getQValue() {
+    /**
+     *
+     * @return
+     */
+    public double getQValue() {
 		return q_value;
 	}
 
-	public void setQValue(double q_value) {
+    /**
+     *
+     * @param q_value
+     */
+    public void setQValue(double q_value) {
 		this.q_value = q_value;
 		this.p_value = 1/(1-1/q_value);
 	}
 	
-        public Hoelder copy() {
+    /**
+     *
+     * @return
+     */
+    public Hoelder copy() {
             return new Hoelder(this.hoelder_id, this.p_value);
         }
 }

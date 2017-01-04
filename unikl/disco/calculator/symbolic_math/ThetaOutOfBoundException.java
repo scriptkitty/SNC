@@ -38,11 +38,18 @@ public class ThetaOutOfBoundException extends Exception {
 	 */
 	private static final long serialVersionUID = -3205298027476314370L;
 
-	public ThetaOutOfBoundException(){
+    /**
+     *
+     */
+    public ThetaOutOfBoundException(){
 		
 	}
 	
-	public ThetaOutOfBoundException(String s){
+    /**
+     *
+     * @param s
+     */
+    public ThetaOutOfBoundException(String s){
 		super(s);
 	}
 }

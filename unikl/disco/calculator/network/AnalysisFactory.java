@@ -30,6 +30,17 @@ import java.util.Map;
  */
 public class AnalysisFactory {
     
+    /**
+     *
+     * @param type
+     * @param nw
+     * @param vertices
+     * @param flows
+     * @param flow_of_interest
+     * @param vertex_of_interest
+     * @param boundtype
+     * @return
+     */
     public static Analyzer getAnalyzer(AnalysisType type, Network nw, Map<Integer, Vertex> vertices, Map<Integer, Flow> flows, int flow_of_interest, int vertex_of_interest, AbstractAnalysis.Boundtype boundtype) {
         switch(type) {
             case SIMPLE_ANA:

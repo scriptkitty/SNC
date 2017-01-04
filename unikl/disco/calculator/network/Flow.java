@@ -182,6 +182,7 @@ public class Flow implements Serializable, Displayable {
 	/**
 	 * returns the vertext_id of the node, whose arrival was the 
 	 * last established one.
+     * @return 
 	 */
 	public int getCurrentVertexID(){
 		if(established_arrivals > 1){
@@ -193,6 +194,7 @@ public class Flow implements Serializable, Displayable {
 
 	/**
 	 * returns the vertex_id of the first node of the flow.
+     * @return 
 	 */
 	public int getFirstVertexID(){
 		return vertices.get(0);
@@ -200,6 +202,7 @@ public class Flow implements Serializable, Displayable {
 	
 	/**
 	 * Returns the last established arrival.
+     * @return 
 	 */
 	public Arrival getLastArrival(){
 		return arrivals.get(established_arrivals-1);
@@ -207,6 +210,7 @@ public class Flow implements Serializable, Displayable {
 	
 	/**
 	 * Returns the number of established arrivals.
+     * @return 
 	 */
 	public int getNumberOfEstablishedArrivals(){
 		return established_arrivals;
@@ -219,29 +223,56 @@ public class Flow implements Serializable, Displayable {
 		established_arrivals = i;
 	}
 
-        @Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public int getID() {
 		return ID;
 	}
 
-        @Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public String getAlias() {
 		return alias;
 	}
 	
-	public List<Integer> getVerticeIDs(){
+    /**
+     *
+     * @return
+     */
+    public List<Integer> getVerticeIDs(){
 		return vertices;
 	}
 
-	public List<Integer> getPriorities() {
+    /**
+     *
+     * @return
+     */
+    public List<Integer> getPriorities() {
 		return priorities;
 	}
 
-	public Arrival getInitialArrival() throws IndexOutOfBoundsException {
+    /**
+     *
+     * @return
+     * @throws IndexOutOfBoundsException
+     */
+    public Arrival getInitialArrival() throws IndexOutOfBoundsException {
 		return arrivals.get(0);
 	}
         
-        public void replaceFirstOccurence(int vid1, int vid2, Vertex newVertex) {
+    /**
+     *
+     * @param vid1
+     * @param vid2
+     * @param newVertex
+     */
+    public void replaceFirstOccurence(int vid1, int vid2, Vertex newVertex) {
             for(int i = 0;i < vertices.size();i++) {
                 if(vertices.get(i) == vid1 || vertices.get(i) == vid2) {
                     vertices.set(i, newVertex.getID());
@@ -251,7 +282,11 @@ public class Flow implements Serializable, Displayable {
             }
         }
         
-        @Override
+    /**
+     *
+     * @return
+     */
+    @Override
         public String toString() {
             return (this.alias != null ? this.alias : String.valueOf(this.ID));
         }

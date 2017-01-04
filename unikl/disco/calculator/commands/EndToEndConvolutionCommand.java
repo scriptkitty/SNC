@@ -28,7 +28,7 @@ import unikl.disco.calculator.network.Network;
 import unikl.disco.calculator.network.SimpleEndToEndConvolutor;
 
 /**
- * This class represents the action to convolute two vertices in a given target network
+ * Convolute two vertices ({@link Vertex}) in a given target network
  * with an arbitrary network in between those nodes.
  * @author Sebastian Henningsen
  */
@@ -39,6 +39,14 @@ public class EndToEndConvolutionCommand implements Command {
     SNC snc;
     Flow flowOfInterest;
     
+    /**
+     *
+     * @param vertex1ID
+     * @param vertex2ID
+     * @param flowID
+     * @param networkID
+     * @param snc
+     */
     public EndToEndConvolutionCommand(int vertex1ID, int vertex2ID, int flowID, int networkID, SNC snc) {
         this.nw = snc.getCurrentNetwork();
         this.vertex1ID = vertex1ID;

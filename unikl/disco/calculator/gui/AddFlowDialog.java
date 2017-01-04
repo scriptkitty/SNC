@@ -16,74 +16,69 @@
  *  in any publication arising from the use of this software or acknowledge
  *  our work otherwise. We would also like to hear of any fixes or useful
  *  extensions to this software.
- *
+ *AnalyzeDialog21
  */
 package unikl.disco.calculator.gui;
 
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import unikl.disco.calculator.SNC;
+import unikl.disco.calculator.commands.AddFlowCommand;
 import unikl.disco.calculator.commands.AddVertexCommand;
 import unikl.disco.calculator.commands.Command;
-import unikl.disco.calculator.symbolic_math.ServiceType;
+import unikl.disco.calculator.symbolic_math.Arrival;
+import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
 
 /**
- * A dialog to get input from the user in order to add a vertex to a network.
+ *
  * @author Sebastian Henningsen
  */
-public class AddVertexDialog {
+public class AddFlowDialog {
 
-    private final JPanel panel;
-    private final JLabel alias;
-    private final JLabel service;
-    private final JLabel rate;
-    private final JTextField aliasField;
-    private final JTextField rateField;
-    private final JComboBox<ServiceType> serviceTypes;
-    private final GridLayout layout;
+    private JPanel panel;
+    private JLabel alias;
+    private JLabel service;
+    private JTextField aliasField;
+    private GridLayout layout;
 
     /**
-     * Constructs the dialog and initializes all necessary fields.
+     *
      */
-    public AddVertexDialog() {
+    public AddFlowDialog() {
         panel = new JPanel();
         
-        alias = new JLabel("Alias of the vertex: ");
-        service = new JLabel("Service Type: ");
-        rate = new JLabel("Rate: ");
+        alias = new JLabel("Alias of the flow: ");
+        service = new JLabel("Arrival Type: ");
         aliasField = new JTextField();
-        rateField = new JTextField(10);
-       
-        serviceTypes = new JComboBox<>(ServiceType.values());
         
         panel.add(alias);
         panel.add(aliasField);
         panel.add(service);
-        panel.add(serviceTypes);
-        panel.add(rate);
-        panel.add(rateField);
         
         layout = new GridLayout(0, 1);
         panel.setLayout(layout);
     }
 
     /**
-     * Displays the dialog
+     *
      */
     public void display() {
-        int result = JOptionPane.showConfirmDialog(null, panel, "Add Vertex",
+        int result = JOptionPane.showConfirmDialog(null, panel, "Add Flow",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             SNC snc = SNC.getInstance();
-            double rate = Double.parseDouble(rateField.getText());
-            Command cmd = new AddVertexCommand(aliasField.getText(), -1*rate, -1, snc);
+            List<Integer> dummyList = new ArrayList();
+            dummyList.add(1);
+            Command cmd = new AddFlowCommand(aliasField.getText(), new Arrival(new ConstantFunction(0), new ConstantFunction(1), snc.getCurrentNetwork()), dummyList, dummyList, -1, snc);
             snc.invokeCommand(cmd);
             // Just for debugging
-            //System.out.println(aliasField.getText());
+            System.out.println(aliasField.getText());
         }
     }
 }

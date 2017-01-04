@@ -38,7 +38,11 @@ public class ParameterMismatchException extends Exception {
 	 */
 	private static final long serialVersionUID = 2278960541224825230L;
 
-	public ParameterMismatchException(String s){
+    /**
+     *
+     * @param s
+     */
+    public ParameterMismatchException(String s){
 		super(s);
 	}
 

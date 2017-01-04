@@ -24,7 +24,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import unikl.disco.calculator.SNC;
 
 /**
- * This class represents the action to add a vertex with given properties in the target network.
+ * Remove a vertex ({@link Vertex}) from a network.
  * @author Sebastian Henningsen
  */
 public class RemoveVertexCommand implements Command {
@@ -32,6 +32,12 @@ public class RemoveVertexCommand implements Command {
     SNC snc;
     int vertexID;
     
+    /**
+     * Constructs a new command to remove a vertex from a network.
+     * @param vertexID The vertex ID
+     * @param networkID The network ID the vertex belongs to
+     * @param snc The overall controller
+     */
     public RemoveVertexCommand(int vertexID, int networkID, SNC snc) {
         this.networkID = networkID;
         this.snc = snc;

@@ -25,10 +25,40 @@ package unikl.disco.calculator.network;
  * @author Sebastian Henningsen
  */
 public interface NetworkListener {
+
+    /**
+     *
+     * @param newVertex
+     */
     public void vertexAdded(Vertex newVertex);
+
+    /**
+     *
+     * @param removedVertex
+     */
     public void vertexRemoved(Vertex removedVertex);
+
+    /**
+     *
+     * @param changedVertex
+     */
     public void vertexChanged(Vertex changedVertex);
+
+    /**
+     *
+     * @param newFlow
+     */
     public void flowAdded(Flow newFlow);
+
+    /**
+     *
+     * @param removedFlow
+     */
     public void flowRemoved(Flow removedFlow);
+
+    /**
+     *
+     * @param changedFlow
+     */
     public void flowChanged(Flow changedFlow);
 }

@@ -44,23 +44,36 @@ public abstract interface SymbolicFunction extends Serializable {
 	/**
 	 * Returns the value of the theta-dependent function at theta 
 	 * (theta must be the first of the parameters).
+     * @param theta
 	 * @param parameters the set of parameters, including theta and 
 	 * further parameters on which the function depends.
 	 * @return the value of the theta-dependent function at theta.
+     * @throws unikl.disco.calculator.symbolic_math.ThetaOutOfBoundException
+     * @throws unikl.disco.calculator.symbolic_math.ParameterMismatchException
 	 * @throws ServerOverloadException 
 	 */
 	double getValue(double theta, Map<Integer, Hoelder> parameters) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException;
 	
 	/**
 	 * Returns a string representation of the function
+     * @return 
 	 */
 	@Override
 	String toString();
 		
 	//Getter and Setter
 	
+    /**
+     *
+     * @return
+     */
+    	
 	double getmaxTheta();
 	
-	Map<Integer, Hoelder> getParameters();
+    /**
+     *
+     * @return
+     */
+    Map<Integer, Hoelder> getParameters();
 	
 }

@@ -26,11 +26,11 @@ import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.network.ArrivalNotAvailableException;
 
 /**
- * This class represents the action to add a vertex with given properties in the target network.
+ * Add a {@link Flow} with given properties to the target network.
  * @author Sebastian Henningsen
  */
 public class AddFlowCommand implements Command {
-    private String alias;
+    private final String alias;
     int networkID;
     SNC snc;
     boolean success;
@@ -39,6 +39,15 @@ public class AddFlowCommand implements Command {
     List<Integer> route;
     List<Integer> priorities;
     
+    /**
+     * Creates a new AddFlowCommand 
+     * @param alias The name of the new flow
+     * @param arrival The initial arrival of the new flow
+     * @param route The route the new flow, a list of vertexIDs
+     * @param priorities The priorities along the route 
+     * @param networkID The network this flow belongs to
+     * @param snc The overall controller
+     */
     public AddFlowCommand(String alias, Arrival arrival, List<Integer> route, List<Integer> priorities, int networkID, SNC snc) {
         this.alias = alias != null ? alias : "";
         this.networkID = networkID;

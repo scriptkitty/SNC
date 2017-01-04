@@ -72,7 +72,10 @@ import java.util.Map;
 	/**
 	 * Calculates the value of the rho-part of the arrival with
 	 * exponentially distributed interarrival times.
+     * @param theta
 	 * @param parameters its first parameter must be theta. 
+     * @throws unikl.disco.calculator.symbolic_math.ThetaOutOfBoundException 
+     * @throws unikl.disco.calculator.symbolic_math.ParameterMismatchException 
 	 */
 	@Override
 	public double getValue(double theta, Map<Integer, Hoelder> parameters)
@@ -92,12 +95,21 @@ import java.util.Map;
 		
 	//Getter and Setter
 	
+    /**
+     *
+     * @return
+     */
+    	
 	@Override
 	public double getmaxTheta() {
 		return rho.getmaxTheta();
 	}
 
-	@Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public Map<Integer, Hoelder> getParameters() {
 		return rhoParameters;
 	}

@@ -20,14 +20,13 @@
  */
 package unikl.disco.calculator.gui;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 /**
- *
+ * This dialog displays a short about message showing the current version 
+ * and a link to the project homepage.
  * @author Sebastian Henningsen
  */
 public class AboutDialog {
@@ -36,6 +35,9 @@ public class AboutDialog {
     private final String text;
     private final String version;
     
+    /**
+     * Constructs an about dialog. The displayed text is stored directly in the class.
+     */
     public AboutDialog() {
         version = "0.9";
         text = "DISCO Stochastic Network Calculator version " + version + ".\n"
@@ -47,8 +49,10 @@ public class AboutDialog {
         panel.add(about);
     }
     
+    /**
+     * Displays the dialog
+     */
     public void display() {
         JOptionPane.showMessageDialog(null, about, "About DISCO SNC", JOptionPane.INFORMATION_MESSAGE);
-        //JOptionPane.showMessageDialog(panel, this);
     }
 }

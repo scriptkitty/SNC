@@ -33,12 +33,25 @@ public class SimpleEndToEndConvolutor {
     
     Flow flowOfInterest;
     
+    /**
+     *
+     * @param flowOfInterest
+     */
     public SimpleEndToEndConvolutor(Flow flowOfInterest) {
         this.flowOfInterest = flowOfInterest;
     }
     
     // Yields a tree of recursions
-    public List<ConvolutionState> computeAllConvolutions(String operations, int vertex1ID, int vertex2ID, Network nw) {
+
+    /**
+     *
+     * @param operations
+     * @param vertex1ID
+     * @param vertex2ID
+     * @param nw
+     * @return
+     */
+        public List<ConvolutionState> computeAllConvolutions(String operations, int vertex1ID, int vertex2ID, Network nw) {
         // For every node on path: 
         // Convolute with right neighbour and apply recursion
         // And subtract flows (if any) and apply recursion
@@ -54,7 +67,7 @@ public class SimpleEndToEndConvolutor {
                 Network convNetwork = nw.deepCopy();
                 
                 
-                int newID = convNetwork.convolute(route.get(i), route.get(j));
+                int newID = convNetwork.convolute(route.get(i), route.get(j), flowOfInterest.getID());
                 vertex1ID = vertex1ID == i || vertex1ID == j ? newID : vertex1ID;
                 vertex2ID = vertex2ID == i || vertex1ID == j ? newID : vertex2ID;
 
@@ -91,7 +104,11 @@ public class SimpleEndToEndConvolutor {
       }
         
     // Starts new threads and finds the best result
-    public void findBestConvolution() {
+
+    /**
+     *
+     */
+        public void findBestConvolution() {
         
     }
 }

@@ -25,12 +25,11 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import unikl.disco.calculator.SNC;
 
 /**
- *
+ * A static factory containing all menu actions.
  * @author Sebastian Henningsen
  */
 public class MenuActions {

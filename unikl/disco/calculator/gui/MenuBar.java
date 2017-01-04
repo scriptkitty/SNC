@@ -26,7 +26,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 /**
- *
+ * The menu bar at the top of the main window. Note that this class only deals with the
+ * visualization, the actions are in {@link MenuActions}
  * @author Sebastian Henningsen
  */
 public class MenuBar {
@@ -86,6 +87,10 @@ public class MenuBar {
         menuBar.add(helpMenu);
     }
     
+    /**
+     * Returns the menu bar.
+     * @return
+     */
     public JMenuBar getMenuBar() {
         return menuBar;
     }

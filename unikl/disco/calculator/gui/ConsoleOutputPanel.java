@@ -31,13 +31,16 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
 /**
- *
+ * Relays the output to stdout and stderr and displays it on a {@link JTextArea}.
  * @author Sebastian Henningsen
  */
 public class ConsoleOutputPanel {
     private final JScrollPane scrollPane;
     private final JTextArea textArea;
     
+    /**
+     * Constructs a new Panel.
+     */
     public ConsoleOutputPanel() {
         textArea = new JTextArea();
         textArea.setEditable(false);
@@ -45,16 +48,27 @@ public class ConsoleOutputPanel {
         
     }
     
+    /**
+     * Redirects the standard output onto the text area.
+     */
     public void redirectOut() {
         ConsoleOutputStream outputStream = new ConsoleOutputStream();
         System.setOut( new PrintStream(outputStream, true) );
     }
     
+    /**
+     * Redirects the error output onto the text area which is printed in the given color.
+     * @param textColor Color in which error message should be printed.
+     */
     public void redirectErr(Color textColor) {
         ConsoleOutputStream outputStream = new ConsoleOutputStream(textColor);
 	System.setErr( new PrintStream(outputStream, true) );
     }
     
+    /**
+     * Returns the {@link JPanel} which holds the text area.
+     * @return
+     */
     public JScrollPane getPanel() {
         return scrollPane;
     }

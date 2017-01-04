@@ -44,22 +44,70 @@ import unikl.disco.calculator.symbolic_math.BadInitializationException;
  */
 public abstract class AbstractAnalysis implements Analyzer {
 	
-	protected Map<Integer, Vertex> vertices;
-	protected Map<Integer, Flow> flows;
+    /**
+     *
+     */
+    protected Map<Integer, Vertex> vertices;
+
+    /**
+     *
+     */
+    protected Map<Integer, Flow> flows;
 	
-	protected int flow_of_interest;
-	protected int vertex_of_interest;
+    /**
+     *
+     */
+    protected int flow_of_interest;
+
+    /**
+     *
+     */
+    protected int vertex_of_interest;
         
-        protected Network nw;
+    /**
+     *
+     */
+    protected Network nw;
 	
-	public enum Boundtype{
-		BACKLOG, DELAY, OUTPUT
+    /**
+     *
+     */
+    public enum Boundtype{
+
+            /**
+             *
+             */
+            BACKLOG,
+
+            /**
+             *
+             */
+            DELAY,
+
+            /**
+             *
+             */
+            OUTPUT
 	};
-	protected Boundtype boundtype;
+
+    /**
+     *
+     */
+    protected Boundtype boundtype;
 	
         
 	// TODO
-	public AbstractAnalysis(Network nw, Map<Integer, Vertex> vertices, Map<Integer, Flow> flows, 
+ 
+    /**
+     *
+     * @param nw
+     * @param vertices
+     * @param flows
+     * @param flow_of_interest
+     * @param vertex_of_interest
+     * @param boundtype
+     */
+    	public AbstractAnalysis(Network nw, Map<Integer, Vertex> vertices, Map<Integer, Flow> flows, 
 							int flow_of_interest, int vertex_of_interest, Boundtype boundtype){
 		this.vertices = vertices;
 		this.flows = flows;
@@ -69,26 +117,53 @@ public abstract class AbstractAnalysis implements Analyzer {
                 this.nw = nw;
 	}
 	
-        @Override
+    /**
+     *
+     * @return
+     * @throws ArrivalNotAvailableException
+     * @throws DeadlockException
+     * @throws BadInitializationException
+     */
+    @Override
 	public abstract Arrival analyze() throws ArrivalNotAvailableException, DeadlockException, BadInitializationException;
 
-	public int getVertexOfInterest() {
+    /**
+     *
+     * @return
+     */
+    public int getVertexOfInterest() {
 		return vertex_of_interest;
 	}
 
-	public Map<Integer, Vertex> getVertices() {
+    /**
+     *
+     * @return
+     */
+    public Map<Integer, Vertex> getVertices() {
 		return vertices;
 	}
 
-	public Map<Integer, Flow> getFlows() {
+    /**
+     *
+     * @return
+     */
+    public Map<Integer, Flow> getFlows() {
 		return flows;
 	}
 
-	public int getFlowOfInterest() {
+    /**
+     *
+     * @return
+     */
+    public int getFlowOfInterest() {
 		return flow_of_interest;
 	}
 
-	public Boundtype getBoundtype() {
+    /**
+     *
+     * @return
+     */
+    public Boundtype getBoundtype() {
 		return boundtype;
 	}
 

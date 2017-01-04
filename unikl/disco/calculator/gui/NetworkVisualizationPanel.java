@@ -20,16 +20,13 @@
  */
 package unikl.disco.calculator.gui;
 
+import com.mxgraph.model.mxGraphModel;
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.view.mxGraph;
 import java.awt.Dimension;
 import java.util.List;
 import javax.swing.JPanel;
-import org.jgraph.JGraph;
-import org.jgrapht.Graph;
-import org.jgrapht.ListenableGraph;
-import org.jgrapht.ext.JGraphModelAdapter;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultListenableGraph;
-import org.jgrapht.graph.DirectedMultigraph;
+import javax.swing.JScrollPane;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.network.Flow;
 import unikl.disco.calculator.network.Network;
@@ -37,52 +34,69 @@ import unikl.disco.calculator.network.NetworkListener;
 import unikl.disco.calculator.network.Vertex;
 
 /**
- *
+ * A panel which uses a graph library to display a network.
  * @author Sebastian Henningsen
  */
 public class NetworkVisualizationPanel {
-    private JPanel visualizationPanel;
-    private ListenableGraph adapterGraph;
-    private Graph networkGraph;
-    private JGraph graphVis;
-    
+
+    private final JPanel visualizationPanel;
+    private final mxGraph graph;
+
+    /**
+     * Creates the panel.
+     * @param size
+     */
     public NetworkVisualizationPanel(Dimension size) {
         visualizationPanel = new JPanel();
         visualizationPanel.setPreferredSize(size);
-        networkGraph = new DirectedMultigraph(DefaultEdge.class);
-        adapterGraph = new DefaultListenableGraph(networkGraph);
-        graphVis = new JGraph(new JGraphModelAdapter(adapterGraph));
+
+        graph = new mxGraph();
+        graph.setAllowDanglingEdges(true);
+        graph.setCellsEditable(false);
+        graph.setCellsDeletable(false);
+        graph.setCellsDisconnectable(false);
+        graph.setEdgeLabelsMovable(false);
         
-        visualizationPanel.add(graphVis);
-        
+        /*Object parent = graph.getDefaultParent();
+        graph.getModel().beginUpdate();
+        try {
+            Object v1 = graph.insertVertex(parent, null, "Hello", 20, 20, 80,
+                    30);
+            Object v2 = graph.insertVertex(parent, null, "World!", 240, 150,
+                    80, 30);
+            graph.insertEdge(parent, null, "Edge", v1, v2);
+            Object edge = graph.createEdge(parent, null, "Test", null, null, null);
+            graph.addEdge(edge, null, null, v1, null);
+        } finally {
+            graph.getModel().endUpdate();
+        }*/
+        mxGraphComponent graphComponent = new mxGraphComponent(graph);
+        visualizationPanel.add(graphComponent);
+
         SNC.getInstance().registerNetworkListener(new NetworkChangeListener());
-        
+
     }
-    
+
+    /**
+     * Returns the JPanel on which everything is displayed.
+     * @return
+     */
     public JPanel getPanel() {
         return visualizationPanel;
     }
-    
+
     private class NetworkChangeListener implements NetworkListener {
 
         @Override
         public void vertexAdded(Vertex newVertex) {
-            adapterGraph.addVertex(newVertex);
         }
 
         @Override
         public void vertexRemoved(Vertex removedVertex) {
-            adapterGraph.removeVertex(removedVertex);
         }
 
         @Override
         public void flowAdded(Flow newFlow) {
-            // Missing: First and Last arrow
-            List<Integer> route = newFlow.getVerticeIDs();
-            Network nw = SNC.getInstance().getNetwork(0);
-            for(int i = 0; i < route.size() -1; i++) {
-                adapterGraph.addEdge(nw.getVertex(route.get(i)), nw.getVertex(route.get(i + 1)));
-            }
         }
 
         @Override
@@ -96,6 +110,6 @@ public class NetworkVisualizationPanel {
         @Override
         public void vertexChanged(Vertex changedVertex) {
         }
-        
+
     }
 }

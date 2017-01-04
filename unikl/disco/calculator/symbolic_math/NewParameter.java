@@ -53,6 +53,7 @@ public class NewParameter implements SymbolicFunction {
 	/**
 	 * A new parameter always gets a fresh parameter_id from the 
 	 * {@link Analysis}-Class.
+     * @param hoelder
 	 */
 	public NewParameter(Hoelder hoelder){
 		this.hoelder = hoelder;
@@ -66,9 +67,11 @@ public class NewParameter implements SymbolicFunction {
 	 * is however not used. The special form of the input <code>
 	 * parameters</code> is just needed to serve the overall 
 	 * structure of {@link SymbolicFunction}s.
+     * @param theta
 	 * @param parameters an array consisting of theta (first entry)
 	 * and the new parameter (second entry).
 	 * @return the new parameter as given.
+     * @throws unikl.disco.calculator.symbolic_math.ParameterMismatchException
 	 */
 	@Override
 	public double getValue(double theta, Map<Integer, Hoelder> parameters) throws ParameterMismatchException{
@@ -90,13 +93,21 @@ public class NewParameter implements SymbolicFunction {
 		return output;
 	}
 	
-	@Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public double getmaxTheta() {
 		double maxtheta = Double.POSITIVE_INFINITY;
 		return maxtheta;
 	}
 
-	@Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public Map<Integer, Hoelder> getParameters() {
 		HashMap<Integer, Hoelder> parameter_ids = new  HashMap<Integer, Hoelder>(0);
 		parameter_ids.put(hoelder.getHoelderID(), hoelder);

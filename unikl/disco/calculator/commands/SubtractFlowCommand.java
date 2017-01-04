@@ -18,36 +18,45 @@
  *  extensions to this software.
  *
  */
-package unikl.disco.misc.commands;
+package unikl.disco.calculator.commands;
 
-import unikl.disco.mgf.SNC;
+import unikl.disco.calculator.SNC;
+import unikl.disco.calculator.network.ArrivalNotAvailableException;
+import unikl.disco.calculator.network.Vertex;
 
 /**
- * This class represents the action to convolute two adjacent vertices in a given target network
+ * Computes the left-over-service at the given vertex
  * @author Sebastian Henningsen
  */
-public class ConvoluteVerticesCommand implements Command {
-     
-    int vertex1ID;
-    int vertex2ID;
-    int networkID;
-    SNC snc;
+public class SubtractFlowCommand implements Command {
     
-    public ConvoluteVerticesCommand(int vertex1ID, int vertex2ID, int networkID, SNC snc) {
-        this.vertex1ID = vertex1ID;
-        this.vertex2ID = vertex2ID;
+    private final int vertexID;
+    private final int networkID;
+    private final SNC snc;
+    /**
+     * Creates a new SubtractFlowCommand 
+     * @param vertexID The ID of the vertex at which the left-over-service should be computed
+     * @param networkID The ID of the network the vertex belongs to
+     * @param snc The overall controller
+     */
+    public SubtractFlowCommand(int vertexID, int networkID, SNC snc) {
+        this.vertexID = vertexID;
         this.networkID = networkID;
+        this.snc = snc;
     }
     
     @Override
     public void execute() {
-        snc.getCurrentNetwork().convolute(vertex1ID, vertex2ID);
+        try {
+            snc.getCurrentNetwork().computeLeftoverService(vertexID);
+        } catch (ArrivalNotAvailableException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
     public void undo() {
         // TODO
-        System.out.println("Undo Action for convolution not implemented yet.");
     }
     
 }

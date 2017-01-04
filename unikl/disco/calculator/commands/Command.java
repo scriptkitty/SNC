@@ -22,13 +22,13 @@ package unikl.disco.calculator.commands;
 
 /**
  * The command abstraction interface which is used to communicate with the controller
- * and to implement a Undo/Redo mechanism.
+ * and to implement a Undo/Redo mechanism. See also {@link UndoRedoStack}
  * @author Sebastian Henningsen
  */
 public interface Command {
 
     /**
-     * The main function of the command
+     * The main function of the command, also used for redoing the command.
      */
     public void execute();
 

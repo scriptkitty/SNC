@@ -16,7 +16,7 @@
  *  in any publication arising from the use of this software or acknowledge
  *  our work otherwise. We would also like to hear of any fixes or useful
  *  extensions to this software.
- *
+ * 
  */
 package unikl.disco.calculator.network;
 
@@ -63,10 +63,19 @@ public class Network {
     private List<NetworkListener> listeners;
 
     // Constructor
+    /**
+     *
+     */
     public Network() {
         this(null, null, null);
     }
 
+    /**
+     *
+     * @param vertices
+     * @param flows
+     * @param hoelders
+     */
     public Network(Map<Integer, Vertex> vertices, Map<Integer, Flow> flows, Map<Integer, Hoelder> hoelders) {
         this.flows = (flows != null) ? flows : new HashMap<Integer, Flow>();
         this.vertices = (vertices != null) ? vertices : new HashMap<Integer, Vertex>();
@@ -78,10 +87,20 @@ public class Network {
     }
 
     //Methods
+    /**
+     *
+     * @param l
+     * @return
+     */
     public boolean addListener(NetworkListener l) {
         return listeners.add(l);
     }
 
+    /**
+     *
+     * @param l
+     * @return
+     */
     public boolean removeListener(NetworkListener l) {
         return listeners.remove(l);
     }
@@ -100,6 +119,8 @@ public class Network {
 
     /**
      * Adds a new dummy vertex with alias
+     *
+     * @param alias
      */
     public void addVertex(String alias) {
         Vertex vertex = new Vertex(VERTEX_ID, alias, this);
@@ -124,6 +145,8 @@ public class Network {
      * Adds a new vertex with predefined service and alias
      *
      * @param service
+     * @param alias
+     * @return
      */
     public Vertex addVertex(Service service, String alias) {
         Vertex vertex = new Vertex(VERTEX_ID, service, alias, this);
@@ -136,6 +159,11 @@ public class Network {
     }
 
     // Adds a vertex with a given ID, overwrites any existing vertices
+    /**
+     *
+     * @param vertex
+     * @return
+     */
     public Vertex addVertex(Vertex vertex) {
         vertices.put(vertex.getID(), vertex);
         for (NetworkListener l : listeners) {
@@ -144,42 +172,83 @@ public class Network {
         return vertex;
     }
 
-    public int convolute(int vertex1ID, int vertex2ID) {
+    /**
+     * Computes the leftover service at the vertex with the given ID. This
+     * serves the prioritized flow and removes it from the arrivals of the node.
+     *
+     * @param vertexID
+     * @return The output bound of the flow being served
+     * @throws ArrivalNotAvailableException
+     */
+    public Arrival computeLeftoverService(int vertexID) throws ArrivalNotAvailableException {
+        int fid = getVertex(vertexID).getPrioritizedFlow();
+        Arrival output = getVertex(vertexID).serve();
+        // Notify listeners
+        for (NetworkListener l : listeners) {
+            l.vertexChanged(getVertex(vertexID));
+            l.flowChanged(getFlow(fid));
+        }
+        return output;
+    }
+
+    /**
+     *
+     * @param vertex1ID
+     * @param vertex2ID
+     * @param flowOfInterestID
+     * @return
+     */
+    public int convolute(int vertex1ID, int vertex2ID, int flowOfInterestID) {
         // Compute convoluted service, add a new vertex with that service
-        // and redirect all flows
-        Vertex v1 = getVertex(vertex1ID);
-        Vertex v2 = getVertex(vertex2ID);
-        Service convService = v1.getService().concatenate(v1.getService(), v2.getService());
-        Vertex convVertex = addVertex(convService, vertex1ID + " conv. " + vertex2ID);
-        Set<Integer> v1Flows = v1.getAllFlowIDs();
-        Set<Integer> v2Flows = v2.getAllFlowIDs();
+        // Some preconditions have to be met: 
+        // (1) The vertices are direct neighbours wrt. to the flow of interest (FoI)
+        // (2) There are no other flows on the path of the FoI
+        if (areConvolutable(vertex1ID, vertex2ID, flowOfInterestID)) {
+            Vertex v1 = getVertex(vertex1ID);
+            Vertex v2 = getVertex(vertex2ID);
+            Flow foi = getFlow(flowOfInterestID);
+            Service convService = v1.getService().concatenate(v1.getService(), v2.getService());
+            Vertex convVertex = addVertex(convService, vertex1ID + " conv. " + vertex2ID);
+            Arrival arrival = v1.getArrivalOfFlow(flowOfInterestID);
+            convVertex.addArrival(v1.getPriorityOfFlow(flowOfInterestID), flowOfInterestID, arrival);
+            foi.replaceFirstOccurence(v1.getID(), v2.getID(), convVertex);
 
-        for (Integer flowID : v1Flows) {
-            // TODO: This is not very nice
-            Arrival arrival = v1.getArrivalOfFlow(flowID);
-            if (arrival != null) {
-                convVertex.addArrival(v1.getPriorityOfFlow(flowID), flowID, arrival);
-            } else {
-                convVertex.addUnknownArrival(v1.getPriorityOfFlow(flowID), flowID);
-            }
-            Flow f = getFlow(flowID);
-            f.replaceFirstOccurence(v1.getID(), v2.getID(), convVertex);
-        }
+            /*Set<Integer> v1Flows = v1.getAllFlowIDs();
+             Set<Integer> v2Flows = v2.getAllFlowIDs();
 
-        for (Integer flowID : v2Flows) {
-            Arrival arrival = v2.getArrivalOfFlow(flowID);
-            if (arrival != null) {
-                convVertex.addArrival(v2.getPriorityOfFlow(flowID), flowID, arrival);
-            } else {
-                convVertex.addUnknownArrival(v2.getPriorityOfFlow(flowID), flowID);
-            }
-            // TODO: Make priorities unique again
-            Flow f = getFlow(flowID);
-            f.replaceFirstOccurence(v1.getID(), v2.getID(), convVertex);
+             for (Integer flowID : v1Flows) {
+             // TODO: This is not very nice
+             Arrival arrival = v1.getArrivalOfFlow(flowID);
+             if (arrival != null) {
+             convVertex.addArrival(v1.getPriorityOfFlow(flowID), flowID, arrival);
+             } else {
+             convVertex.addUnknownArrival(v1.getPriorityOfFlow(flowID), flowID);
+             }
+             Flow f = getFlow(flowID);
+             f.replaceFirstOccurence(v1.getID(), v2.getID(), convVertex);
+             }
+
+             for (Integer flowID : v2Flows) {
+             Arrival arrival = v2.getArrivalOfFlow(flowID);
+             if (arrival != null) {
+             convVertex.addArrival(v2.getPriorityOfFlow(flowID), flowID, arrival);
+             } else {
+             convVertex.addUnknownArrival(v2.getPriorityOfFlow(flowID), flowID);
+             }
+             // TODO: Make priorities unique again
+             Flow f = getFlow(flowID);
+             f.replaceFirstOccurence(v1.getID(), v2.getID(), convVertex);
+             }*/
+            removeVertex(v1);
+            removeVertex(v2);
+            return convVertex.getID();
+        } else {
+            throw new IllegalArgumentException("Vertices are not convolutable!");
         }
-        removeVertex(v1);
-        removeVertex(v2);
-        return convVertex.getID();
+    }
+
+    public boolean areConvolutable(int vertex1ID, int vertex2ID, int flowID) {
+        return true;
     }
 
     /**
@@ -215,6 +284,11 @@ public class Network {
         return removeVertex(vertex.getID());
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     */
     public boolean removeVertex(int id) {
         boolean success = false;
         Vertex vertex = getVertex(id);
@@ -241,10 +315,12 @@ public class Network {
      * corresponding priorities at these vertices of the flow).
      *
      * @param initial_arrival the arrival at the first node
+     * @param route
      * @param vertices the vertices the flow traverses
      * @param priorities the priorities of the flow at the corresponding
      * vertices
      * @param alias the alias of the new flow
+     * @return
      * @throws ArrivalNotAvailableException
      */
     public int addFlow(Arrival initial_arrival, List<Integer> route, List<Integer> priorities,
@@ -289,7 +365,7 @@ public class Network {
      * @param arrivals the arrivals at the vertices. Normally only te initial
      * arrival is needed and hence all other arrivaly will be overwritten by the
      * analysis.
-     * @param vertices the vertices the flow traverses
+     * @param route
      * @param priorities the priorities of the flow at the corresponding
      * vertices
      * @param alias the alias of the new flow
@@ -393,14 +469,26 @@ public class Network {
         HOELDER_ID++;
     }
 
+    /**
+     *
+     * @param reset
+     */
     public void resetFLOW_ID(int reset) {
         FLOW_ID = reset;
     }
 
+    /**
+     *
+     * @param reset
+     */
     public void resetVERTEX_ID(int reset) {
         VERTEX_ID = reset;
     }
 
+    /**
+     *
+     * @param reset
+     */
     public void resetHOELDER_ID(int reset) {
         HOELDER_ID = reset;
     }
@@ -427,30 +515,60 @@ public class Network {
     }
 
     //Getter and Setter
+    /**
+     *
+     * @param id
+     * @return
+     */
     public Vertex getVertex(int id) {
         return vertices.get(id);
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     */
     public Flow getFlow(int id) {
         return flows.get(id);
     }
 
+    /**
+     *
+     * @return
+     */
     public int getVERTEX_ID() {
         return VERTEX_ID;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getFLOW_ID() {
         return FLOW_ID;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getHOELDER_ID() {
         return HOELDER_ID;
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<Integer, Vertex> getVertices() {
         return vertices;
     }
 
+    /**
+     *
+     * @return
+     */
     public Network deepCopy() {
         /*Network newNetwork = new Network();
          Map<Integer, Vertex> newVertices = new HashMap(vertices.size());
@@ -510,6 +628,9 @@ public class Network {
      * <code>ObjectOutputStream</code>. The order of saved objects (and its
      * corresponding type) is: vertices (HashMap<Integer, Vertex>
      * flows (HashMap<Integer, Flow>) hoelders (HashMap<Integer, Hoelder>)
+     *
+     * @param file
+     * @return
      */
     public static Network load(File file) {
         Map<Integer, Vertex> newVertices = null;
@@ -534,6 +655,8 @@ public class Network {
      * simple ObjectOutputStream. The order of saved objects (and its
      * corresponding type) is: vertices (HashMap<Integer, Vertex>
      * flows (HashMap<Integer, Flow>) hoelders (HashMap<Integer, Hoelder>)
+     *
+     * @param file
      */
     public void save(File file) {
         try {
@@ -548,10 +671,18 @@ public class Network {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<Integer, Flow> getFlows() {
         return flows;
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<Integer, Hoelder> getHoelders() {
         return hoelders;
     }

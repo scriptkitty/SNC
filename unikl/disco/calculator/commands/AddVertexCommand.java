@@ -24,20 +24,27 @@ import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.symbolic_math.Service;
 import unikl.disco.calculator.network.Network;
-import unikl.disco.calculator.network.Vertex;
 
 /**
- * This class represents the action to add a vertex with given properties in the target network.
+ * Add a {@link Vertex} with given properties to the target network.
  * @author Sebastian Henningsen
  */
 public class AddVertexCommand implements Command {
-    private String alias;
+    private final String alias;
     double rate;
     int networkID;
     SNC snc;
     boolean success;
     int vertexID;
     
+    /**
+     * Creates a new Command to add a vertex
+     * @param alias The name of the vertex
+     * @param rate The service rate the vertex offers (Because only constant rate
+     * service is possible at the moment
+     * @param networkID The network the vertex belongs to
+     * @param snc The overall controller
+     */
     public AddVertexCommand(String alias, double rate, int networkID, SNC snc) {
         this.alias = alias != null ? alias : "";
         this.rate = rate;
@@ -56,7 +63,7 @@ public class AddVertexCommand implements Command {
 	}
 	Network nw = snc.getCurrentNetwork();
 	vertexID = nw.addVertex(new Service(new ConstantFunction(0), 
-				new ConstantFunction(rate), snc.getCurrentNetwork()), alias).getVertexID();
+				new ConstantFunction(rate), snc.getCurrentNetwork()), alias).getID();
 	// Why is this?
 	snc.getCurrentNetwork().getVertex(vertexID).getService().getServicedependencies().clear();
 

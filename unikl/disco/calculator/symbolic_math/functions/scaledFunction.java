@@ -88,7 +88,7 @@ public class scaledFunction implements SymbolicFunction {
 	 * second part of a Hoelder-coefficient is used to scale the 
 	 * atom function.
 	 * @param function the atom function
-	 * @param hoelder_id the ID of the used Hoelder-coefficent
+     * @param hoelder
 	 * @param p_scale wether the first or second part of a Hoelder-
 	 * coefficient should be used for scaling.
 	 */
@@ -106,12 +106,15 @@ public class scaledFunction implements SymbolicFunction {
 	 * <code>parameters</code>. It is important to note that the 
 	 * last entry in <code>parameters</code> is the parameter, 
 	 * which is used for scaling theta.
+     * @param theta
 	 * @param parameters contains the needed parameters (including
 	 * theta, as first entry). The last entry in parameters gives
 	 * the value of the Hoelder-coefficient, which is used for 
 	 * scaling theta.
 	 * @return the value of the scaled function.
+     * @throws unikl.disco.calculator.symbolic_math.ThetaOutOfBoundException
 	 * @throws ServerOverloadException 
+     * @throws unikl.disco.calculator.symbolic_math.ParameterMismatchException 
 	 */
 	@Override
 	public double getValue(double theta, Map<Integer, Hoelder> parameters)
@@ -142,6 +145,7 @@ public class scaledFunction implements SymbolicFunction {
 	/**
 	 * Gives a String representation of the scaled function by<br>
 	 * <code>scaled(f(t),scale_parameter_ID)</code><br>
+     * @return 
 	 */
 	@Override
 	public String toString(){
@@ -151,13 +155,22 @@ public class scaledFunction implements SymbolicFunction {
 
 	//Getter and Setter
 	
+    /**
+     *
+     * @return
+     */
+    	
 	@Override
 	public double getmaxTheta() {
 		if(p_scale)	return original.getmaxTheta()/hoelder.getPValue();
 		else return original.getmaxTheta()/hoelder.getQValue();
 	}
 
-	@Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public Map<Integer, Hoelder> getParameters() {
 		Map<Integer, Hoelder> copy = original.getParameters();
 		copy.put(hoelder.getHoelderID(), hoelder);

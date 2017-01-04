@@ -67,6 +67,7 @@ public class SimpleAnalysis extends AbstractAnalysis {
 	 * Constructs the Analysis-Object, with all information needed
 	 * to give the wished performance bound at the flow and service
 	 * of interest.
+     * @param nw
 	 * @param vertices the set of vertices in the network
 	 * @param flows the set of flows in the network
 	 * @param vertex_of_interest the vertex at which the performance

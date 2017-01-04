@@ -21,10 +21,23 @@
 package unikl.disco.calculator.gui;
 
 /**
- *
+ * This interface is used to de-couple the GUI from the model.
+ * In most cases, the front-end only uses a fraction of the information provided by the model.
+ * Therefore, classes from the model which are handled by the GUI (i.e. {@link Vertex} and {@link Flow})
+ * implement this interface, which enables the GUI to reuse to use more abstract code.
  * @author Sebastian Henningsen
  */
 public interface Displayable {
+
+    /**
+     * Returns the alias of the element.
+     * @return
+     */
     public String getAlias();
+
+    /**
+     * Returns the ID of the element.
+     * @return
+     */
     public int getID();
 }

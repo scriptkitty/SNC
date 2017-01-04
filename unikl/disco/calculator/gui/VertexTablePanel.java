@@ -29,7 +29,8 @@ import unikl.disco.calculator.network.NetworkListener;
 import unikl.disco.calculator.network.Vertex;
 
 /**
- *
+ * This class builds a vertex panel that displays all of a networks vertices with their attributes.
+ * It uses a {@link NetworkListener} to keep track of changes.
  * @author Sebastian Henningsen
  */
 public class VertexTablePanel {
@@ -46,6 +47,10 @@ public class VertexTablePanel {
         SNC.getInstance().registerNetworkListener(new NetworkChangeListener());
     }
 
+    /**
+     * Returns the JPanel on which the table is displayed.
+     * @return
+     */
     public JScrollPane getPanel() {
         return scrollPane;
     }

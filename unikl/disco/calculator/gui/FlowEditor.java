@@ -67,11 +67,27 @@ public class FlowEditor extends JDialog {
     private final JPanel bottomCardContainer = new JPanel();
 
 	//Constructors
-    public FlowEditor(String title, final Map<Integer, Vertex> vertices, Flow flow, Network nw, SNC snc) {
+
+    /**
+     *
+     * @param title
+     * @param vertices
+     * @param flow
+     * @param nw
+     * @param snc
+     */
+        public FlowEditor(String title, final Map<Integer, Vertex> vertices, Flow flow, Network nw, SNC snc) {
 	this(title, vertices, nw, snc);
 	this.flow = flow;
     }
 
+    /**
+     *
+     * @param title
+     * @param vertices
+     * @param nw
+     * @param snc
+     */
     public FlowEditor(String title, final Map<Integer, Vertex> vertices, final Network nw, final SNC snc) {
 
 	this.nw = nw;
@@ -311,13 +327,23 @@ public class FlowEditor extends JDialog {
     }
 
 	//Mehtods
-    public int showFlowEditor() {
+
+    /**
+     *
+     * @return
+     */
+        public int showFlowEditor() {
 	setVisible(true);
 	return output;
     }
 
 	//Getter and Setter
-    public Flow getEditedFlow() {
+
+    /**
+     *
+     * @return
+     */
+        public Flow getEditedFlow() {
 	return flow;
     }
 

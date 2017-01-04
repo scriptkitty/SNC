@@ -24,10 +24,14 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 /**
+ * The main control panel for the GUI. Note that this class is only for
+ * displaying, the corresponding button actions are defined in
+ * {@link ControlPanelActions}.
  *
  * @author Sebastian Henningsen
  */
 public class ControlPanel {
+
     private final JPanel controllerPanel;
     private final JButton addVertexButton;
     private final JButton removeVertexButton;
@@ -35,36 +39,53 @@ public class ControlPanel {
     private final JButton removeFlowButton;
     private final JButton analyzeButton;
     private final JButton optimizeButton;
-    
-    
+    private final JButton subtractButton;
+    private final JButton convoluteButton;
+
+    /**
+     * Constructs a new panel.
+     */
     public ControlPanel() {
         controllerPanel = new JPanel();
-        
+
         addVertexButton = new JButton();
         addVertexButton.setAction(new ControlPanelActions.AddNodeAction("Add Node"));
         controllerPanel.add(addVertexButton);
-        
+
         addFlowButton = new JButton();
         addFlowButton.setAction(new ControlPanelActions.AddFlowAction("Add Flow"));
         controllerPanel.add(addFlowButton);
-        
+
         removeVertexButton = new JButton();
         removeVertexButton.setAction(new ControlPanelActions.RemoveNodeAction("Remove Vertex"));
         controllerPanel.add(removeVertexButton);
-        
+
         removeFlowButton = new JButton();
         removeFlowButton.setAction(new ControlPanelActions.RemoveFlowAction("Remove Flow"));
         controllerPanel.add(removeFlowButton);
-        
+
         analyzeButton = new JButton();
         analyzeButton.setAction(new ControlPanelActions.AnalyzeNetworkAction("Analyze Network"));
         controllerPanel.add(analyzeButton);
-        
+
         optimizeButton = new JButton();
         optimizeButton.setAction(new ControlPanelActions.OptimizationAction("Optimize Bound"));
         controllerPanel.add(optimizeButton);
+
+        subtractButton = new JButton();
+        subtractButton.setAction(new ControlPanelActions.SubtractAction("Subtract Flow"));
+        controllerPanel.add(subtractButton);
+        
+        convoluteButton = new JButton();
+        convoluteButton.setAction(new ControlPanelActions.ConvoluteAction("Convolute Vertices"));
+        controllerPanel.add(convoluteButton);
     }
-    
+
+    /**
+     * Returns the {@link JPanel} on which everything is displayed.
+     *
+     * @return
+     */
     public JPanel getPanel() {
         return controllerPanel;
     }

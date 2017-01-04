@@ -23,7 +23,7 @@ package unikl.disco.calculator.commands;
 import unikl.disco.calculator.SNC;
 
 /**
- * This class represents the action to convolute two adjacent vertices in a given target network
+ * Convolute two adjacent vertices ({@link Vertex}) in a given target network.
  * @author Sebastian Henningsen
  */
 public class ConvoluteVerticesCommand implements Command {
@@ -31,18 +31,29 @@ public class ConvoluteVerticesCommand implements Command {
     int vertex1ID;
     int vertex2ID;
     int networkID;
+    int flowID;
     SNC snc;
     
-    public ConvoluteVerticesCommand(int vertex1ID, int vertex2ID, int networkID, SNC snc) {
+    /**
+     * Creates a new command to convolute two vertices, the action is relayed to the
+     * corresponding {@link Network}
+     * @param vertex1ID The ID of the first vertex
+     * @param vertex2ID The ID of the second vertex
+     * @param flowID The ID of the flow of interest
+     * @param networkID The network ID the vertices belong to
+     * @param snc The overall controller
+     */
+    public ConvoluteVerticesCommand(int vertex1ID, int vertex2ID, int flowID, int networkID, SNC snc) {
         this.vertex1ID = vertex1ID;
         this.vertex2ID = vertex2ID;
         this.networkID = networkID;
+        this.flowID = flowID;
         this.snc = snc;
     }
     
     @Override
     public void execute() {
-        snc.getCurrentNetwork().convolute(vertex1ID, vertex2ID);
+        snc.getCurrentNetwork().convolute(vertex1ID, vertex2ID, flowID);
     }
 
     @Override

@@ -189,6 +189,11 @@ public class Vertex implements Serializable, Displayable {
 			//Calculates the leftover service		
 			service = service.leftover(arrival, service);
 			
+                        // Remove this vertex from the flow
+                        Flow f = nw.getFlow(prioritizedFlowID);
+                        f.learnArrival(output);
+                        f.removeVertex(this.ID);
+                        
 			//Removes the served flow from the arrival-list
 			priorities.remove(prioritizedFlowID);
 			incoming.remove(prioritizedFlowID);
@@ -220,7 +225,11 @@ public class Vertex implements Serializable, Displayable {
 		return higher_priority_id;
 	}
         
-        public int getPrioritizedFlow() {
+    /**
+     *
+     * @return
+     */
+    public int getPrioritizedFlow() {
             return prioritizedFlowID;
         }
 	
@@ -250,6 +259,11 @@ public class Vertex implements Serializable, Displayable {
      	
 	//Copy-Operator
 	
+    /**
+     *
+     * @return
+     */
+    	
 	public Vertex copy(){
 		Vertex copy = new Vertex(ID, service, alias, nw);
 		for(Entry<Integer, Integer> entry : priorities.entrySet()){
@@ -260,41 +274,79 @@ public class Vertex implements Serializable, Displayable {
 	}
 	//Getter and Setter
 	
-	public void setMGFService(Service service) {
+    /**
+     *
+     * @param service
+     */
+    public void setMGFService(Service service) {
 		this.service = service;
 	}
 	
-	public Service getService(){
+    /**
+     *
+     * @return
+     */
+    public Service getService(){
 		return service;
 	}
 	
-        @Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public String getAlias() {
 		return alias;
 	}
 	
-        @Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public int getID(){
 		return ID;
 	}
 
-	public Map<Integer, Integer> getAllFlowPriorities() {
+    /**
+     *
+     * @return
+     */
+    public Map<Integer, Integer> getAllFlowPriorities() {
 		return priorities;
 	}
 	
-        public Set<Integer> getAllFlowIDs() {
+    /**
+     *
+     * @return
+     */
+    public Set<Integer> getAllFlowIDs() {
             return incoming.keySet();
         }
         
-        public Arrival getArrivalOfFlow(int flowID) {
+    /**
+     *
+     * @param flowID
+     * @return
+     */
+    public Arrival getArrivalOfFlow(int flowID) {
             return incoming.get(flowID);
         }
         
-        public int getPriorityOfFlow(int flowID) {
+    /**
+     *
+     * @param flowID
+     * @return
+     */
+    public int getPriorityOfFlow(int flowID) {
             return priorities.get(flowID);
         }
         
-        @Override
+    /**
+     *
+     * @return
+     */
+    @Override
         public String toString() {
             return (this.alias != null ? this.alias : String.valueOf(this.ID));
         }

@@ -24,7 +24,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import unikl.disco.calculator.SNC;
 
 /**
- * This class represents the action to add a vertex with given properties in the target network.
+ * Removes a flow ({@link Flow}) from a network.
  * @author Sebastian Henningsen
  */
 public class RemoveFlowCommand implements Command {
@@ -32,6 +32,12 @@ public class RemoveFlowCommand implements Command {
     SNC snc;
     int flowID;
     
+    /**
+     * Constructs a new Command to remove a flow from a network.
+     * @param flowID The ID of the flow
+     * @param networkID The ID of the network the flow belongs to
+     * @param snc The overall controller
+     */
     public RemoveFlowCommand(int flowID, int networkID, SNC snc) {
         this.networkID = networkID;
         this.snc = snc;

@@ -25,6 +25,10 @@ package unikl.disco.calculator.network;
  * @author Sebastian Henningsen
  */
 public enum AnalysisType {
+
+    /**
+     *
+     */
     SIMPLE_ANA {
         @Override
 	public String toString() {

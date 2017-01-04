@@ -31,15 +31,28 @@ public class ConvolutionState {
     private final String operations;
     private final Arrival arrival;
     
+    /**
+     *
+     * @param operations
+     * @param arrival
+     */
     public ConvolutionState(String operations, Arrival arrival) {
         this.operations = operations;
         this.arrival = arrival;
     }
     
+    /**
+     *
+     * @return
+     */
     public String getOperations() {
         return operations;
     }
     
+    /**
+     *
+     * @return
+     */
     public Arrival getArrival() {
         return arrival;
     }

@@ -58,6 +58,11 @@ public class BFunction implements SymbolicFunction {
 	
 	//Constructor
 	
+    /**
+     *
+     * @param exponent
+     */
+    	
 	public BFunction(SymbolicFunction exponent){
 		this.exponent = exponent;
 		maxtheta = exponent.getmaxTheta();
@@ -68,9 +73,11 @@ public class BFunction implements SymbolicFunction {
 	 * Calculates the value of the resulting B-function at theta 
 	 * (first entry in <code>parameters</code>), with given 
 	 * <code>parameters</code>.
+     * @param theta
 	 * @param parameters contains the needed parameters (including
 	 * theta, as first entry).
 	 * @return the value of the B-function
+     * @throws unikl.disco.calculator.symbolic_math.ThetaOutOfBoundException
 	 * @throws ParameterMismatchException 
 	 */
 	@Override
@@ -95,6 +102,7 @@ public class BFunction implements SymbolicFunction {
 	/**
 	 * Returns a string representation of the B-function. In the 
 	 * form <code>B(f)</code>.
+     * @return 
 	 */
 	@Override
 	public String toString(){
@@ -105,11 +113,20 @@ public class BFunction implements SymbolicFunction {
 	}
 
 	//Getter and SetterMaperride
-	public Map<Integer, Hoelder> getParameters() {
+
+    /**
+     *
+     * @return
+     */
+    	public Map<Integer, Hoelder> getParameters() {
 		return parameters;
 	}
 	
-	@Override
+    /**
+     *
+     * @return
+     */
+    @Override
 	public double getmaxTheta(){
 		return maxtheta;
 	}

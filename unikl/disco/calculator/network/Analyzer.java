@@ -28,6 +28,14 @@ import unikl.disco.calculator.symbolic_math.BadInitializationException;
  * @author Sebastian Henningsen
  */
 public interface Analyzer {
+
+    /**
+     *
+     * @return
+     * @throws ArrivalNotAvailableException
+     * @throws DeadlockException
+     * @throws BadInitializationException
+     */
     public abstract Arrival analyze() throws ArrivalNotAvailableException, DeadlockException, BadInitializationException;
     
 }

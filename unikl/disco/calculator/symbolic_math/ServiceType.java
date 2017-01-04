@@ -25,6 +25,10 @@ package unikl.disco.calculator.symbolic_math;
  * @author Sebastian Henningsen
  */
 public enum ServiceType {
+
+    /**
+     *
+     */
     CONSTANT {
         @Override
         public String toString() {
