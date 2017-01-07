@@ -44,6 +44,8 @@ import java.util.Map;
 import javax.swing.*;
 
 import unikl.disco.calculator.commands.AddFlowCommand;
+import unikl.disco.calculator.network.AnalysisType;
+import unikl.disco.calculator.symbolic_math.ArrivalType;
 
 /**
  * Dialog for editing a flow.
@@ -118,13 +120,9 @@ public class FlowEditor extends JDialog {
 	topPanel.setLayout(new FlowLayout());
 	topPanel.add(new JLabel("Initial Arrival Type: "));
 
-	//List of arrival types:
-	final String CONSTANT = "Constant rate arrival";
-	final String EXPONENTIAL = "Exponentially distributed increments";
-	final String POISSON = "Compound Poisson Arrival";
+	//List of arrival types is found in the ArrivalType Enum
 
-	String[] arrivalBox = {CONSTANT, EXPONENTIAL, POISSON};
-	final JComboBox<String> arrival = new JComboBox<String>(arrivalBox);
+	final JComboBox<ArrivalType> arrival = new JComboBox<>(ArrivalType.values());
 	topPanel.add(arrival);
 
 	//Adds the listener for the initial arrival combo box
@@ -133,7 +131,7 @@ public class FlowEditor extends JDialog {
 	    @Override
 	    public void itemStateChanged(ItemEvent e) {
 		CardLayout card = (CardLayout) topCardContainer.getLayout();
-		card.show(topCardContainer, (String) e.getItem());
+		card.show(topCardContainer, e.getItem().toString());
 	    }
 	};
 	arrival.addItemListener(initListener);
@@ -160,13 +158,13 @@ public class FlowEditor extends JDialog {
 	final JTextField poissonIntensity = new JTextField(10);
 	card3.add(poissonIntensity);
 
-	topCardContainer.add(card1, CONSTANT);
-	topCardContainer.add(card2, EXPONENTIAL);
-	topCardContainer.add(card3, POISSON);
+	topCardContainer.add(card1, ArrivalType.CONSTANT_RATE.toString());
+	topCardContainer.add(card2, ArrivalType.EXPONENTIAL.toString());
+	topCardContainer.add(card3, ArrivalType.POISSON.toString());
 
 	mainPanel.add(topPanel);
 	mainPanel.add(topCardContainer);
-	((CardLayout) topCardContainer.getLayout()).show(topCardContainer, CONSTANT);
+	((CardLayout) topCardContainer.getLayout()).show(topCardContainer, ArrivalType.CONSTANT_RATE.toString());
 
 		//******************************
 	//Adds the cards for the routing
@@ -202,7 +200,7 @@ public class FlowEditor extends JDialog {
 		}
 
 		//Constant arrival case
-		if (arrival.getSelectedItem() == CONSTANT) {
+		if (arrival.getSelectedItem() == ArrivalType.CONSTANT_RATE) {
 		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
 		    SymbolicFunction rho;
 		    double rate;
@@ -235,7 +233,7 @@ public class FlowEditor extends JDialog {
 		    }
 		}
 
-		if (arrival.getSelectedItem() == EXPONENTIAL) {
+		if (arrival.getSelectedItem() == ArrivalType.EXPONENTIAL) {
 		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
 		    ExponentialSigma rho = null;
 		    try {
@@ -259,7 +257,7 @@ public class FlowEditor extends JDialog {
 			flow = null;
 		    }
 		}
-		if (arrival.getSelectedItem() == POISSON) {
+		if (arrival.getSelectedItem() == ArrivalType.POISSON) {
 		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
 		    SymbolicFunction sigma = null;
 		    try {
