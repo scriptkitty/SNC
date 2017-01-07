@@ -49,6 +49,7 @@ import unikl.disco.calculator.commands.AddFlowCommand;
  * Dialog for editing a flow.
  *
  * @author Michael Beck
+ * @author Sebastian Henningsen
  *
  */
 public class FlowEditor extends JDialog {

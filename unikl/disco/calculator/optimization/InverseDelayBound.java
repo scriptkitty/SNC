@@ -32,6 +32,7 @@ import unikl.disco.calculator.symbolic_math.ThetaOutOfBoundException;
  * The arrival and a given violation probability are wrapped into this class which then
  * in turn can be optimized by the provided optimization techniques.
  * @author Sebastian Henningsen
+ * @author Michael Beck
  */
 public class InverseDelayBound implements Optimizable {
     private Arrival input;

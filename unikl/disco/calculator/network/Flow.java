@@ -39,6 +39,7 @@ import unikl.disco.calculator.gui.Displayable;
  * bounds in the {@Vertex}-class. Calculated arrivals are called
  * established.
  * @author Michael Beck
+ * @author Sebastian Henningsen
  * @see Analysis
  * @see Vertex
  * @see Arrival

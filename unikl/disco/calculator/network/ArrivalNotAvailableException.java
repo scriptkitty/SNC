@@ -26,6 +26,7 @@ package unikl.disco.calculator.network;
  * arrivals but does not know all of its arrivals yet. In expression
  * some of the {@link Arrival}s had not been initialized yet.
  * @author Michael Beck
+ * @author Sebastian Henningsen
  * @see Vertex
  *
  */

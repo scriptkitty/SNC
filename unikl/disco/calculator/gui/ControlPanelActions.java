@@ -34,6 +34,7 @@ import unikl.disco.calculator.network.Network;
 /**
  * This static factory serves as collection of all actions corresponding to the {@link ControlPanel}.
  * @author Sebastian Henningsen
+ * @author Michael Beck
  */
 public class ControlPanelActions {
 

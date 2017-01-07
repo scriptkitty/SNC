@@ -32,6 +32,7 @@ import unikl.disco.calculator.network.Vertex;
  * This class builds a vertex panel that displays all of a networks vertices with their attributes.
  * It uses a {@link NetworkListener} to keep track of changes.
  * @author Sebastian Henningsen
+ * @author Michael Beck
  */
 public class VertexTablePanel {
 

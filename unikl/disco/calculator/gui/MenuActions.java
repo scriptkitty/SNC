@@ -31,6 +31,7 @@ import unikl.disco.calculator.SNC;
 /**
  * A static factory containing all menu actions.
  * @author Sebastian Henningsen
+ * @author Michael Beck
  */
 public class MenuActions {
 

@@ -46,6 +46,7 @@ import unikl.disco.misc.UndoRedoStack;
  * in the near future.
  *
  * @author Michael Beck
+ * @author Sebastian Henningsen
  *
  */
 public class SNC {

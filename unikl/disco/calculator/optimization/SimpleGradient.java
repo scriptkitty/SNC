@@ -45,6 +45,7 @@ import unikl.disco.calculator.network.AbstractAnalysis.Boundtype;
  * deliver a better result than the current bound, we will 
  * not move and give the current bound as result instead.
  * @author Michael Beck
+ * @author Sebastian Henningsen
  *
  */
 public class SimpleGradient extends AbstractOptimizer {

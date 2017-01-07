@@ -41,6 +41,7 @@ import unikl.disco.calculator.symbolic_math.BadInitializationException;
  * leftover-service- and output-bounds, it is non-feed-forward and 
  * instead of a result a {@link DeadlockException} is thrown.
  * @author Michael Beck
+ * @author Sebastian Henningsen
  */
 public abstract class AbstractAnalysis implements Analyzer {
 	

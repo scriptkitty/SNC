@@ -44,6 +44,7 @@ import unikl.disco.calculator.symbolic_math.Service;
  * distinct IDs.
  *
  * @author Michael Beck
+ * @author Sebastian Henningsen
  * @see Flow
  * @see Vertex
  * @see Arrival

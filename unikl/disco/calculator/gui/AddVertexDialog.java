@@ -34,6 +34,7 @@ import unikl.disco.calculator.symbolic_math.ServiceType;
 /**
  * A dialog to get input from the user in order to add a vertex to a network.
  * @author Sebastian Henningsen
+ * @author Michael Beck
  */
 public class AddVertexDialog {
 

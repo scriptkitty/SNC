@@ -33,6 +33,7 @@ import unikl.disco.calculator.network.Vertex;
  * a given {@link Network}. Note that at the moment, only one network is possible.
  * It uses a {@link NetworkListener} to keep track of changes.
  * @author Sebastian Henningsen
+ * @author Michael Beck
  */
 public class FlowTablePanel {
 

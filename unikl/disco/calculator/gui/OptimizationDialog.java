@@ -41,6 +41,7 @@ import unikl.disco.calculator.optimization.OptimizationType;
  * A dialog that asks the user for the necessary input to perform an optimization
  * of a symbolic bound.
  * @author Sebastian Henningsen
+ * @author Michael Beck
  */
 public class OptimizationDialog {
 

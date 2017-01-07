@@ -38,6 +38,7 @@ import unikl.disco.calculator.network.Network;
  * This class should be used as a starting point when writing
  * own implementations of the @link Optimizer interface
  * @author Michael Beck
+ * @author Sebastian Henningsen
  *
  */
 public abstract class AbstractOptimizer implements Optimizer {

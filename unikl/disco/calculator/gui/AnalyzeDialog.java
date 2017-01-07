@@ -35,6 +35,7 @@ import unikl.disco.calculator.network.Vertex;
 /**
  * A dialog to poll the user for input to compute a symbolic bound for a {@Network}
  * @author Sebastian Henningsen
+ * @author Michael Beck
  */
 public class AnalyzeDialog {
 

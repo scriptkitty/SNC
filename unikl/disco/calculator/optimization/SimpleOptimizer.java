@@ -43,6 +43,7 @@ import unikl.disco.calculator.network.AbstractAnalysis.Boundtype;
  * parameters the helper class {@link IncrementList} is used,
  * which extends {@link ArrayList}.
  * @author Michael Beck
+ * @author Sebastian Henningsen
  *
  */
 public class SimpleOptimizer extends AbstractOptimizer {

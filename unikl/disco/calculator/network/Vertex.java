@@ -45,6 +45,7 @@ import unikl.disco.calculator.symbolic_math.Service;
  * has the highest priority and was not served yet). Further it 
  * returns the output bound of the served flow. 
  * @author Michael Beck
+ * @author Sebastian Henningsen
  * @see Flow
  * @see Arrival
  * @see Service
