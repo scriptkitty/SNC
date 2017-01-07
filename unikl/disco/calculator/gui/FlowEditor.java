@@ -40,11 +40,14 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 
 import unikl.disco.calculator.commands.AddFlowCommand;
 import unikl.disco.calculator.network.AnalysisType;
+import unikl.disco.calculator.symbolic_math.ArrivalFactory;
 import unikl.disco.calculator.symbolic_math.ArrivalType;
 
 /**
@@ -203,59 +206,36 @@ public class FlowEditor extends JDialog {
 		if (arrival.getSelectedItem() == ArrivalType.CONSTANT_RATE) {
 		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
 		    SymbolicFunction rho;
-		    double rate;
-		    try {
-			rate = Double.valueOf(constantRate.getText());
-			if (rate < 0) {
-			    throw new BadInitializationException("Constant rate must be positive!", rate);
-			}
-			rho = new ConstantFunction(rate);
-						//rho = new rateSigma(-0.1);
-			//rho.setRate(Double.valueOf(constantRate.getText()));
-		    } catch (BadInitializationException exc) {
-			rho = null;
-			correct = false;
-		    } catch (NumberFormatException exc) {
-			System.out.println("The constant arrival rate must be a number.");
-			rho = null;
-			correct = false;
-		    }
-
-		    Arrival arrival = new Arrival(new ConstantFunction(0), rho, nw);
-		    ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
-		    arrivals.add(arrival);
-
-		    if (correct) {
-			flow = new Flow(-1, route, arrivals, priorities, aliasField.getText(), nw);
-			flow.getInitialArrival().getArrivaldependencies().clear();
-		    } else {
-			flow = null;
-		    }
+		    double rate = 0;
+                    try {
+                        rate = Double.valueOf(constantRate.getText());
+                    } catch (NumberFormatException exc) {
+                        System.out.println("Rate must be a number!");
+                        return;
+                    }
+                    if (rate < 0) {
+                        System.out.println("Constant rate must be positive!");
+                        return;
+                    }
+                    snc.invokeCommand(new AddFlowCommand(aliasField.getText(), ArrivalFactory.buildConstantRate(rate), route, priorities, -1, snc));
 		}
 
 		if (arrival.getSelectedItem() == ArrivalType.EXPONENTIAL) {
 		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
-		    ExponentialSigma rho = null;
-		    try {
-			rho = new ExponentialSigma(Double.valueOf(exponentialRate.getText()));
-		    } catch (NumberFormatException exc) {
-			System.out.println("The rate lambda must be a number.");
-			correct = false;
-		    } catch (BadInitializationException exc) {
-			System.out.println(exc.getMessage());
-			correct = false;
-		    }
-
-		    Arrival arrival = new Arrival(new ConstantFunction(0), rho, nw);
-		    ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
-		    arrivals.add(arrival);
-
-		    if (correct) {
-			flow = new Flow(-1, route, arrivals, priorities, aliasField.getText(), nw);
-			flow.getInitialArrival().getArrivaldependencies().clear();
-		    } else {
-			flow = null;
-		    }
+		    //ExponentialSigma rho = null;
+                    double rate = 0;
+                    try {
+                        rate = Double.valueOf(exponentialRate.getText());
+                    } catch(NumberFormatException exc) {
+                        System.out.println("The rate must be a number!");
+                        return;
+                    }                        
+                    try {
+                        snc.invokeCommand(new AddFlowCommand(aliasField.getText(), ArrivalFactory.buildExponentialRate(rate), route, priorities, -1, snc));
+                    } catch (BadInitializationException ex) {
+                        System.out.println("The rate must be positive!");
+                        return;
+                    }
 		}
 		if (arrival.getSelectedItem() == ArrivalType.POISSON) {
 		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
@@ -290,13 +270,12 @@ public class FlowEditor extends JDialog {
 		    if (correct) {
 			flow = new Flow(-1, route, arrivals, priorities, aliasField.getText(), nw);
 			flow.getInitialArrival().getArrivaldependencies().clear();
+                        snc.invokeCommand(new AddFlowCommand(flow.getAlias(), flow.getInitialArrival(), route, priorities, -1, snc));
+
 		    } else {
 			flow = null;
 		    }
-		}
-		//Add further arrivals types...
-		// Network ID is not needed yet
-		snc.invokeCommand(new AddFlowCommand(flow.getAlias(), flow.getInitialArrival(), route, priorities, -1, snc));
+                }
 		dispose();
 	    }
 	});
