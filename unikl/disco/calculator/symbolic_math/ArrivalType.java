@@ -45,5 +45,19 @@ public enum ArrivalType {
         public String toString() {
             return "Compound Poisson Arrival";
         }
+    },
+    
+    EBB {
+    	@Override
+    	public String toString() {
+    		return "EBB Arrival";
+    	}
+    },
+    
+    STATIONARYTB {
+    	@Override
+    	public String toString() {
+    		return "Stationary TB";
+    	}
     }
 }

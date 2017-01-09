@@ -23,6 +23,8 @@ package unikl.disco.calculator.symbolic_math;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
 import unikl.disco.calculator.symbolic_math.functions.ExponentialSigma;
+import unikl.disco.calculator.symbolic_math.functions.EBBSigma;
+import unikl.disco.calculator.symbolic_math.functions.StationaryTBSigma;
 
 /**
  * A class which builds appropriate (sigma, rho) representations based on the respective arrival parameters.
@@ -46,5 +48,34 @@ public class ArrivalFactory {
         SymbolicFunction sigma = new ConstantFunction(0);
         SymbolicFunction rho = null; // TODO: Fix this.
         return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());
+    }
+    
+    public static Arrival buildEBB(double rate, double decay, double prefactor) throws BadInitializationException {
+    	SymbolicFunction rho = new ConstantFunction(rate);
+    	SymbolicFunction sigma = new EBBSigma(decay,prefactor);
+    	return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());//TODO: Test this.
+    }
+    
+    
+    /**
+     * See the paper: "Stochastic Majorization of Aggregates of Leaky Bucket-Constrained Traffic Streams" 
+     * by Laurent Massoulié , Anthony Busson.
+     * @param rate: token generation rate of the (aggregated) token bucket
+     * @param bucket: bucket size of the (aggregated) token bucket
+     * @param maxTheta: (Optional) Gives the maximal theta derived from the original arrivals (before they
+     * pass the token bucket). If not used it is set to <code>POSITIVE_INFINITY</code>.
+     * @return A bound on (an aggregate of) stationary arrivals passing through a token bucket.
+     * @throws BadInitializationException 
+     */
+    public static Arrival buildStationaryTB(double rate, double bucket) throws BadInitializationException {
+    	SymbolicFunction rho = new ConstantFunction(rate);
+    	SymbolicFunction sigma = new StationaryTBSigma(bucket);
+    	return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());//TODO: Test this.
+    }
+    
+    public static Arrival buildStationaryTB(double rate, double bucket, double maxTheta) throws BadInitializationException {
+    	SymbolicFunction rho = new ConstantFunction(rate);
+    	SymbolicFunction sigma = new StationaryTBSigma(bucket,maxTheta);
+    	return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());//TODO: Test this.
     }
 }

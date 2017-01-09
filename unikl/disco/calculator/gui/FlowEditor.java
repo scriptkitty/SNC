@@ -20,16 +20,6 @@
  */
 package unikl.disco.calculator.gui;
 
-import unikl.disco.calculator.network.Vertex;
-import unikl.disco.calculator.network.Network;
-import unikl.disco.calculator.network.Flow;
-import unikl.disco.calculator.SNC;
-import unikl.disco.calculator.symbolic_math.functions.ExponentialSigma;
-import unikl.disco.calculator.symbolic_math.Arrival;
-import unikl.disco.calculator.symbolic_math.SymbolicFunction;
-import unikl.disco.calculator.symbolic_math.functions.PoissonRho;
-import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
-import unikl.disco.calculator.symbolic_math.BadInitializationException;
 import java.awt.CardLayout;
 import java.awt.Dialog;
 import java.awt.FlowLayout;
@@ -38,17 +28,28 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
+import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.commands.AddFlowCommand;
-import unikl.disco.calculator.network.AnalysisType;
+import unikl.disco.calculator.network.Flow;
+import unikl.disco.calculator.network.Network;
+import unikl.disco.calculator.network.Vertex;
+import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.symbolic_math.ArrivalFactory;
 import unikl.disco.calculator.symbolic_math.ArrivalType;
+import unikl.disco.calculator.symbolic_math.BadInitializationException;
+import unikl.disco.calculator.symbolic_math.SymbolicFunction;
+import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
+import unikl.disco.calculator.symbolic_math.functions.PoissonRho;
 
 /**
  * Dialog for editing a flow.
@@ -160,10 +161,37 @@ public class FlowEditor extends JDialog {
 	card3.add(new JLabel("Intensity: mu="));
 	final JTextField poissonIntensity = new JTextField(10);
 	card3.add(poissonIntensity);
+	
+	JPanel card4 = new JPanel();
+	card4.setLayout(new FlowLayout());
+	card4.add(new JLabel("Rate: rho="));
+	final JTextField EBBrate = new JTextField(10);
+	card4.add(EBBrate);
+	card4.add(new JLabel("Decay: d="));
+	final JTextField EBBdecay = new JTextField(10);
+	card4.add(EBBdecay);
+	card4.add(new JLabel("Prefactor: M="));
+	final JTextField EBBprefactor = new JTextField(10);
+	card4.add(EBBprefactor);
 
+	JPanel card5 = new JPanel();
+	card5.setLayout(new FlowLayout());
+	card5.add(new JLabel("Token Rate: rho="));
+	final JTextField STBrate = new JTextField(10);
+	card5.add(STBrate);
+	card5.add(new JLabel("Bucket Size: b="));
+	final JTextField STBbucket = new JTextField(10);
+	card5.add(STBbucket);
+	card5.add(new JLabel("maxTheta (leave blank if there is none): t="));
+	final JTextField STBmaxTheta = new JTextField(10);
+	card5.add(STBmaxTheta);
+
+	
 	topCardContainer.add(card1, ArrivalType.CONSTANT_RATE.toString());
 	topCardContainer.add(card2, ArrivalType.EXPONENTIAL.toString());
 	topCardContainer.add(card3, ArrivalType.POISSON.toString());
+	topCardContainer.add(card4, ArrivalType.EBB.toString());
+	topCardContainer.add(card5, ArrivalType.STATIONARYTB.toString());
 
 	mainPanel.add(topPanel);
 	mainPanel.add(topCardContainer);
@@ -202,7 +230,7 @@ public class FlowEditor extends JDialog {
 		    correct = false;
 		}
 
-		//Constant arrival case
+
 		if (arrival.getSelectedItem() == ArrivalType.CONSTANT_RATE) {
 		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
 		    SymbolicFunction rho;
@@ -275,7 +303,69 @@ public class FlowEditor extends JDialog {
 		    } else {
 			flow = null;
 		    }
-                }
+        }
+		
+		if (arrival.getSelectedItem() == ArrivalType.EBB) {
+		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
+                    double rate = 0;
+                    try {
+                        rate = Double.valueOf(EBBrate.getText());
+                    } catch(NumberFormatException exc) {
+                        System.out.println("The rate must be a number!");
+                        return;
+                    }
+                    double decay = 0;
+                    try {
+                    	decay = Double.valueOf(EBBdecay.getText());
+                    } catch(NumberFormatException exc) {
+                    	System.out.println("The decay must be a number!");
+                    }
+                    double prefactor = 0;
+                    try {
+                    	prefactor = Double.valueOf(EBBprefactor.getText());
+                    } catch(NumberFormatException exc) {
+                    	System.out.println("The prefactor must be a number!");
+                    }
+                    
+                    try {
+                        snc.invokeCommand(new AddFlowCommand(aliasField.getText(), ArrivalFactory.buildEBB(rate,decay,prefactor), route, priorities, -1, snc));
+                    } catch (BadInitializationException ex) {
+                        System.out.println("The decay and prefactor must be positive!");
+                        return;
+                    }
+		}
+		
+		if (arrival.getSelectedItem() == ArrivalType.STATIONARYTB) {
+		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
+                    double rate = 0;
+                    try {
+                        rate = Double.valueOf(STBrate.getText());
+                    } catch(NumberFormatException exc) {
+                        System.out.println("The rate must be a number!");
+                        return;
+                    }
+                    double bucket = 0;
+                    try {
+                    	bucket = Double.valueOf(STBbucket.getText());
+                    } catch(NumberFormatException exc) {
+                    	System.out.println("The prefactor must be a number!");
+                    }
+                    double maxTheta = Double.POSITIVE_INFINITY;
+                    try {
+                    	maxTheta = Double.valueOf(STBmaxTheta.getText());
+                    } catch(NumberFormatException exc) {
+                    	System.out.println("Maximal theta set to infinity."); //TODO: test whether flow is correctly constructed when 
+                    	//STBmaxTheta is left blank.
+                    }
+                    
+                    try {
+                        snc.invokeCommand(new AddFlowCommand(aliasField.getText(), ArrivalFactory.buildStationaryTB(rate,bucket,maxTheta), route, priorities, -1, snc));
+                    } catch (BadInitializationException ex) {
+                        System.out.println("The decay and prefactor must be positive!");
+                        return;
+                    }
+		}
+		
 		dispose();
 	    }
 	});
