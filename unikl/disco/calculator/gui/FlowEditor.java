@@ -152,7 +152,7 @@ public class FlowEditor extends JDialog {
 	};
 	arrival.addItemListener(initListener);
 
-		//******************************
+	//******************************
 	//Adds the cards for the arrival
 	//******************************
 	topCardContainer.setLayout(new CardLayout());
@@ -230,7 +230,7 @@ public class FlowEditor extends JDialog {
 	    @Override
 	    public void actionPerformed(ActionEvent e) {
 		output = APPROVE_OPTION;
-		boolean correct = true;
+
 		ArrayList<Integer> route = cardStack.getRoute(new ArrayList<Integer>(0));
 
 		//Gets the priorities from the CardStack
@@ -239,7 +239,7 @@ public class FlowEditor extends JDialog {
 		    priorities = cardStack.getPriorities(priorities);
 		} catch (NumberFormatException exc) {
 		    System.out.println("Priorities must be integers.");
-		    correct = false;
+		    return;
 		}
 
 
@@ -285,22 +285,20 @@ public class FlowEditor extends JDialog {
 		    	mu = Double.valueOf(poissonIntensity.getText());
 		    } catch (NumberFormatException exc) {
 		    	System.out.println("The intensity mu must be a number");
-		    	correct = false;
+		    	return;
 		    }
 
 		    //defines the rho-part
-		    if (correct) {
-		    	FlowEditor dialog = new FlowEditor("Define Increment", vertices, nw, snc, false);
-				int output = dialog.showFlowEditor();
-				if (output == FlowEditor.APPROVE_OPTION) {
-					if (dialog.getEditedArrival() != null) {
-						flow_arrival = ArrivalFactory.buildPoissonRate(dialog.getEditedArrival().getRho(), mu);
-					} else {
-						System.out.println("The increment process was not defined correctly.");
-						return;
-					}
+	    	FlowEditor dialog = new FlowEditor("Define Increment", vertices, nw, snc, false);
+			int output = dialog.showFlowEditor();
+			if (output == FlowEditor.APPROVE_OPTION) {
+				if (dialog.getEditedArrival() != null) {
+					flow_arrival = ArrivalFactory.buildPoissonRate(dialog.getEditedArrival().getRho(), mu);
+				} else {
+					System.out.println("The increment process was not defined correctly.");
+					return;
 				}
-		    }
+			}
         }
 		
 		if (arrival.getSelectedItem() == ArrivalType.EBB) {
@@ -317,12 +315,14 @@ public class FlowEditor extends JDialog {
                     	decay = Double.valueOf(EBBdecay.getText());
                     } catch(NumberFormatException exc) {
                     	System.out.println("The decay must be a number!");
+                    	return;
                     }
                     double prefactor = 0;
                     try {
                     	prefactor = Double.valueOf(EBBprefactor.getText());
                     } catch(NumberFormatException exc) {
                     	System.out.println("The prefactor must be a number!");
+                    	return;
                     }
                     
                     try {
@@ -347,6 +347,7 @@ public class FlowEditor extends JDialog {
                     	bucket = Double.valueOf(STBbucket.getText());
                     } catch(NumberFormatException exc) {
                     	System.out.println("The prefactor must be a number!");
+                    	return;
                     }
                     double maxTheta = Double.POSITIVE_INFINITY;
                     try {
