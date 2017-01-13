@@ -40,16 +40,13 @@ import javax.swing.JTextField;
 
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.commands.AddFlowCommand;
-import unikl.disco.calculator.network.Flow;
 import unikl.disco.calculator.network.Network;
 import unikl.disco.calculator.network.Vertex;
 import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.symbolic_math.ArrivalFactory;
 import unikl.disco.calculator.symbolic_math.ArrivalType;
 import unikl.disco.calculator.symbolic_math.BadInitializationException;
-import unikl.disco.calculator.symbolic_math.SymbolicFunction;
-import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
-import unikl.disco.calculator.symbolic_math.functions.PoissonRho;
+
 
 /**
  * Dialog for editing a flow.
@@ -67,8 +64,10 @@ public class FlowEditor extends JDialog {
     static final int APPROVE_OPTION = 1;
     static final int ERROR_OPTION = 2;
     private int output = 0;
-    private Flow flow;
-    private final Network nw;
+    private Arrival flow_arrival;
+   
+    //private final Network nw; TODO: <-- Needed?
+    private boolean flow_adding = true;
 
     private final JPanel topCardContainer = new JPanel();
     private final JPanel bottomCardContainer = new JPanel();
@@ -79,13 +78,26 @@ public class FlowEditor extends JDialog {
      *
      * @param title
      * @param vertices
-     * @param flow
+     * @param flow_arrival
      * @param nw
      * @param snc
      */
-        public FlowEditor(String title, final Map<Integer, Vertex> vertices, Flow flow, Network nw, SNC snc) {
-	this(title, vertices, nw, snc);
-	this.flow = flow;
+    public FlowEditor(String title, final Map<Integer, Vertex> vertices, Arrival flow_arrival, Network nw, SNC snc) {
+    	this(title, vertices, nw, snc);
+    	this.flow_arrival = flow_arrival;
+    }
+    
+    /**
+     * A constructor with <code>flow_adding</code>. This is needed to
+     * call the increment-editor for compound poisson arrivals without it trying to add a new flow
+     * to the network. Calling this with <code>flow_adding</code> set to <code>true</code> will
+     * just result in the normal FlowEditor.
+     * Setting <code>flow_adding</code> to <code>false</code> will construct the flow and write it 
+     * into this dialog's <code>flow</code>-variable, accessible via <code>getEditedFlow</code>. 
+     */
+    public FlowEditor(String title, final Map<Integer, Vertex> vertices, Network nw, SNC snc, boolean flow_adding) {
+    	this(title, vertices, nw, snc);
+    	this.flow_adding = flow_adding;
     }
 
     /**
@@ -97,7 +109,7 @@ public class FlowEditor extends JDialog {
      */
     public FlowEditor(String title, final Map<Integer, Vertex> vertices, final Network nw, final SNC snc) {
 
-	this.nw = nw;
+//	this.nw = nw; TODO: <-- needed?
 	//Constructs the dialog
 	this.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 	this.setTitle(title);
@@ -233,7 +245,6 @@ public class FlowEditor extends JDialog {
 
 		if (arrival.getSelectedItem() == ArrivalType.CONSTANT_RATE) {
 		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
-		    SymbolicFunction rho;
 		    double rate = 0;
                     try {
                         rate = Double.valueOf(constantRate.getText());
@@ -245,7 +256,8 @@ public class FlowEditor extends JDialog {
                         System.out.println("Constant rate must be positive!");
                         return;
                     }
-                    snc.invokeCommand(new AddFlowCommand(aliasField.getText(), ArrivalFactory.buildConstantRate(rate), route, priorities, -1, snc));
+                    
+                    flow_arrival = ArrivalFactory.buildConstantRate(rate);
 		}
 
 		if (arrival.getSelectedItem() == ArrivalType.EXPONENTIAL) {
@@ -259,7 +271,7 @@ public class FlowEditor extends JDialog {
                         return;
                     }                        
                     try {
-                        snc.invokeCommand(new AddFlowCommand(aliasField.getText(), ArrivalFactory.buildExponentialRate(rate), route, priorities, -1, snc));
+                        flow_arrival = ArrivalFactory.buildExponentialRate(rate);
                     } catch (BadInitializationException ex) {
                         System.out.println("The rate must be positive!");
                         return;
@@ -267,41 +279,27 @@ public class FlowEditor extends JDialog {
 		}
 		if (arrival.getSelectedItem() == ArrivalType.POISSON) {
 		    //uses the flow-constructor to submit information to main GUI. Do not use this flow directly!
-		    SymbolicFunction sigma = null;
+//		    SymbolicFunction sigma = null;
+			double mu = 0;
 		    try {
-			sigma = new ConstantFunction(0);
+		    	mu = Double.valueOf(poissonIntensity.getText());
 		    } catch (NumberFormatException exc) {
-			System.out.println("The intensity mu must be a number");
-			correct = false;
+		    	System.out.println("The intensity mu must be a number");
+		    	correct = false;
 		    }
 
 		    //defines the rho-part
-		    PoissonRho rho = null;
-
 		    if (correct) {
-			FlowEditor dialog = new FlowEditor("Define Increment", vertices, nw, snc);
-			int output = dialog.showFlowEditor();
-			if (output == FlowEditor.APPROVE_OPTION) {
-			    if (dialog.getEditedFlow() != null) {
-				rho = new PoissonRho(dialog.getEditedFlow().getInitialArrival().getRho(),
-					Double.valueOf(poissonIntensity.getText()));
-			    } else {
-				correct = false;
-			    }
-			}
-		    }
-
-		    Arrival arrival = new Arrival(sigma, rho, nw);
-		    ArrayList<Arrival> arrivals = new ArrayList<Arrival>(0);
-		    arrivals.add(arrival);
-
-		    if (correct) {
-			flow = new Flow(-1, route, arrivals, priorities, aliasField.getText(), nw);
-			flow.getInitialArrival().getArrivaldependencies().clear();
-                        snc.invokeCommand(new AddFlowCommand(flow.getAlias(), flow.getInitialArrival(), route, priorities, -1, snc));
-
-		    } else {
-			flow = null;
+		    	FlowEditor dialog = new FlowEditor("Define Increment", vertices, nw, snc, false);
+				int output = dialog.showFlowEditor();
+				if (output == FlowEditor.APPROVE_OPTION) {
+					if (dialog.getEditedArrival() != null) {
+						flow_arrival = ArrivalFactory.buildPoissonRate(dialog.getEditedArrival().getRho(), mu);
+					} else {
+						System.out.println("The increment process was not defined correctly.");
+						return;
+					}
+				}
 		    }
         }
 		
@@ -328,7 +326,7 @@ public class FlowEditor extends JDialog {
                     }
                     
                     try {
-                        snc.invokeCommand(new AddFlowCommand(aliasField.getText(), ArrivalFactory.buildEBB(rate,decay,prefactor), route, priorities, -1, snc));
+                    	flow_arrival = ArrivalFactory.buildEBB(rate,decay,prefactor);
                     } catch (BadInitializationException ex) {
                         System.out.println("The decay and prefactor must be positive!");
                         return;
@@ -354,18 +352,19 @@ public class FlowEditor extends JDialog {
                     try {
                     	maxTheta = Double.valueOf(STBmaxTheta.getText());
                     } catch(NumberFormatException exc) {
-                    	System.out.println("Maximal theta set to infinity."); //TODO: test whether flow is correctly constructed when 
-                    	//STBmaxTheta is left blank.
+                    	System.out.println("Maximal theta set to infinity."); 
                     }
                     
                     try {
-                        snc.invokeCommand(new AddFlowCommand(aliasField.getText(), ArrivalFactory.buildStationaryTB(rate,bucket,maxTheta), route, priorities, -1, snc));
+                    	flow_arrival = ArrivalFactory.buildStationaryTB(rate, bucket, maxTheta);
                     } catch (BadInitializationException ex) {
                         System.out.println("The decay and prefactor must be positive!");
                         return;
                     }
 		}
 		
+		if(flow_adding) snc.invokeCommand(new AddFlowCommand(aliasField.getText(), flow_arrival, route, priorities, -1, snc));
+
 		dispose();
 	    }
 	});
@@ -411,8 +410,8 @@ public class FlowEditor extends JDialog {
      *
      * @return
      */
-        public Flow getEditedFlow() {
-	return flow;
+        public Arrival getEditedArrival() {
+	return flow_arrival;
     }
 
     //Helper Classes

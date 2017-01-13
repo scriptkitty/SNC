@@ -60,7 +60,12 @@ public class SimpleOptimizer extends AbstractOptimizer {
 	
         @Override
         public double minimize(double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
-            bound.prepare();
+            
+        	if(bound.getMaximumTheta() == Double.POSITIVE_INFINITY){
+        		throw new ThetaOutOfBoundException("DEADLOCK: There is no maximal theta given for this optimization (check arrival models). Try Gradient Heuristic.");
+        	}
+        	else{
+        	bound.prepare();
             // Initilializes the list of Hoelder-Parameters
             Map<Integer, Hoelder> allparameters = bound.getHoelderParameters();
             IncrementList hoelderlist = new IncrementList(hoeldergranularity);
@@ -138,6 +143,7 @@ public class SimpleOptimizer extends AbstractOptimizer {
                 theta = thetagranularity;
             }
             return optValue;
+        	}
         }
         
 	@Override

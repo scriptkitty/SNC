@@ -60,10 +60,10 @@ public class EBBSigma implements SymbolicFunction {
 	
 	//Constructor
 	public EBBSigma(double decay, double prefactor) throws BadInitializationException{
-		if(!(decay < 0)){
+		if(decay < 0){
 			throw new BadInitializationException("Decay must be larger zero.", decay);
 		}
-		if(!(prefactor < 0)){
+		if(prefactor < 0){
 			throw new BadInitializationException("Prefactor must be larger zero.", prefactor);
 		}
 		this.decay = decay;

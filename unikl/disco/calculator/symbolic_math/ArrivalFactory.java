@@ -23,6 +23,7 @@ package unikl.disco.calculator.symbolic_math;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
 import unikl.disco.calculator.symbolic_math.functions.ExponentialSigma;
+import unikl.disco.calculator.symbolic_math.functions.PoissonRho;
 import unikl.disco.calculator.symbolic_math.functions.EBBSigma;
 import unikl.disco.calculator.symbolic_math.functions.StationaryTBSigma;
 
@@ -44,16 +45,16 @@ public class ArrivalFactory {
         return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());
     }
     
-    public static Arrival buildPoissonRate() {
+    public static Arrival buildPoissonRate(SymbolicFunction increment_rho, double mu) {
         SymbolicFunction sigma = new ConstantFunction(0);
-        SymbolicFunction rho = null; // TODO: Fix this.
+        SymbolicFunction rho = new PoissonRho(increment_rho, mu); 
         return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());
     }
     
     public static Arrival buildEBB(double rate, double decay, double prefactor) throws BadInitializationException {
     	SymbolicFunction rho = new ConstantFunction(rate);
     	SymbolicFunction sigma = new EBBSigma(decay,prefactor);
-    	return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());//TODO: Test this.
+    	return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());
     }
     
     
@@ -70,12 +71,12 @@ public class ArrivalFactory {
     public static Arrival buildStationaryTB(double rate, double bucket) throws BadInitializationException {
     	SymbolicFunction rho = new ConstantFunction(rate);
     	SymbolicFunction sigma = new StationaryTBSigma(bucket);
-    	return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());//TODO: Test this.
+    	return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());
     }
     
     public static Arrival buildStationaryTB(double rate, double bucket, double maxTheta) throws BadInitializationException {
     	SymbolicFunction rho = new ConstantFunction(rate);
     	SymbolicFunction sigma = new StationaryTBSigma(bucket,maxTheta);
-    	return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());//TODO: Test this.
+    	return new Arrival(sigma, rho, SNC.getInstance().getCurrentNetwork());
     }
 }
