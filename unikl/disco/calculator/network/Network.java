@@ -20,22 +20,29 @@
  */
 package unikl.disco.calculator.network;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import unikl.disco.calculator.symbolic_math.Arrival;
+import unikl.disco.calculator.symbolic_math.ArrivalFactory;
+import unikl.disco.calculator.symbolic_math.BadInitializationException;
 import unikl.disco.calculator.symbolic_math.Hoelder;
 import unikl.disco.calculator.symbolic_math.Service;
+import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
+import unikl.disco.calculator.symbolic_math.functions.rateSigma;
 
 /**
  * This class provides several methods to construct and change a network
@@ -52,7 +59,7 @@ import unikl.disco.calculator.symbolic_math.Service;
  * @see Hoelder
  *
  */
-public class Network {
+public class Network implements Serializable {
 
     //Members
     private int FLOW_ID;
@@ -630,24 +637,110 @@ public class Network {
      * corresponding type) is: vertices (HashMap<Integer, Vertex>
      * flows (HashMap<Integer, Flow>) hoelders (HashMap<Integer, Hoelder>)
      *
-     * @param file
+     * @param profile_path
      * @return
      */
-    public static Network load(File file) {
-        Map<Integer, Vertex> newVertices = null;
-        Map<Integer, Flow> newFlows = null;
-        Map<Integer, Hoelder> newHoelders = null;
+    public static Network load(File profile_path) {
+
+        //will read profile.txt line by line
+        BufferedReader br = null;
+        Network nw = new Network();
         try {
-            FileInputStream fis = new FileInputStream(file);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            newVertices = (Map<Integer, Vertex>) ois.readObject();
-            newFlows = (Map<Integer, Flow>) ois.readObject();
-            newHoelders = (Map<Integer, Hoelder>) ois.readObject();
-            ois.close();
-        } catch (Exception exc) {
-            System.out.println(exc.getMessage());
+            String sCurrentLine;
+            br = new BufferedReader(new FileReader(profile_path));
+
+            //A HashMap to relate a vertex' alias to its index.
+            HashMap<String, Integer> alias_mapper = new HashMap<>();
+
+            //reads all lines
+            while ((sCurrentLine = br.readLine()) != null) {
+
+                //if a line starts with "I" an interface (i.e. service element) is added to the network in form of a Vertex.
+                if (sCurrentLine.startsWith("I")) {
+                    String vertex_name = sCurrentLine.substring(1, sCurrentLine.indexOf(":")).trim();
+                    Double service_rate = Double.parseDouble(sCurrentLine.split(",", 3)[2].trim());
+                    try {
+                        int vertexID = nw.addVertex(new Service(new ConstantFunction(0), 
+				new rateSigma(-service_rate), nw), vertex_name).getID();
+                        alias_mapper.put(vertex_name, vertexID);
+                    } catch (BadInitializationException | NumberFormatException e) {
+                        System.out.println("Bad Initialization. Parameter for Constant Rate server must be a non-negative number.");
+                        System.out.println("We could not create Vertex " + vertex_name + " due to this.");
+                        e.printStackTrace();
+                    }
+                }
+
+                //if a line starts with "F" a flow is added to the network in form of a Flow-object.
+                if (sCurrentLine.startsWith("F")) {
+                    String flow_name = sCurrentLine.substring(0, sCurrentLine.indexOf(":"));
+                    int path_length;
+                    try {
+                        path_length = Integer.parseInt(
+                                sCurrentLine.substring(sCurrentLine.indexOf(":") + 1, sCurrentLine.indexOf(",")).trim());
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                        System.out.println("''" + sCurrentLine.substring(sCurrentLine.indexOf(":") + 1, sCurrentLine.indexOf(",")) + "'' is an invalid number of servers for flow " + flow_name);
+                        System.out.println("Path length of flow " + flow_name + " is set to zero.");
+                        path_length = 0;
+                    }
+
+                    double rate;
+                    double decay;
+                    double prefactor;
+
+                    rate = Double.parseDouble(sCurrentLine.split(",", path_length + 5)[path_length + 2].trim());
+                    decay = Double.parseDouble(sCurrentLine.split(",", path_length + 5)[path_length + 3].trim());
+                    prefactor = Double.parseDouble(sCurrentLine.split(",", path_length + 5)[path_length + 4].trim());
+
+                    Boolean correct;
+                    Arrival ebbcArrival = null;
+                    try {
+                        ebbcArrival = ArrivalFactory.buildEBB(rate, decay, prefactor);
+                        correct = true;
+
+                    } catch (BadInitializationException e) {
+                        e.printStackTrace();
+                        //ebbcArrival = new Arrival();
+                        correct = false;
+                    }
+
+                    //Construction of route and priorities by parsing through the routing information in profile.txt
+                    ArrayList<Integer> route = new ArrayList<>();
+                    ArrayList<Integer> priorities = new ArrayList<>();
+
+                    for (int i = 0; i < path_length; i++) {
+                        String next_alias = sCurrentLine.split(",", path_length + 5)[i + 1].trim();
+                        try {
+                            int index_of_next_vertex = alias_mapper.get(next_alias);
+                            route.add(index_of_next_vertex);
+                            priorities.add(2);
+                        } catch (NullPointerException e) {
+                            System.out.println("WARNING: the flow " + flow_name + " contains a vertex on its route that was not defined.\n"
+                                    + "The vertex with name '" + next_alias + "' does not exist and is hence discorded from the route.");
+                        }
+                    }
+
+                    if (correct) {
+                        try {
+                            int flowID = nw.addFlow(ebbcArrival, route, priorities, flow_name);
+                            nw.getFlow(flowID).getInitialArrival().getArrivaldependencies().clear();
+                        } catch (ArrivalNotAvailableException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            System.out.println("The following vertices had been added (alias, rate):");
+            for (Vertex vertex : nw.getVertices().values()) {
+                System.out.println(vertex.getAlias() + ", " + vertex.getService().toString());
+            }
+            System.out.println("The following flows had been added (alias, route, priorities):");
+            for (Flow flow : nw.getFlows().values()) {
+                System.out.println(flow.getAlias() + ", " + flow.getVerticeIDs() + ", " + flow.getPriorities());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        Network nw = new Network(newVertices, newFlows, newHoelders);
         return nw;
     }
 
