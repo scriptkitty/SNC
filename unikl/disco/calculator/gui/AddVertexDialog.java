@@ -81,7 +81,7 @@ public class AddVertexDialog {
         if (result == JOptionPane.OK_OPTION) {
             SNC snc = SNC.getInstance();
             double rate = Double.parseDouble(rateField.getText());
-            Command cmd = new AddVertexCommand(aliasField.getText(), -1*rate, -1, snc);
+            Command cmd = new AddVertexCommand(aliasField.getText(), rate, -1, snc);
             snc.invokeCommand(cmd);
             // Just for debugging
             //System.out.println(aliasField.getText());

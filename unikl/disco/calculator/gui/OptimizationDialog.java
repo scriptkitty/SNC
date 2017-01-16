@@ -120,7 +120,7 @@ public class OptimizationDialog {
      * Displays the dialog.
      */
     public void display() {
-        int result = JOptionPane.showConfirmDialog(null, panel, "Analyze Dialog",
+        int result = JOptionPane.showConfirmDialog(null, panel, "Optimization Dialog",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             if (valueField.getText().isEmpty()) {
