@@ -105,6 +105,11 @@ public class VertexTablePanel {
                 }
             }
         }
+        
+        @Override
+        public void clear() {
+            tableModel.setRowCount(0);
+        }
 
     }
 }

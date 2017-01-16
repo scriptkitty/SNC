@@ -659,6 +659,7 @@ public class Network implements Serializable {
         // Kind of a hack
         List<NetworkListener> oldListeners = SNC.getInstance().getCurrentNetwork().getListeners();
         for (NetworkListener l : oldListeners) {
+            l.clear();
             nw.addListener(l);
         }
         try {

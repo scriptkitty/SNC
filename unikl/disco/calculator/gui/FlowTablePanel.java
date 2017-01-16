@@ -106,6 +106,11 @@ public class FlowTablePanel {
         public void vertexChanged(Vertex changedVertex) {
             // Only of concern for us if the priorities changed
         }
+        
+        @Override
+        public void clear() {
+            tableModel.setRowCount(0);
+        }
 
     }
 }

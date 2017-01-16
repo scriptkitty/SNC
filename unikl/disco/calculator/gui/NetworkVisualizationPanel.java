@@ -110,6 +110,10 @@ public class NetworkVisualizationPanel {
         @Override
         public void vertexChanged(Vertex changedVertex) {
         }
+        
+        @Override
+        public void clear() {
+        }
 
     }
 }

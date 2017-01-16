@@ -61,4 +61,6 @@ public interface NetworkListener {
      * @param changedFlow
      */
     public void flowChanged(Flow changedFlow);
+    
+    public void clear();
 }
