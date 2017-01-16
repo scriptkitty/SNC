@@ -20,10 +20,14 @@
  */
 package unikl.disco.calculator.commands;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.symbolic_math.Service;
 import unikl.disco.calculator.network.Network;
+import unikl.disco.calculator.symbolic_math.BadInitializationException;
+import unikl.disco.calculator.symbolic_math.ServiceFactory;
 
 /**
  * Add a {@link Vertex} with given properties to the target network.
@@ -56,14 +60,14 @@ public class AddVertexCommand implements Command {
     
     @Override
     public void execute() {
-	if(rate > 0) {
-	    success = false;
-	    // TODO: Introduce a more general framework for asynchronous exception handling
-	    throw new IllegalArgumentException("Rate has to be negative.");
-	}
 	Network nw = snc.getCurrentNetwork();
-	vertexID = nw.addVertex(new Service(new ConstantFunction(0), 
-				new ConstantFunction(rate), snc.getCurrentNetwork()), alias).getID();
+        try {
+            vertexID = nw.addVertex(ServiceFactory.buildConstantRate(-rate), alias).getID();
+        } catch (BadInitializationException ex) {
+            System.out.println("Constant Service Rate has to be negative.");
+            // TODO: Will be removed with more rigorous exception handling
+            throw new IllegalArgumentException("Constant Service Rate has to be negative.");
+        }
 	// Why is this?
 	snc.getCurrentNetwork().getVertex(vertexID).getService().getServicedependencies().clear();
 

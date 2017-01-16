@@ -35,14 +35,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.symbolic_math.ArrivalFactory;
 import unikl.disco.calculator.symbolic_math.BadInitializationException;
 import unikl.disco.calculator.symbolic_math.Hoelder;
 import unikl.disco.calculator.symbolic_math.Service;
-import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
-import unikl.disco.calculator.symbolic_math.functions.rateSigma;
+import unikl.disco.calculator.symbolic_math.ServiceFactory;
 
 /**
  * This class provides several methods to construct and change a network
@@ -335,7 +333,7 @@ public class Network implements Serializable {
             String alias) throws ArrivalNotAvailableException {
 
         // Creates the dummy arrivals for all vertices after the first
-        List<Arrival> arrivals = new ArrayList<Arrival>(1);
+        List<Arrival> arrivals = new ArrayList<>(1);
         arrivals.add(0, initial_arrival);
         for (int i = 1; i < route.size(); i++) {
             arrivals.add(new Arrival(this));
@@ -660,8 +658,7 @@ public class Network implements Serializable {
                     String vertex_name = sCurrentLine.substring(1, sCurrentLine.indexOf(":")).trim();
                     Double service_rate = Double.parseDouble(sCurrentLine.split(",", 3)[2].trim());
                     try {
-                        int vertexID = nw.addVertex(new Service(new ConstantFunction(0), 
-				new rateSigma(-service_rate), nw), vertex_name).getID();
+                        int vertexID = nw.addVertex(ServiceFactory.buildConstantRate(-service_rate), vertex_name).getID();
                         alias_mapper.put(vertex_name, vertexID);
                     } catch (BadInitializationException | NumberFormatException e) {
                         System.out.println("Bad Initialization. Parameter for Constant Rate server must be a non-negative number.");
