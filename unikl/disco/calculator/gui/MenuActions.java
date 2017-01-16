@@ -49,7 +49,6 @@ public class MenuActions {
             int opened = chooser.showOpenDialog(null);
             if (opened == JFileChooser.APPROVE_OPTION) {
                 SNC.getInstance().loadNetwork(chooser.getSelectedFile());
-                System.out.println("Load Network");
             }
         }
 

@@ -35,6 +35,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.symbolic_math.ArrivalFactory;
 import unikl.disco.calculator.symbolic_math.BadInitializationException;
@@ -530,6 +533,17 @@ public class Network implements Serializable {
         return vertices.get(id);
     }
 
+    public Vertex getVertexByName(String name) {
+        for (Map.Entry<Integer, Vertex> entry : vertices.entrySet()) {
+            Integer key = entry.getKey();
+            Vertex vertex = entry.getValue();
+            if (vertex.getAlias().equals(name)) {
+                return vertex;
+            }
+        }
+        return null;
+    }
+
     /**
      *
      * @param id
@@ -639,91 +653,37 @@ public class Network implements Serializable {
      * @return
      */
     public static Network load(File profile_path) {
-
         //will read profile.txt line by line
         BufferedReader br = null;
         Network nw = new Network();
+        // Kind of a hack
+        List<NetworkListener> oldListeners = SNC.getInstance().getCurrentNetwork().getListeners();
+        for (NetworkListener l : oldListeners) {
+            nw.addListener(l);
+        }
         try {
             String sCurrentLine;
             br = new BufferedReader(new FileReader(profile_path));
 
-            //A HashMap to relate a vertex' alias to its index.
-            HashMap<String, Integer> alias_mapper = new HashMap<>();
-
             //reads all lines
             while ((sCurrentLine = br.readLine()) != null) {
-
                 //if a line starts with "I" an interface (i.e. service element) is added to the network in form of a Vertex.
                 if (sCurrentLine.startsWith("I")) {
-                    String vertex_name = sCurrentLine.substring(1, sCurrentLine.indexOf(":")).trim();
-                    Double service_rate = Double.parseDouble(sCurrentLine.split(",", 3)[2].trim());
                     try {
-                        int vertexID = nw.addVertex(ServiceFactory.buildConstantRate(-service_rate), vertex_name).getID();
-                        alias_mapper.put(vertex_name, vertexID);
+                        nw.handleVertexLine(sCurrentLine);
                     } catch (BadInitializationException | NumberFormatException e) {
-                        System.out.println("Bad Initialization. Parameter for Constant Rate server must be a non-negative number.");
-                        System.out.println("We could not create Vertex " + vertex_name + " due to this.");
+                        System.out.println("Bad Initialization in line " + sCurrentLine + ". Parameter for Constant Rate server must be a non-negative number.");
                         e.printStackTrace();
                     }
                 }
 
                 //if a line starts with "F" a flow is added to the network in form of a Flow-object.
                 if (sCurrentLine.startsWith("F")) {
-                    String flow_name = sCurrentLine.substring(0, sCurrentLine.indexOf(":"));
-                    int path_length;
                     try {
-                        path_length = Integer.parseInt(
-                                sCurrentLine.substring(sCurrentLine.indexOf(":") + 1, sCurrentLine.indexOf(",")).trim());
-                    } catch (NumberFormatException e) {
+                        nw.handleFlowLine(sCurrentLine);
+                    } catch (NumberFormatException | BadInitializationException | ArrivalNotAvailableException e) {
+                        System.out.println("Error at line " + sCurrentLine + ":");
                         e.printStackTrace();
-                        System.out.println("''" + sCurrentLine.substring(sCurrentLine.indexOf(":") + 1, sCurrentLine.indexOf(",")) + "'' is an invalid number of servers for flow " + flow_name);
-                        System.out.println("Path length of flow " + flow_name + " is set to zero.");
-                        path_length = 0;
-                    }
-
-                    double rate;
-                    double decay;
-                    double prefactor;
-
-                    rate = Double.parseDouble(sCurrentLine.split(",", path_length + 5)[path_length + 2].trim());
-                    decay = Double.parseDouble(sCurrentLine.split(",", path_length + 5)[path_length + 3].trim());
-                    prefactor = Double.parseDouble(sCurrentLine.split(",", path_length + 5)[path_length + 4].trim());
-
-                    Boolean correct;
-                    Arrival ebbcArrival = null;
-                    try {
-                        ebbcArrival = ArrivalFactory.buildEBB(rate, decay, prefactor);
-                        correct = true;
-
-                    } catch (BadInitializationException e) {
-                        e.printStackTrace();
-                        //ebbcArrival = new Arrival();
-                        correct = false;
-                    }
-
-                    //Construction of route and priorities by parsing through the routing information in profile.txt
-                    ArrayList<Integer> route = new ArrayList<>();
-                    ArrayList<Integer> priorities = new ArrayList<>();
-
-                    for (int i = 0; i < path_length; i++) {
-                        String next_alias = sCurrentLine.split(",", path_length + 5)[i + 1].trim();
-                        try {
-                            int index_of_next_vertex = alias_mapper.get(next_alias);
-                            route.add(index_of_next_vertex);
-                            priorities.add(2);
-                        } catch (NullPointerException e) {
-                            System.out.println("WARNING: the flow " + flow_name + " contains a vertex on its route that was not defined.\n"
-                                    + "The vertex with name '" + next_alias + "' does not exist and is hence discorded from the route.");
-                        }
-                    }
-
-                    if (correct) {
-                        try {
-                            int flowID = nw.addFlow(ebbcArrival, route, priorities, flow_name);
-                            nw.getFlow(flowID).getInitialArrival().getArrivaldependencies().clear();
-                        } catch (ArrivalNotAvailableException e) {
-                            e.printStackTrace();
-                        }
                     }
                 }
             }
@@ -739,6 +699,78 @@ public class Network implements Serializable {
             e.printStackTrace();
         }
         return nw;
+    }
+
+    private int handleVertexLine(String line) throws BadInitializationException, NumberFormatException {
+        // Removes the first character, we do not need that anymore anyway
+        line = line.substring(1).trim();
+        String[] lineParts = line.split(",");
+        String vertex_name = lineParts[0].trim();
+        Double service_rate = Double.parseDouble(lineParts[3].trim());
+        return this.addVertex(ServiceFactory.buildConstantRate(-service_rate), vertex_name).getID();
+    }
+
+    private void handleFlowLine(String line) throws NumberFormatException, BadInitializationException, ArrivalNotAvailableException {
+        final int pathOffset = 2; // There are 2 entries before the route
+        // Removes the first character, we do not need that anoymore
+        line = line.substring(1).trim();
+        String[] lineParts = line.split(",");
+        String flowName = lineParts[0].trim();
+        int pathLength = Integer.parseInt(lineParts[1].trim());
+        // We know that path_length entries in lineParts are only relevant for the route
+        List<Integer> route = new ArrayList<>();
+        List<Integer> priorities = new ArrayList<>();
+        for (int i = 0; i < pathLength; i++) {
+            String[] entry = lineParts[i + pathOffset].trim().split(":");
+            Vertex v = this.getVertexByName(entry[0].trim());
+            if (v == null) {
+                throw new IllegalArgumentException("Could not find Vertex " + entry[0].trim());
+            }
+            route.add(this.getVertexByName(entry[0].trim()).getID());
+            priorities.add(Integer.parseInt(entry[1].trim()));
+        }
+
+        // Find out the Arrival Type now. It's located after the path
+        String arrivalType = lineParts[pathOffset + pathLength].trim();
+        Arrival arrival = null;
+        if (arrivalType.equals("EBB")) {
+            double rate;
+            double decay;
+            double prefactor;
+            // TODO: Error Handling.
+            rate = Double.parseDouble(lineParts[pathOffset + pathLength + 1].trim());
+            decay = Double.parseDouble(lineParts[pathOffset + pathLength + 2].trim());
+            prefactor = Double.parseDouble(lineParts[pathOffset + pathLength + 3].trim());
+            arrival = ArrivalFactory.buildEBB(rate, decay, prefactor);
+
+        } else if (arrivalType.equals("CONSTANT")) {
+            double rate = Double.parseDouble(lineParts[pathOffset + pathLength + 1].trim());
+            arrival = ArrivalFactory.buildConstantRate(rate);
+        } else if (arrivalType.equals("EXPONENTIAL")) {
+            double rate = Double.parseDouble(lineParts[pathOffset + pathLength + 1].trim());
+            arrival = ArrivalFactory.buildExponentialRate(rate);
+        } else if (arrivalType.equals("STATIONARYTB")) {
+            double rate;
+            double bucket;
+            double maxTheta;
+            // Check if there are 2 or 3 parameters given
+            if (lineParts.length - pathOffset - pathLength - 1 == 2) {
+                rate = Double.parseDouble(lineParts[pathOffset + pathLength + 1].trim());
+                bucket = Double.parseDouble(lineParts[pathOffset + pathLength + 2].trim());
+                arrival = ArrivalFactory.buildStationaryTB(rate, bucket);
+            } else {
+                rate = Double.parseDouble(lineParts[pathOffset + pathLength + 1].trim());
+                bucket = Double.parseDouble(lineParts[pathOffset + pathLength + 2].trim());
+                maxTheta = Double.parseDouble(lineParts[pathOffset + pathLength + 3].trim());
+                arrival = ArrivalFactory.buildStationaryTB(rate, bucket, maxTheta);
+            }
+
+        } else {
+            throw new IllegalArgumentException("No arrival with type " + arrivalType + " known.");
+        }
+        int flowID = this.addFlow(arrival, route, priorities, flowName);
+        this.getFlow(flowID).getInitialArrival().getArrivaldependencies().clear();
+
     }
 
     /**
@@ -776,6 +808,10 @@ public class Network implements Serializable {
      */
     public Map<Integer, Hoelder> getHoelders() {
         return hoelders;
+    }
+
+    public List<NetworkListener> getListeners() {
+        return listeners;
     }
 
 }
