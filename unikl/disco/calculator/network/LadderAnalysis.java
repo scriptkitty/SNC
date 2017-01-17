@@ -29,6 +29,7 @@ import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.symbolic_math.BadInitializationException;
 import unikl.disco.calculator.symbolic_math.AdditiveComposition;
 import unikl.disco.calculator.symbolic_math.SymbolicFunction;
+import unikl.disco.calculator.symbolic_math.UnitaryMinus;
 import unikl.disco.calculator.symbolic_math.functions.BFunction;
 import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
 import unikl.disco.calculator.symbolic_math.Hoelder;
@@ -148,42 +149,14 @@ public class LadderAnalysis extends AbstractAnalysis {
 		switch(getBoundtype()){
 		//TODO:(Michael) Update this to end-to-end
 		case BACKLOG:
-			
-			SymbolicFunction preparation;
-			
-			//Dependent Case
-			if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
-				Hoelder hoelder = nw.createHoelder();
-				preparation = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma(),hoelder), 
-						new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho(),hoelder)));
-			}
-			
-			//Independent Case
-			else{
-				preparation = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma()), 
-												new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho())));	
-			}
-			
-			//introduces the backlog-part in the backlog-bound as new variable. The sign must be negative!
-			SymbolicFunction backlog_part = new NewParameter(nw.createHoelder());
-			SymbolicFunction function = new AdditiveComposition(preparation, backlog_part);
 
-			//In the vector of variables the backlog has Hoelder_ID equal to Network.HOELDER_ID-1.
-			result = new Arrival(function,new ConstantFunction(0), nw);
-			
 			break;
 		//TODO:(Michael) Update this to end-to-end
 		case DELAY:
 			
 			SymbolicFunction sigma;
 			SymbolicFunction rho;
-			
-			/* Debbugging:
-			System.out.println("Service dependencies of AoI:"+arrival.getServicedependencies().toString());
-			System.out.println("Service dependencies of SoI:"+service.getServicedependencies().toString());
-			System.out.println("Arrival dependencies of AoI:"+arrival.getArrivaldependencies().toString());
-			System.out.println("Arrival dependencies of SoI:"+service.getArrivaldependencies().toString());*/
-			
+			//TODO
 			//Dependent Case
 			if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
 				Hoelder hoelder = nw.createHoelder();
@@ -197,10 +170,16 @@ public class LadderAnalysis extends AbstractAnalysis {
 			
 			//Independent Case
 			else{
-				sigma = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma()),
-						new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho())));
-				rho = service.getRho();
-				System.out.println("Independent Case");
+				rho = new UnitaryMinus(arrival.getRho());
+				sigma = new AdditiveComposition(arrival.getSigma(),aggregated_through.getSigma());
+				SymbolicFunction rho_through_total = new AdditiveComposition(arrival.getRho(),aggregated_through.getRho());
+				
+				for(Service leftover_service : leftover_services){
+					sigma = new AdditiveComposition(sigma, leftover_service.getSigma());
+					sigma = new AdditiveComposition(sigma, new BFunction(new AdditiveComposition(leftover_service.getRho(),rho_through_total)));
+				}
+				
+				System.out.println("Ladder Analysis (Independent Case):");
 			} 
 			
 			result = new Arrival(sigma, rho, nw);
@@ -208,25 +187,7 @@ public class LadderAnalysis extends AbstractAnalysis {
 			break;
 		//TODO: (Michael) Update this to end-to-end (if possible)
 		case OUTPUT:
-		
-			SymbolicFunction givensigma;
-			SymbolicFunction givenrho;
-			
-			//Dependent Case
-			if(!SetUtils.getIntersection(arrival.getServicedependencies(),service.getServicedependencies()).isEmpty() || !SetUtils.getIntersection(service.getArrivaldependencies(), arrival.getArrivaldependencies()).isEmpty()){
-				Hoelder hoelder = nw.createHoelder();
-				givensigma = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma(),hoelder),new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho(),hoelder)));
-				givenrho = new scaledFunction(arrival.getRho(),hoelder, false);
-			}
-			
-			//Independent Case
-			else{
-				givensigma = new AdditiveComposition(new AdditiveComposition(arrival.getSigma(),service.getSigma()),new BFunction(new AdditiveComposition(arrival.getRho(),service.getRho())));
-				givenrho = arrival.getRho();
-			}
-			
-			result = new Arrival(givensigma, givenrho, nw);
-			
+
 			break;
 		
 		default:
