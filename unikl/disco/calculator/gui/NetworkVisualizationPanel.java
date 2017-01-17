@@ -1,4 +1,4 @@
- /*
+/*
  *  (c) 2013 Michael A. Beck, disco | Distributed Computer Systems Lab
  *                                  University of Kaiserslautern, Germany
  *         All Rights Reserved.
@@ -20,10 +20,17 @@
  */
 package unikl.disco.calculator.gui;
 
-import com.mxgraph.model.mxGraphModel;
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.view.mxGraph;
+import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.SparseMultigraph;
+import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.Dimension;
+import java.awt.ScrollPane;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -35,68 +42,86 @@ import unikl.disco.calculator.network.Vertex;
 
 /**
  * A panel which uses a graph library to display a network.
+ *
  * @author Sebastian Henningsen
  */
 public class NetworkVisualizationPanel {
 
-    private final JPanel visualizationPanel;
-    private final mxGraph graph;
+    private final ScrollPane visualizationPanel;
+    private Graph<Integer, String> graph;
+    private Layout<Integer, String> layout;
+    VisualizationViewer<Integer, String> bvs;
+    private Dimension size;
 
     /**
      * Creates the panel.
+     *
      * @param size
      */
     public NetworkVisualizationPanel(Dimension size) {
-        visualizationPanel = new JPanel();
+        visualizationPanel = new ScrollPane();
         visualizationPanel.setPreferredSize(size);
+        this.size = size;
+        graph = new SparseMultigraph();
+        graph.addVertex(10);
+        graph.addEdge("Derp", 10, 10);
+        layout = new CircleLayout(graph);
+        layout.setSize(size);
+        bvs = new VisualizationViewer<>(layout);
+        bvs.setPreferredSize(size);
+        bvs.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<String>());
+        bvs.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Integer>());
+        bvs.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
 
-        graph = new mxGraph();
-        graph.setAllowDanglingEdges(true);
-        graph.setCellsEditable(false);
-        graph.setCellsDeletable(false);
-        graph.setCellsDisconnectable(false);
-        graph.setEdgeLabelsMovable(false);
-        
-        /*Object parent = graph.getDefaultParent();
-        graph.getModel().beginUpdate();
-        try {
-            Object v1 = graph.insertVertex(parent, null, "Hello", 20, 20, 80,
-                    30);
-            Object v2 = graph.insertVertex(parent, null, "World!", 240, 150,
-                    80, 30);
-            graph.insertEdge(parent, null, "Edge", v1, v2);
-            Object edge = graph.createEdge(parent, null, "Test", null, null, null);
-            graph.addEdge(edge, null, null, v1, null);
-        } finally {
-            graph.getModel().endUpdate();
-        }*/
-        mxGraphComponent graphComponent = new mxGraphComponent(graph);
-        visualizationPanel.add(graphComponent);
-
+        visualizationPanel.add(bvs);
         SNC.getInstance().registerNetworkListener(new NetworkChangeListener());
 
     }
 
     /**
      * Returns the JPanel on which everything is displayed.
+     *
      * @return
      */
-    public JPanel getPanel() {
+    public ScrollPane getPanel() {
         return visualizationPanel;
     }
 
     private class NetworkChangeListener implements NetworkListener {
 
+        private void updateLayout() {
+            layout = new CircleLayout<>(graph);
+            bvs.setGraphLayout(layout);
+            bvs.repaint();
+        }
+
         @Override
         public void vertexAdded(Vertex newVertex) {
+            graph.addVertex(newVertex.getID());
+            updateLayout();
         }
 
         @Override
         public void vertexRemoved(Vertex removedVertex) {
+            graph.removeVertex(removedVertex.getID());
+            updateLayout();
         }
 
         @Override
         public void flowAdded(Flow newFlow) {
+            List<Integer> route = newFlow.getVerticeIDs();
+            Iterator<Integer> it = route.iterator();
+            int oldId = it.next();
+            int newID = 0;
+            int i = 0;
+            while(it.hasNext()) {
+                newID = it.next();
+                System.out.println(oldId + " " + newID);
+                graph.addEdge(newFlow.getAlias() + i, oldId, newID);
+                oldId = newID;
+                i++;
+            }
+            updateLayout();
         }
 
         @Override
@@ -110,9 +135,11 @@ public class NetworkVisualizationPanel {
         @Override
         public void vertexChanged(Vertex changedVertex) {
         }
-        
+
         @Override
         public void clear() {
+            graph = new SparseMultigraph<>();
+            updateLayout();
         }
 
     }
