@@ -21,12 +21,14 @@
 package unikl.disco.calculator.network;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -782,17 +784,44 @@ public class Network implements Serializable {
      *
      * @param file
      */
-    public void save(File file) {
-        try {
-            FileOutputStream fos = new FileOutputStream(file);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(this.getVertices());
-            oos.writeObject(this.getFlows());
-            oos.writeObject(this.getHoelders());
-            oos.close();
-        } catch (Exception exc) {
-            System.out.println(exc.getMessage());
+    public void save(File file) throws IOException {
+        if (this.getHOELDER_ID() > 1) {
+            throw new IllegalArgumentException("Currently not possible to store networks with hölder IDs");
         }
+        BufferedWriter bw = null;
+        try {
+            bw = new BufferedWriter(new FileWriter(file));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
+        
+        // Write out the nodes
+        for (Vertex v : this.getVertices().values()) {
+            bw.write("I " + v.getAlias() + ", " + "FIFO" + ", " + "CR" + ", " + v.getService().getRho().toString().substring(1));
+            bw.newLine();
+        }
+        bw.write("EOI");
+        bw.newLine();
+        
+        for (Flow f : this.getFlows().values()) {
+            List<Integer> route = f.getVerticeIDs();
+            List<Integer> priorities = f.getPriorities();
+            StringBuilder outRoute = new StringBuilder();
+            for (int i = 0; i < route.size();i++) {
+                outRoute.append(this.getVertices().get(route.get(i)).getAlias());
+                outRoute.append(":");
+                outRoute.append(priorities.get(i));
+                if (i < route.size() - 1) {
+                    outRoute.append(", ");
+                }
+            }
+            bw.write("F " + f.getAlias() + ", " + route.size() + ", " + outRoute + ", " + f.getInitialArrival().toString());
+            bw.newLine();                    
+        }
+        bw.write("EOF");
+        bw.newLine();
+        bw.close();
     }
 
     /**
