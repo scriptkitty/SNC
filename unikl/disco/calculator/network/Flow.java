@@ -190,7 +190,7 @@ public class Flow implements Serializable, Displayable {
 			return vertices.get(established_arrivals-1);
 		}
 		else
-			return 0;
+			return vertices.get(0);
 	}
 
 	/**
