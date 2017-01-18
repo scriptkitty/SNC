@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.symbolic_math.BadInitializationException;
@@ -78,8 +80,7 @@ public class LadderAnalysis extends AbstractAnalysis {
      * @param flow_of_interest the flow for which the performance bound is
      * calculated
      * @param boundtype the type of bound, which should be calculated. Note: All
-     * performance bounds are given in 
-	 * {
+     * performance bounds are given in {
      * @Arrival}-representation.
      */
     public LadderAnalysis(Network nw, Map<Integer, Vertex> vertices, Map<Integer, Flow> flows, int flow_of_interest, int end_node, Boundtype boundtype) {
@@ -99,7 +100,7 @@ public class LadderAnalysis extends AbstractAnalysis {
         // Since we have a feed forward network there can be no duplicates on the path
         // -> the simple or-check is sufficient
         boolean initial = false;
-        for(Integer v : foiRoute) {
+        for (Integer v : foiRoute) {
             initial |= v == establishedVertex;
         }
         if (!initial) {
@@ -107,14 +108,7 @@ public class LadderAnalysis extends AbstractAnalysis {
             return false;
         }
         // Next we check whether the xflow and the foi intersect more than once
-        List<Integer> intersections = new LinkedList<>();
-        for(Integer v : route) {
-            for(Integer foiVertex : foiRoute) {
-                if(v.intValue() == foiVertex.intValue()) {
-                    intersections.add(v);
-                }
-            }
-        }
+        List<Integer> intersections = getIntersectingNodes(flow, foi);
         if (intersections.size() > 1) {
             System.out.println("More than one intersection");
             return false;
@@ -125,9 +119,31 @@ public class LadderAnalysis extends AbstractAnalysis {
         isRung = intersectNode.getPrioritizedFlow() == flow.getID();
         return isRung;
     }
+
+    public List<Integer> getIntersectingNodes(Flow rungFlow, Flow flowOfInterest) {
+        List<Integer> intersections = new LinkedList<>();
+        for (int foiVertex : flowOfInterest.getVerticeIDs()) {
+            for (int v : rungFlow.getVerticeIDs()) {
+                if (v == foiVertex) {
+                    intersections.add(v);
+                }
+            }
+        }
+        return intersections;
+    }
+    
+    public boolean hasCrossflow(int vertexID, List<Flow> rungFlows) {
+        boolean hasCrossflow = false;
+        for(Flow rf : rungFlows) {
+            for (int v : rf.getVerticeIDs()) {
+                hasCrossflow |= v == vertexID;
+            }
+        }
+        return hasCrossflow;
+    }
     
     public boolean isAggregateFlow(Flow flow) {
-        // Check whether the flow has the same path as the flow of interest. TODO: Priority checking
+        // Check whether the flow has the same path as the flow of interest. TODO: Priority checking, initial arrival
         boolean isAggregate = true;
         List<Integer> route = flow.getVerticeIDs();
         Flow foi = flows.get(flow_of_interest);
@@ -137,7 +153,7 @@ public class LadderAnalysis extends AbstractAnalysis {
             isAggregate = false;
             return isAggregate;
         }
-        for (int i = 0;i < foiRoute.size();i++) {
+        for (int i = 0; i < foiRoute.size(); i++) {
             isAggregate &= route.get(i).intValue() == foiRoute.get(i).intValue();
         }
         return isAggregate;
@@ -149,9 +165,10 @@ public class LadderAnalysis extends AbstractAnalysis {
      * performance bound is calculated using a concatenation theorem.
      *
      * @return The bound in the {@link Arrival}-representation.
+     * @throws unikl.disco.calculator.network.ArrivalNotAvailableException
      */
     @Override
-    public Arrival analyze() {
+    public Arrival analyze() throws ArrivalNotAvailableException {
         // We make three assumptions: 
         // (1) The relative priorities of the aggregate flows stay the same
         // (2) Crossflows always have the highest priority at the intersection with the aggregate flows
@@ -159,11 +176,14 @@ public class LadderAnalysis extends AbstractAnalysis {
         // First: Test whether the network is a ladder network.
         List<Flow> rungFlows = new LinkedList<>();
         List<Flow> aggregateFlows = new LinkedList<>();
+
         for (Flow f : flows.values()) {
-            if (isRungFlow(f)) {
+            if (f.getID() == flow_of_interest) {
+                // Ignore the flow of interest
+            } else if (isRungFlow(f)) {
                 rungFlows.add(f);
                 System.out.println("Flow " + f.getAlias() + " is a rung Flow.");
-            } else if(isAggregateFlow(f)) {
+            } else if (isAggregateFlow(f)) {
                 aggregateFlows.add(f);
                 System.out.println("Flow " + f.getAlias() + " is an aggregate Flow.");
             } else {
@@ -171,36 +191,45 @@ public class LadderAnalysis extends AbstractAnalysis {
                 throw new IllegalArgumentException("Network is not in ladder format.");
             }
         }
-        Arrival bound = new Arrival(nw);
 
-        List<Integer> path = flows.get(flow_of_interest).getVerticeIDs();
-
-        //First Step: Subtraction of rung-flows.
-        //TODO:(Sebastian) Subtract all rung-flows from each node, if it has higher priority than the flow of interest.
-        /*List<Service> list_of_leftover_services;
-        for (int node : path) {
-            for (int flowID : vertices.get(node).getAllFlowIDs()) {
-                if (flows.get(flowID).getPriorities() > flows.get(flow_of_interest).getPriorities()) {
-                    //TODO:(Sebastian) Check for being a rung-flow: 1) Must have arrival known, 2) Successor and
-                    // Predecessor must not lie on flow of interest's path.
-                    //TODO:(Sebastian) Subtract the rung-flow: i.e. calculate leftover service
-                }
+        // Now we successfully checked for the validity of the network.
+        // First step of the analysis: Subtract all the rung flows
+        // and gather the leftover services in a list for later use
+        List<Service> leftoverServices = new LinkedList<>();
+        Flow foi = flows.get(flow_of_interest);
+        List<Integer> foiRoute = foi.getVerticeIDs();
+        for (int node : foiRoute) {
+            if(hasCrossflow(node, rungFlows)) {
+                System.out.println("Subtracting xf at node " + vertices.get(node).getAlias());
+                vertices.get(node).serve();
+                leftoverServices.add(vertices.get(node).getService());
             }
-            //TODO:(Sebastian) Add the above calculated leftover services into a list of leftover services
-            list_of_leftover_services.add(leftover_service);
         }
 
-        //Second Step: Aggregation of higher priority through-flows.
-        //TODO:(Sebastian) Aggregate through-flows.
-        Arrival aggregated_through;
-        for (int flow : list_hp_through_flows) {
-            //TODO:(Sebastian) Multiplex the arrivals with higher priority. Write corresponding sigma and rho into Arrival "through_flow".
+        // Second step of the analysis: Aggregation of higher priority through-flows.
+        // Therefore we multiplex the initial arrivals of all aggregate flows and remove them from the network
+        // The resulting arrival is stored in 
+        Arrival aggregatedThrough = new Arrival(nw);
+        if (aggregateFlows.size() <= 1) {
+            aggregatedThrough = aggregateFlows.get(0).getInitialArrival();
+            nw.removeFlow(aggregateFlows.get(0));
+        } else {
+            Flow f1 = aggregateFlows.get(0);
+            Flow f2 = aggregateFlows.get(1);
+            aggregatedThrough = aggregatedThrough.multiplex(f1.getInitialArrival(), f2.getInitialArrival());
+            nw.removeFlow(f1);
+            nw.removeFlow(f2);
+            for (int i = 2; i < aggregateFlows.size(); i++) {
+                f1 = aggregateFlows.get(i);
+                aggregatedThrough = aggregatedThrough.multiplex(aggregatedThrough, f1.getInitialArrival());
+                nw.removeFlow(f1);
+            }
         }
-
+        System.out.println("Aggregate Arrival: " + aggregatedThrough);
         //Third Step: Using the concatenation result.
-        bound = calculateBound(flows.get(flow_of_interest).getInitialArrival(), list_of_leftover_services, aggregated_through);
-        return bound;*/
-        return null;
+        Arrival bound = null;
+        bound = calculateBound(flows.get(flow_of_interest).getInitialArrival(), leftoverServices, aggregatedThrough);
+        return bound;
     }
 
     /**

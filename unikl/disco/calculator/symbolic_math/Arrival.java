@@ -81,8 +81,8 @@ public class Arrival implements Serializable {
 	public Arrival(Network nw){ 
 		rho = new ConstantFunction(0);
 		sigma = new ConstantFunction(0);
-		Arrivaldependencies = new HashSet<Integer>();
-		Servicedependencies = new HashSet<Integer>();
+		Arrivaldependencies = new HashSet<>();
+		Servicedependencies = new HashSet<>();
                 this.nw = nw;
 	}
 
