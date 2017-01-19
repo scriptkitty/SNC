@@ -36,5 +36,13 @@ public class UnitaryMinus implements SymbolicFunction {
 	public Map<Integer, Hoelder> getParameters() {
 		return atom.getParameters();
 	}
+	
+	@Override
+	public String toString(){
+		
+		String output = "-"+atom.toString();
+		
+		return output;
+	}
 
 }

@@ -53,7 +53,7 @@ public enum BoundType {
     DELAY {
         @Override
         public String toString() {
-            return "DelayBound";
+            return "DelayBound (Integer)";
         }
     },
 
