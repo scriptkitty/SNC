@@ -374,7 +374,7 @@ public class Network implements Serializable {
      * Adds a flow with all its arrivals, priorities and vertices to the network
      *
      * @param arrivals the arrivals at the vertices. Normally only te initial
-     * arrival is needed and hence all other arrivaly will be overwritten by the
+     * arrival is needed and hence all other arrivals will be overwritten by the
      * analysis.
      * @param route
      * @param priorities the priorities of the flow at the corresponding
@@ -382,7 +382,7 @@ public class Network implements Serializable {
      * @param alias the alias of the new flow
      * @throws ArrivalNotAvailableException
      */
-    public void addFlow(List<Arrival> arrivals, List<Integer> route,
+    /*public void addFlow(List<Arrival> arrivals, List<Integer> route,
             List<Integer> priorities, String alias) throws ArrivalNotAvailableException {
 
         Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
@@ -406,7 +406,7 @@ public class Network implements Serializable {
             l.flowAdded(flow);
 
         }
-    }
+    }*/
 
     /**
      * Appends a node to an already existing flow. The arrival at this appended
