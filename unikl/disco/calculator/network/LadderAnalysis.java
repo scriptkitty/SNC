@@ -210,7 +210,10 @@ public class LadderAnalysis extends AbstractAnalysis {
         // Therefore we multiplex the initial arrivals of all aggregate flows and remove them from the network
         // The resulting arrival is stored in 
         Arrival aggregatedThrough = new Arrival(nw);
-        if (aggregateFlows.size() <= 1) {
+        if (aggregateFlows.size() == 0 ){
+        	//do nothing
+        }
+        else if (aggregateFlows.size() <= 1) {
             aggregatedThrough = aggregateFlows.get(0).getInitialArrival();
             nw.removeFlow(aggregateFlows.get(0));
         } else {
@@ -341,9 +344,13 @@ public class LadderAnalysis extends AbstractAnalysis {
 			}*/
                 //INDEPENDENT CASE
                 SymbolicFunction rho = new UnitaryMinus(arrival.getRho());
-                SymbolicFunction sigma = new AdditiveComposition(arrival.getSigma(), aggregated_through.getSigma());
-                SymbolicFunction rho_through_total = new AdditiveComposition(arrival.getRho(), aggregated_through.getRho());
-
+                SymbolicFunction sigma = arrival.getSigma();
+                SymbolicFunction rho_through_total = arrival.getRho();
+                if(aggregated_through != null){
+                	sigma = new AdditiveComposition(arrival.getSigma(), aggregated_through.getSigma());
+                	rho_through_total = new AdditiveComposition(arrival.getRho(), aggregated_through.getRho());
+                }
+                
                 for (Service leftover_service : leftover_services) {
                     sigma = new AdditiveComposition(sigma, leftover_service.getSigma());
                     sigma = new AdditiveComposition(sigma, new BFunction(new AdditiveComposition(leftover_service.getRho(), rho_through_total)));
