@@ -194,7 +194,12 @@ public class Vertex implements Serializable, Displayable {
 			
                         // Remove this vertex from the flow
                         Flow f = nw.getFlow(prioritizedFlowID);
-                        f.learnArrival(output);
+                        
+                        //This causes trouble as learnArrival is called in SimpleAnalysis already. Further this might not be needed for
+                        //other Analyses like LadderAnalysis, in which we are only interested in the leftover-service and do not care what
+                        //happens with the crossflows afterwards.
+                        //f.learnArrival(output);
+                        
                         f.removeVertex(this.ID);
                         
 			//Removes the served flow from the arrival-list
