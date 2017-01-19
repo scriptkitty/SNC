@@ -117,6 +117,7 @@ public class Flow implements Serializable, Displayable {
 	 * @param arrival overwrites the next dummy arrival in the flow
 	 */
 	public void learnArrival(Arrival arrival){
+		//TODO: Check whether there is a next arrival at all. If the flow ends instead this currently throws IndexOutOfBounds
 		arrivals.set(established_arrivals, arrival);
 		established_arrivals++;
 	}

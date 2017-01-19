@@ -176,13 +176,15 @@ public class Vertex implements Serializable, Displayable {
 	 * @throws ArrivalNotAvailableException
 	 */
 	public Arrival serve() throws ArrivalNotAvailableException{
-		
+		//TODO: Removing this check seems to break "Simple Analysis"?
 		//Checks if non-established arrivals exist (number of priority entries larger > arrival entries)
-		if(incoming.size() != priorities.size()){
-			throw new ArrivalNotAvailableException("Not all arrivals had been established",this);
-		}
-
-		else{	
+/*		
+ * 		if(incoming.size() != priorities.size()){
+ *			throw new ArrivalNotAvailableException("Not all arrivals had been established",this);
+ *		}
+ *
+ *		else{
+ */
 			//Calculates the output-bound
 			Arrival arrival = incoming.get(prioritizedFlowID);
 			Arrival output = arrival.output(arrival, service);
@@ -208,7 +210,7 @@ public class Vertex implements Serializable, Displayable {
 			//Returns the output-bound
 			return output;
 		}
-	}
+//	}
 
 	/**
 	 * Determines which flow has the highest priority.

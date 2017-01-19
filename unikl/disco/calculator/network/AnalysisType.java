@@ -34,5 +34,12 @@ public enum AnalysisType {
 	public String toString() {
             return "Simple Analysis";
 	}
+    },
+    
+    LADDER_ANA {
+    	@Override
+	public String toString() {
+    		return "Ladder Analysis";
+    	}
     }
 }

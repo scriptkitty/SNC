@@ -209,7 +209,7 @@ public class FlowEditor extends JDialog {
 	mainPanel.add(topCardContainer);
 	((CardLayout) topCardContainer.getLayout()).show(topCardContainer, ArrivalType.CONSTANT_RATE.toString());
 
-		//******************************
+	//******************************
 	//Adds the cards for the routing
 	//******************************
 	bottomCardContainer.setLayout(new CardLayout());
@@ -219,7 +219,7 @@ public class FlowEditor extends JDialog {
 
 	mainPanel.add(bottomCardContainer);
 
-		//*********************
+	//*********************
 	//Adds the exit buttons
 	//*********************
 	JPanel buttonPanel = new JPanel();

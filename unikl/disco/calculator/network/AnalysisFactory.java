@@ -44,6 +44,8 @@ public class AnalysisFactory {
         switch(type) {
             case SIMPLE_ANA:
                 return new SimpleAnalysis(nw, vertices, flows, flow_of_interest, vertex_of_interest, boundtype);
+            case LADDER_ANA:
+            	return new LadderAnalysis(nw, vertices, flows, flow_of_interest, vertex_of_interest, boundtype);
             default:
                 throw new IllegalArgumentException("Analysis Type: " + type.toString() + " not known.");
         }
