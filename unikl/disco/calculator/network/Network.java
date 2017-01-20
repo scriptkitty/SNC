@@ -46,6 +46,11 @@ import unikl.disco.calculator.symbolic_math.BadInitializationException;
 import unikl.disco.calculator.symbolic_math.Hoelder;
 import unikl.disco.calculator.symbolic_math.Service;
 import unikl.disco.calculator.symbolic_math.ServiceFactory;
+import unikl.disco.calculator.symbolic_math.SymbolicFunction;
+import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
+import unikl.disco.calculator.symbolic_math.functions.EBBSigma;
+import unikl.disco.calculator.symbolic_math.functions.ExponentialSigma;
+import unikl.disco.calculator.symbolic_math.functions.StationaryTBSigma;
 
 /**
  * This class provides several methods to construct and change a network
@@ -407,7 +412,6 @@ public class Network implements Serializable {
 
         }
     }*/
-
     /**
      * Appends a node to an already existing flow. The arrival at this appended
      * node is non established.
@@ -592,29 +596,29 @@ public class Network implements Serializable {
      * @return
      */
     public Network deepCopy() {
-        /*Network newNetwork = new Network();
-         Map<Integer, Vertex> newVertices = new HashMap(vertices.size());
-         for (Map.Entry<Integer, Vertex> entry : newVertices.entrySet()) {
-         Vertex newVertex = entry.getValue().copy();
-         newNetwork.addVertex(newVertex);
-         //newVertices.put(entry.getKey(), newVertex);
-         }
-            
-         Map<Integer, Flow> newFlows = new HashMap(flows.size());
-         for (Map.Entry<Integer, Flow> entry : newFlows.entrySet()) {
-         Flow newFlow = entry.getValue().copy();
-         newFlows.put(entry.getKey(), newFlow);
-         }
-            
-         Map<Integer, Hoelder> newHoelders = new HashMap(hoelders.size());
-         for (Map.Entry<Integer, Hoelder> entry : newHoelders.entrySet()) {
-         Hoelder newHoelder = entry.getValue().copy();
-         newHoelders.put(entry.getKey(), newHoelder);
-         }
-         return new Network(newVertices, newFlows, newHoelders);*/
+
+        Map<Integer, Vertex> newVertices = new HashMap(this.vertices.size());
+        Map<Integer, Flow> newFlows = new HashMap(this.flows.size());
+        Map<Integer, Hoelder> newHoelders = new HashMap(this.hoelders.size());
+
+        for (Map.Entry<Integer, Vertex> entry : vertices.entrySet()) {
+            Vertex newVertex = entry.getValue().copy();
+            newVertices.put(entry.getKey(), newVertex);
+        }
+
+        for (Map.Entry<Integer, Flow> entry : flows.entrySet()) {
+            Flow newFlow = entry.getValue().copy();
+            newFlows.put(entry.getKey(), newFlow);
+        }
+
+        for (Map.Entry<Integer, Hoelder> entry : hoelders.entrySet()) {
+            Hoelder newHoelder = entry.getValue().copy();
+            newHoelders.put(entry.getKey(), newHoelder);
+        }
+        return new Network(newVertices, newFlows, newHoelders);
         // Copy Network using serialization:
         //Serialization of object
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        /*ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream out;
         try {
             out = new ObjectOutputStream(bos);
@@ -641,7 +645,7 @@ public class Network implements Serializable {
             System.out.println(exc.getMessage());
         }
         Network nw = new Network(newVertices, newFlows, newHoelders);
-        return nw;
+        return nw;*/
     }
 
     /**
@@ -654,15 +658,17 @@ public class Network implements Serializable {
      * @param profile_path
      * @return
      */
-    public static Network load(File profile_path) {
+    public static Network load(File profile_path, boolean redirectListeners) {
         //will read profile.txt line by line
         BufferedReader br = null;
         Network nw = new Network();
         // Kind of a hack
-        List<NetworkListener> oldListeners = SNC.getInstance().getCurrentNetwork().getListeners();
-        for (NetworkListener l : oldListeners) {
-            l.clear();
-            nw.addListener(l);
+        if (redirectListeners) {
+            List<NetworkListener> oldListeners = SNC.getInstance().getCurrentNetwork().getListeners();
+            for (NetworkListener l : oldListeners) {
+                l.clear();
+                nw.addListener(l);
+            }
         }
         try {
             String sCurrentLine;
@@ -786,7 +792,7 @@ public class Network implements Serializable {
      */
     public void save(File file) throws IOException {
         if (this.getHOELDER_ID() > 1) {
-            throw new IllegalArgumentException("Currently not possible to store networks with hölder IDs");
+            throw new IllegalArgumentException("Currently not possible to store networks with Hölder IDs");
         }
         BufferedWriter bw = null;
         try {
@@ -795,7 +801,7 @@ public class Network implements Serializable {
             ex.printStackTrace();
             return;
         }
-        
+
         // Write out the nodes
         for (Vertex v : this.getVertices().values()) {
             bw.write("I " + v.getAlias() + ", " + "FIFO" + ", " + "CR" + ", " + v.getService().getRho().toString().substring(1));
@@ -803,12 +809,12 @@ public class Network implements Serializable {
         }
         bw.write("EOI");
         bw.newLine();
-        
+
         for (Flow f : this.getFlows().values()) {
             List<Integer> route = f.getVerticeIDs();
             List<Integer> priorities = f.getPriorities();
             StringBuilder outRoute = new StringBuilder();
-            for (int i = 0; i < route.size();i++) {
+            for (int i = 0; i < route.size(); i++) {
                 outRoute.append(this.getVertices().get(route.get(i)).getAlias());
                 outRoute.append(":");
                 outRoute.append(priorities.get(i));
@@ -816,8 +822,29 @@ public class Network implements Serializable {
                     outRoute.append(", ");
                 }
             }
-            bw.write("F " + f.getAlias() + ", " + route.size() + ", " + outRoute + ", " + f.getInitialArrival().toString());
-            bw.newLine();                    
+            Arrival initArrival = f.getInitialArrival();
+            // Until we use a parser for symbolic functions: Find out what kind of Arrival this is
+            // Since the initial arrival stems from a text file there are only 5 options to choose from
+            SymbolicFunction rho = initArrival.getRho();
+            SymbolicFunction sigma = initArrival.getSigma();
+            String arrivalParameters = "";
+            if (rho instanceof ConstantFunction && sigma instanceof ConstantFunction) {
+                arrivalParameters = "CONSTANT, " + rho.toString();
+                // Constant Arrival
+            } else if (rho instanceof ConstantFunction && sigma instanceof EBBSigma) {
+                arrivalParameters = "EBB, " + rho.toString() + ", " + sigma.toString().substring(4, sigma.toString().length() - 1);
+            } else if (rho instanceof ConstantFunction && sigma instanceof StationaryTBSigma) {
+                arrivalParameters = "STATIONARYTB, " + rho.toString() + ", " + sigma.toString().substring(7, sigma.toString().length() - 1);
+                if (sigma.getmaxTheta() != Double.POSITIVE_INFINITY) {
+                    arrivalParameters += ", " + sigma.getmaxTheta();
+                }
+            } else if (rho instanceof ExponentialSigma && sigma instanceof ConstantFunction) {
+                arrivalParameters = "EXPONENTIAL, " + rho.toString().substring(8, rho.toString().length() - 1);
+            } else {
+                throw new IllegalArgumentException("Save Network: No matching arrival types found for flow " + f.getAlias());
+            }
+            bw.write("F " + f.getAlias() + ", " + route.size() + ", " + outRoute + ", " + arrivalParameters);
+            bw.newLine();
         }
         bw.write("EOF");
         bw.newLine();
