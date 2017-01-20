@@ -204,6 +204,10 @@ public class LadderAnalysis extends AbstractAnalysis {
                 vertices.get(node).serve();
                 leftoverServices.add(vertices.get(node).getService());
             }
+            else {
+            	System.out.println("Nothing to subtract at node "+ vertices.get(node).getAlias());
+            	leftoverServices.add(vertices.get(node).getService());
+            }
         }
 
         // Second step of the analysis: Aggregation of higher priority through-flows.
@@ -357,6 +361,9 @@ public class LadderAnalysis extends AbstractAnalysis {
                 }
 
                 System.out.println("Ladder Analysis (Independent Case):");
+                //Debugging
+                System.out.println("Delay-Form Sigma: "+sigma.toString());
+                System.out.println("Delay-Form Rho: "+rho.toString());
 
                 result = new Arrival(sigma, rho, nw);
 
