@@ -21,9 +21,11 @@
 package unikl.disco.calculator.gui;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
@@ -31,7 +33,9 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.Dimension;
 import java.awt.ScrollPane;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import unikl.disco.calculator.SNC;
@@ -48,10 +52,12 @@ import unikl.disco.calculator.network.Vertex;
 public class NetworkVisualizationPanel {
 
     private final ScrollPane visualizationPanel;
-    private Graph<Integer, String> graph;
-    private Layout<Integer, String> layout;
-    VisualizationViewer<Integer, String> bvs;
+    private Graph<GraphItem, GraphItem> graph;
+    private Layout<GraphItem, GraphItem> layout;
+    VisualizationViewer<GraphItem, GraphItem> bvs;
     private Dimension size;
+    private List<GraphItem> vertices;
+    private List<GraphItem> flows;
 
     /**
      * Creates the panel.
@@ -59,18 +65,18 @@ public class NetworkVisualizationPanel {
      * @param size
      */
     public NetworkVisualizationPanel(Dimension size) {
+        vertices = new LinkedList<>();
+        flows = new LinkedList<>();
         visualizationPanel = new ScrollPane();
         visualizationPanel.setPreferredSize(size);
         this.size = size;
         graph = new SparseMultigraph();
-        graph.addVertex(10);
-        graph.addEdge("Derp", 10, 10);
-        layout = new CircleLayout(graph);
+        layout = new FRLayout<>(graph);
         layout.setSize(size);
         bvs = new VisualizationViewer<>(layout);
         bvs.setPreferredSize(size);
-        bvs.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<String>());
-        bvs.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Integer>());
+        bvs.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<GraphItem>());
+        bvs.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<GraphItem>());
         bvs.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
 
         visualizationPanel.add(bvs);
@@ -90,20 +96,25 @@ public class NetworkVisualizationPanel {
     private class NetworkChangeListener implements NetworkListener {
 
         private void updateLayout() {
-            layout = new CircleLayout<>(graph);
+            layout = new FRLayout<>(graph);
             bvs.setGraphLayout(layout);
             bvs.repaint();
         }
 
         @Override
         public void vertexAdded(Vertex newVertex) {
-            graph.addVertex(newVertex.getID());
+            GraphItem gi = new GraphItem(newVertex.getID(), newVertex.getAlias());
+            graph.addVertex(gi);
+            vertices.add(gi);
             updateLayout();
         }
 
         @Override
         public void vertexRemoved(Vertex removedVertex) {
-            graph.removeVertex(removedVertex.getID());
+            GraphItem gi = new GraphItem(removedVertex.getID(), removedVertex.getAlias());
+            vertices.remove(gi);
+            graph.removeVertex(gi);
+            // TODO: Handle flows. Is this already covered by flowChanged()?
             updateLayout();
         }
 
@@ -112,28 +123,52 @@ public class NetworkVisualizationPanel {
             List<Integer> route = newFlow.getVerticeIDs();
             Iterator<Integer> it = route.iterator();
             int oldId = it.next();
-            int newID = 0;
-            int i = 0;
-            while(it.hasNext()) {
-                newID = it.next();
-                System.out.println(oldId + " " + newID);
-                graph.addEdge(newFlow.getAlias() + i, oldId, newID);
-                oldId = newID;
-                i++;
+            if (route.size() > 1) {
+                int newID = 0;
+                int i = 0;
+                while (it.hasNext()) {
+                    newID = it.next();
+                    System.out.println(oldId + " " + newID);
+                    GraphItem gi = new GraphItem(newFlow.getID() + i, newFlow.getAlias());
+                    flows.add(gi);
+                    graph.addEdge(gi, getVertexbyID(oldId), getVertexbyID(newID), EdgeType.DIRECTED);
+                    oldId = newID;
+                    i++;
+                }
+            } else {
+                GraphItem gi = new GraphItem(newFlow.getID(), newFlow.getAlias());
+                graph.addEdge(gi, getVertexbyID(oldId), getVertexbyID(oldId), EdgeType.DIRECTED);
             }
             updateLayout();
         }
 
         @Override
         public void flowRemoved(Flow removedFlow) {
+            List<Integer> route = removedFlow.getVerticeIDs();
+            for (int i = 0; i < route.size(); i++) {
+                GraphItem gi = getFlowbyID(removedFlow.getID()+i);
+                graph.removeEdge(gi);
+                flows.remove(gi);
+            }
+            updateLayout();
+            
         }
 
         @Override
         public void flowChanged(Flow changedFlow) {
+            // Only the route is relevant for us
+            // Remove the old one and add new ones
+            for (GraphItem gi : getFlowbyAlias(changedFlow.getAlias())) {
+                graph.removeEdge(gi);
+                flows.remove(gi);
+            }
+            flowAdded(changedFlow);
+            
         }
 
         @Override
         public void vertexChanged(Vertex changedVertex) {
+            // Ignore for now
         }
 
         @Override
@@ -142,5 +177,88 @@ public class NetworkVisualizationPanel {
             updateLayout();
         }
 
+        private GraphItem getVertexbyID(int id) {
+            GraphItem result = null;
+            for (GraphItem gi : vertices) {
+                if (gi.getID() == id) {
+                    result = gi;
+                }
+            }
+            return result;
+        }
+
+        private GraphItem getFlowbyID(int id) {
+            GraphItem result = null;
+            for (GraphItem gi : flows) {
+                if (gi.getID() == id) {
+                    result = gi;
+                }
+            }
+            return result;
+        }
+        
+        private List<GraphItem> getFlowbyAlias(String alias) {
+            List<GraphItem> result = new LinkedList<>();
+            for (GraphItem gi : flows) {
+                if (gi.getAlias().equals(alias)) {
+                    result.add(gi);
+                }
+            }
+            return result;
+        }
+
+    }
+}
+
+class GraphItem {
+
+    private final int id;
+    private final String alias;
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 23 * hash + this.id;
+        hash = 23 * hash + Objects.hashCode(this.alias);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final GraphItem other = (GraphItem) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        if (!Objects.equals(this.alias, other.alias)) {
+            return false;
+        }
+        return true;
+    }
+
+    public GraphItem(int id, String alias) {
+        this.id = id;
+        this.alias = alias;
+    }
+
+    @Override
+    public String toString() {
+        return alias;
+    }
+
+    public int getID() {
+        return id;
+    }
+
+    public String getAlias() {
+        return alias;
     }
 }

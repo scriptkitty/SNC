@@ -704,6 +704,7 @@ public class Network implements Serializable {
             for (Flow flow : nw.getFlows().values()) {
                 System.out.println(flow.getAlias() + ", " + flow.getVerticeIDs() + ", " + flow.getPriorities());
             }
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
