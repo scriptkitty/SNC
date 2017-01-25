@@ -21,6 +21,7 @@
 package unikl.disco.calculator.optimization;
 
 import unikl.disco.calculator.symbolic_math.Arrival;
+import unikl.disco.misc.AnalysisException;
 
 /**
  * A factory for bound which can be optimized. The goal is to add an extra layer
@@ -49,7 +50,7 @@ public class BoundFactory {
             case INVERSE_DELAY:
                 return new InverseDelayBound(input, bound);
             default:
-                throw new IllegalArgumentException("No such bound yet.");
+                throw new AnalysisException("Bound type " + boundtype.toString() + " not known.");
         }
     }
     

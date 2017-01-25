@@ -41,6 +41,7 @@ import unikl.disco.calculator.symbolic_math.Hoelder;
 import unikl.disco.calculator.symbolic_math.NewParameter;
 import unikl.disco.calculator.symbolic_math.functions.scaledFunction;
 import unikl.disco.calculator.symbolic_math.Service;
+import unikl.disco.misc.AnalysisException;
 import unikl.disco.misc.SetUtils;
 
 /**
@@ -188,7 +189,7 @@ public class LadderAnalysis extends AbstractAnalysis {
                 System.out.println("Flow " + f.getAlias() + " is an aggregate Flow.");
             } else {
                 System.out.println("Flow " + f.getAlias() + " does not fit!.");
-                throw new IllegalArgumentException("Network is not in ladder format.");
+                throw new AnalysisException("Network is not in ladder format.");
             }
         }
 

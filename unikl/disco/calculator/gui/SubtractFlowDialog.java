@@ -33,6 +33,7 @@ import unikl.disco.calculator.symbolic_math.ServiceType;
 
 /**
  * A dialog to get input from the user in order to compute the leftover service of a flow.
+ * WARNING: Do not use this class!
  * @author Sebastian Henningsen
  */
 public class SubtractFlowDialog {
@@ -82,8 +83,7 @@ public class SubtractFlowDialog {
             double rate = Double.parseDouble(rateField.getText());
             Command cmd = new AddVertexCommand(aliasField.getText(), -1*rate, -1, snc);
             snc.invokeCommand(cmd);
-            // Just for debugging
-            //System.out.println(aliasField.getText());
+
         }
     }
 }

@@ -36,6 +36,7 @@ import unikl.disco.calculator.network.Network;
 import unikl.disco.calculator.network.Vertex;
 import unikl.disco.calculator.optimization.BoundType;
 import unikl.disco.calculator.optimization.OptimizationType;
+import unikl.disco.misc.AnalysisException;
 
 /**
  * A dialog that asks the user for the necessary input to perform an optimization
@@ -142,7 +143,7 @@ public class OptimizationDialog {
                         + " " + (double) (hoelderGran.getModel().getValue())
                         + " " + (double) (thetaGran.getModel().getValue())
                         + " " + Double.parseDouble(valueField.getText()));
-                
+                try {
                 System.out.println("The result of the optimization is: ");
                 System.out.println(SNC.getInstance().optimizeSymbolicFunction(flow, vertex,
                         (double) (thetaGran.getModel().getValue()),
@@ -152,6 +153,9 @@ public class OptimizationDialog {
                         (BoundType) boundSelector.getSelectedItem(),
                         Double.parseDouble(valueField.getText()),
                         nw));
+                } catch(AnalysisException ex) {
+                    System.out.println(ex.getMessage());
+                }
 
             }
         }

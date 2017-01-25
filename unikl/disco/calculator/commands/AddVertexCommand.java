@@ -28,6 +28,7 @@ import unikl.disco.calculator.symbolic_math.Service;
 import unikl.disco.calculator.network.Network;
 import unikl.disco.calculator.symbolic_math.BadInitializationException;
 import unikl.disco.calculator.symbolic_math.ServiceFactory;
+import unikl.disco.misc.NetworkActionException;
 
 /**
  * Add a {@link Vertex} with given properties to the target network.
@@ -64,9 +65,7 @@ public class AddVertexCommand implements Command {
         try {
             vertexID = nw.addVertex(ServiceFactory.buildConstantRate(-rate), alias).getID();
         } catch (BadInitializationException ex) {
-            System.out.println("Constant Service Rate has to be negative.");
-            // TODO: Will be removed with more rigorous exception handling
-            throw new IllegalArgumentException("Constant Service Rate has to be negative.");
+            throw new NetworkActionException(ex);
         }
 	// Why is this?
 	snc.getCurrentNetwork().getVertex(vertexID).getService().getServicedependencies().clear();

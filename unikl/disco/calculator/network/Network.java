@@ -52,6 +52,7 @@ import unikl.disco.calculator.symbolic_math.functions.EBBSigma;
 import unikl.disco.calculator.symbolic_math.functions.ExponentialSigma;
 import unikl.disco.calculator.symbolic_math.functions.StationaryTBSigma;
 import unikl.disco.misc.FileOperationException;
+import unikl.disco.misc.NetworkActionException;
 
 /**
  * This class provides several methods to construct and change a network
@@ -260,7 +261,7 @@ public class Network implements Serializable {
             removeVertex(v2);
             return convVertex.getID();
         } else {
-            throw new IllegalArgumentException("Vertices are not convolutable!");
+            throw new NetworkActionException("Vertices are not convolutable!");
         }
     }
 
@@ -617,36 +618,6 @@ public class Network implements Serializable {
             newHoelders.put(entry.getKey(), newHoelder);
         }
         return new Network(newVertices, newFlows, newHoelders);
-        // Copy Network using serialization:
-        //Serialization of object
-        /*ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream out;
-        try {
-            out = new ObjectOutputStream(bos);
-            out.writeObject(vertices);
-            out.writeObject(flows);
-            out.writeObject(hoelders);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        //De-serialization of object
-        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-        ObjectInputStream in;
-
-        Map<Integer, Vertex> newVertices = null;
-        Map<Integer, Flow> newFlows = null;
-        Map<Integer, Hoelder> newHoelders = null;
-        try {
-            in = new ObjectInputStream(bis);
-            newVertices = (Map<Integer, Vertex>) in.readObject();
-            newFlows = (Map<Integer, Flow>) in.readObject();
-            newHoelders = (Map<Integer, Hoelder>) in.readObject();
-        } catch (IOException | ClassNotFoundException exc) {
-            System.out.println(exc.getMessage());
-        }
-        Network nw = new Network(newVertices, newFlows, newHoelders);
-        return nw;*/
     }
 
     /**

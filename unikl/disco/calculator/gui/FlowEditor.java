@@ -46,6 +46,7 @@ import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.symbolic_math.ArrivalFactory;
 import unikl.disco.calculator.symbolic_math.ArrivalType;
 import unikl.disco.calculator.symbolic_math.BadInitializationException;
+import unikl.disco.misc.NetworkActionException;
 
 
 /**
@@ -364,7 +365,13 @@ public class FlowEditor extends JDialog {
                     }
 		}
 		
-		if(flow_adding) snc.invokeCommand(new AddFlowCommand(aliasField.getText(), flow_arrival, route, priorities, -1, snc));
+		if(flow_adding) {
+                    try {
+                        snc.invokeCommand(new AddFlowCommand(aliasField.getText(), flow_arrival, route, priorities, -1, snc));
+                    } catch(NetworkActionException ex) {
+                        System.out.println(ex.getMessage());
+                    }
+                }
 
 		dispose();
 	    }

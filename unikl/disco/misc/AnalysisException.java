@@ -18,22 +18,19 @@
  *  extensions to this software.
  *
  */
-package unikl.disco.calculator.symbolic_math;
-
-import unikl.disco.calculator.SNC;
-import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
+package unikl.disco.misc;
 
 /**
  *
  * @author Sebastian Henningsen
  */
-public class ServiceFactory {
-    public static Service buildConstantRate(double rate) throws BadInitializationException {
-        if (rate > 0) {
-            throw new BadInitializationException("Constant rate server: Rate needs to be greater than zero.", rate);
-        }
-        SymbolicFunction sigma = new ConstantFunction(0);
-        SymbolicFunction rho = new ConstantFunction(rate);
-        return new Service(sigma, rho, SNC.getInstance().getCurrentNetwork());
+public class AnalysisException extends RuntimeException {
+    public AnalysisException(Exception e) {
+        super(e);
     }
+    
+    public AnalysisException(String message) {
+        super(message);
+    }
+    
 }

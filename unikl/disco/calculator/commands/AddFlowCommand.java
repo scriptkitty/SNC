@@ -24,6 +24,7 @@ import java.util.List;
 import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.network.ArrivalNotAvailableException;
+import unikl.disco.misc.NetworkActionException;
 
 /**
  * Add a {@link Flow} with given properties to the target network.
@@ -65,9 +66,9 @@ public class AddFlowCommand implements Command {
 	    // TODO: Why is this?
 	    snc.getCurrentNetwork().getFlow(flowID).getInitialArrival().getArrivaldependencies().clear();
 
-	} catch (ArrivalNotAvailableException ex) {
-	    ex.printStackTrace();
-	    success = false;
+	} catch (ArrivalNotAvailableException e) {
+            success = false;
+            throw new NetworkActionException("Error while adding flow " + this.alias + ": " + e.getMessage());
 	}
 
     }

@@ -39,6 +39,8 @@ import unikl.disco.calculator.symbolic_math.ParameterMismatchException;
 import unikl.disco.calculator.symbolic_math.ServerOverloadException;
 import unikl.disco.calculator.symbolic_math.ThetaOutOfBoundException;
 import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
+import unikl.disco.misc.AnalysisException;
+import unikl.disco.misc.FileOperationException;
 import unikl.disco.misc.UndoRedoStack;
 
 /**
@@ -136,7 +138,7 @@ public class SNC {
     /**
      * Executes the given {@link Command} and adds it to the
      * {@link UndoRedoStack}
-     *
+     * Throws NetworkActionException upon error.
      * @param c The command to be invoked.
      */
     public void invokeCommand(Command c) {
@@ -208,8 +210,8 @@ public class SNC {
         File file = null;
         try {
             file = File.createTempFile("SNC", "txt");
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            throw new FileOperationException("Error while analyzing Network: " + e.getMessage());
         }
         this.saveNetwork(file);
         Network nwCopy = Network.load(file, false);
@@ -217,7 +219,7 @@ public class SNC {
         try {
             bound = analyzer.analyze();
         } catch (ArrivalNotAvailableException | DeadlockException | BadInitializationException e) {
-            e.printStackTrace();
+            throw new AnalysisException(e);
         }
         return bound;
     }
@@ -258,7 +260,7 @@ public class SNC {
         }
 
         Optimizable bound = BoundFactory.createBound(symbolicBound, boundType, value);
-        Optimizer optimizer = OptimizationFactory.getOptimizer(nw, bound, analysisBound, optAlgorithm);
+        Optimizer optimizer = OptimizationFactory.getOptimizer(bound, analysisBound, optAlgorithm);
 
         try {
             result = optimizer.minimize(thetaGran, hoelderGran);
@@ -270,7 +272,7 @@ public class SNC {
             }
 
         } catch (ThetaOutOfBoundException | ParameterMismatchException | ServerOverloadException e) {
-            e.printStackTrace();
+            throw new AnalysisException(e);
         }
         // For debugging purposes
         if (result != debugVal) {
@@ -293,7 +295,7 @@ public class SNC {
         } else if (boundType == BoundType.DELAY || boundType == BoundType.INVERSE_DELAY) {
             targetBoundType = AbstractAnalysis.Boundtype.DELAY;
         } else {
-            throw new IllegalArgumentException("No such boundtype");
+            throw new AnalysisException("No such boundtype");
         }
         return targetBoundType;
     }

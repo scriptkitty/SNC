@@ -25,6 +25,7 @@ import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
+import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -75,13 +76,13 @@ public class NetworkVisualizationPanel {
         layout.setSize(size);
         bvs = new VisualizationViewer<>(layout);
         bvs.setPreferredSize(size);
-        bvs.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<GraphItem>());
-        bvs.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<GraphItem>());
+        //bvs.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<GraphItem>());
+        //bvs.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<GraphItem>());
         bvs.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+        //bvs.getRenderContext().setVertexIncludePredicate(new VisibilityPredicate<>());
 
         visualizationPanel.add(bvs);
         SNC.getInstance().registerNetworkListener(new NetworkChangeListener());
-
     }
 
     /**
@@ -103,7 +104,7 @@ public class NetworkVisualizationPanel {
 
         @Override
         public void vertexAdded(Vertex newVertex) {
-            GraphItem gi = new GraphItem(newVertex.getID(), newVertex.getAlias());
+            GraphItem gi = new GraphItem(newVertex.getID(), newVertex.getAlias(), true);
             graph.addVertex(gi);
             vertices.add(gi);
             updateLayout();
@@ -111,7 +112,7 @@ public class NetworkVisualizationPanel {
 
         @Override
         public void vertexRemoved(Vertex removedVertex) {
-            GraphItem gi = new GraphItem(removedVertex.getID(), removedVertex.getAlias());
+            GraphItem gi = new GraphItem(removedVertex.getID(), removedVertex.getAlias(), true);
             vertices.remove(gi);
             graph.removeVertex(gi);
             // TODO: Handle flows. Is this already covered by flowChanged()?
@@ -129,14 +130,15 @@ public class NetworkVisualizationPanel {
                 while (it.hasNext()) {
                     newID = it.next();
                     System.out.println(oldId + " " + newID);
-                    GraphItem gi = new GraphItem(newFlow.getID() + i, newFlow.getAlias());
+                    GraphItem gi = new GraphItem(newFlow.getID() + i, newFlow.getAlias(), true);
                     flows.add(gi);
                     graph.addEdge(gi, getVertexbyID(oldId), getVertexbyID(newID), EdgeType.DIRECTED);
                     oldId = newID;
                     i++;
                 }
             } else {
-                GraphItem gi = new GraphItem(newFlow.getID(), newFlow.getAlias());
+                GraphItem gi = new GraphItem(newFlow.getID(), newFlow.getAlias(), true);
+                flows.add(gi);
                 graph.addEdge(gi, getVertexbyID(oldId), getVertexbyID(oldId), EdgeType.DIRECTED);
             }
             updateLayout();
@@ -146,12 +148,12 @@ public class NetworkVisualizationPanel {
         public void flowRemoved(Flow removedFlow) {
             List<Integer> route = removedFlow.getVerticeIDs();
             for (int i = 0; i < route.size(); i++) {
-                GraphItem gi = getFlowbyID(removedFlow.getID()+i);
+                GraphItem gi = getFlowbyID(removedFlow.getID() + i);
                 graph.removeEdge(gi);
                 flows.remove(gi);
             }
             updateLayout();
-            
+
         }
 
         @Override
@@ -163,7 +165,7 @@ public class NetworkVisualizationPanel {
                 flows.remove(gi);
             }
             flowAdded(changedFlow);
-            
+
         }
 
         @Override
@@ -196,7 +198,7 @@ public class NetworkVisualizationPanel {
             }
             return result;
         }
-        
+
         private List<GraphItem> getFlowbyAlias(String alias) {
             List<GraphItem> result = new LinkedList<>();
             for (GraphItem gi : flows) {
@@ -214,12 +216,14 @@ class GraphItem {
 
     private final int id;
     private final String alias;
+    private boolean visibility;
 
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 23 * hash + this.id;
-        hash = 23 * hash + Objects.hashCode(this.alias);
+        hash = 53 * hash + this.id;
+        hash = 53 * hash + Objects.hashCode(this.alias);
+        hash = 53 * hash + (this.visibility ? 1 : 0);
         return hash;
     }
 
@@ -238,15 +242,19 @@ class GraphItem {
         if (this.id != other.id) {
             return false;
         }
+        if (this.visibility != other.visibility) {
+            return false;
+        }
         if (!Objects.equals(this.alias, other.alias)) {
             return false;
         }
         return true;
     }
 
-    public GraphItem(int id, String alias) {
+    public GraphItem(int id, String alias, boolean visibility) {
         this.id = id;
         this.alias = alias;
+        this.visibility = visibility;
     }
 
     @Override
@@ -261,4 +269,18 @@ class GraphItem {
     public String getAlias() {
         return alias;
     }
+
+    public boolean isVisible() {
+        return visibility;
+    }
 }
+
+/*class VisibilityPredicate<V extends GraphItem, E extends GraphItem> implements Predicate<Context<Graph<V, E>, V>> {
+
+    @Override
+    public boolean evaluate(Context<Graph<V, E>, V> context) {
+        Graph<V, E> g = context.graph;
+        V v = context.element;
+        return v.isVisible();
+    }
+}*/

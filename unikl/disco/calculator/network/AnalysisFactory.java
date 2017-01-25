@@ -22,6 +22,7 @@
 package unikl.disco.calculator.network;
 
 import java.util.Map;
+import unikl.disco.misc.AnalysisException;
 
 /**
  *
@@ -47,7 +48,7 @@ public class AnalysisFactory {
             case LADDER_ANA:
             	return new LadderAnalysis(nw, vertices, flows, flow_of_interest, vertex_of_interest, boundtype);
             default:
-                throw new IllegalArgumentException("Analysis Type: " + type.toString() + " not known.");
+                throw new AnalysisException("Analysis Type: " + type.toString() + " not known.");
         }
     }
 }

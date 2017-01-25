@@ -52,10 +52,9 @@ public class SimpleOptimizer extends AbstractOptimizer {
      * Creation is delegated to the @link AbstractOptimizer subclass.
      * @param input
      * @param boundtype
-     * @param nw
      */
-    public SimpleOptimizer(Optimizable input, Boundtype boundtype, Network nw) {
-		super(input, boundtype, nw);
+    public SimpleOptimizer(Optimizable input, Boundtype boundtype) {
+		super(input, boundtype);
 	}
 	
         @Override

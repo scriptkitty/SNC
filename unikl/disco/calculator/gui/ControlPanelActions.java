@@ -30,6 +30,7 @@ import unikl.disco.calculator.commands.RemoveFlowCommand;
 import unikl.disco.calculator.commands.RemoveVertexCommand;
 import unikl.disco.calculator.commands.SubtractFlowCommand;
 import unikl.disco.calculator.network.Network;
+import unikl.disco.misc.NetworkActionException;
 
 /**
  * This static factory serves as collection of all actions corresponding to the {@link ControlPanel}.
@@ -71,8 +72,13 @@ public class ControlPanelActions {
                         selectables[0]);
                 if (d != null) {
                     Command cmd = new RemoveVertexCommand(d.getID(), -1, SNC.getInstance());
+                    try {
                     SNC.getInstance().invokeCommand(cmd);
                     System.out.println(d.getID() + " " + d.getAlias());
+                    } catch (NetworkActionException ex) {
+                        System.out.println(ex.getMessage());
+                    }
+                    
                 } else {
                     System.out.println("No vertex selected");
                 }
@@ -105,8 +111,12 @@ public class ControlPanelActions {
                         selectables[0]);
                 if (d != null) {
                     Command cmd = new RemoveFlowCommand(d.getID(), -1, SNC.getInstance());
+                    try {
                     SNC.getInstance().invokeCommand(cmd);
                     System.out.println(d.getID() + " " + d.getAlias());
+                    } catch (NetworkActionException ex) {
+                        System.out.println(ex.getMessage());
+                    }
                 } else {
                     System.out.println("No flow selected.");
                 }
@@ -182,7 +192,11 @@ public class ControlPanelActions {
                         selectables[0]);
                 if (d != null) {
                     Command cmd = new SubtractFlowCommand(d.getID(), -1, SNC.getInstance());
+                    try {
                     SNC.getInstance().invokeCommand(cmd);
+                    } catch(NetworkActionException ex) {
+                        System.out.println(ex.getMessage());
+                    }
                 } else {
                     System.out.println("No vertex selected.");
                 }

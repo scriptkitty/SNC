@@ -23,6 +23,7 @@ package unikl.disco.calculator.optimization;
 
 import unikl.disco.calculator.network.AbstractAnalysis;
 import unikl.disco.calculator.network.Network;
+import unikl.disco.misc.AnalysisException;
 
 /**
  * A factory to abstract from different implementations of the @link Optimizer interface.
@@ -38,14 +39,14 @@ public class OptimizationFactory {
      * @param type The desired OptimizationType
      * @return A concrete instance of an optimizer, which is chosen w.r.t. the passed OptimizationType enum.
      */
-    public static Optimizer getOptimizer(Network nw, Optimizable bound, AbstractAnalysis.Boundtype boundtype, OptimizationType type) {
+    public static Optimizer getOptimizer(Optimizable bound, AbstractAnalysis.Boundtype boundtype, OptimizationType type) {
         switch(type) {
             case SIMPLE_OPT:
-                return new SimpleOptimizer(bound, boundtype, nw);
+                return new SimpleOptimizer(bound, boundtype);
             case GRADIENT_OPT:
-                return new SimpleGradient(bound, boundtype, nw);
+                return new SimpleGradient(bound, boundtype);
             default:
-                throw new IllegalArgumentException("Optimization Type: " + type.toString() + " not known.");
+                throw new AnalysisException("Optimization Type: " + type.toString() + " not known.");
         }
     }
 }

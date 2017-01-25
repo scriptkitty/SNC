@@ -58,10 +58,9 @@ public class SimpleGradient extends AbstractOptimizer {
      * Creates an instance of this class, delegates the construction to @link AbstractOptimizer.
      * @param bound
      * @param boundtype
-     * @param nw
      */
-    public SimpleGradient(Optimizable bound, AbstractAnalysis.Boundtype boundtype, Network nw) {
-		super(bound, boundtype, nw);
+    public SimpleGradient(Optimizable bound, AbstractAnalysis.Boundtype boundtype) {
+		super(bound, boundtype);
 	}
         
         @Override

@@ -31,6 +31,7 @@ import unikl.disco.calculator.network.AnalysisType;
 import unikl.disco.calculator.network.Flow;
 import unikl.disco.calculator.network.Network;
 import unikl.disco.calculator.network.Vertex;
+import unikl.disco.misc.AnalysisException;
 
 /**
  * A dialog to poll the user for input to compute a symbolic bound for a {@Network}
@@ -92,9 +93,12 @@ public class AnalyzeDialog {
             Flow flow = nw.getFlow(flowID);
             int vertexID = ((Displayable) vertexSelector.getSelectedItem()).getID();
             Vertex vertex = nw.getVertex(vertexID);
-
+            try {
             SNC.getInstance().analyzeNetwork(flow, vertex, (AnalysisType) analysisSelector.getSelectedItem(),
                     (AbstractAnalysis.Boundtype) boundSelector.getSelectedItem(), nw);
+            } catch(AnalysisException ex) {
+                System.out.println(ex.getMessage());
+            }
             // Just for debugging
             System.out.println(vertexSelector.getSelectedItem()
                     + " " + flowSelector.getSelectedItem()

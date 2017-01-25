@@ -26,6 +26,7 @@ import java.util.List;
 
 import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.gui.Displayable;
+import unikl.disco.misc.NetworkActionException;
 
 /**
  * Describes a flow through the network and gives it an initial arrival. The
@@ -88,7 +89,7 @@ public class Flow implements Serializable, Displayable {
         // Sanity checks. Route should be the same length as priorities.
         // arrival should be smaller
         if(vertices.size() != priorities.size() || arrivals.size() > vertices.size()) {
-            throw new IllegalArgumentException("Flow cannot be constructed. route, priorities and arrivals do not match.");
+            throw new NetworkActionException("Flow cannot be constructed. route, priorities and arrivals do not match.");
         }
         // TODO: Make this safer
         established_arrivals = 1;

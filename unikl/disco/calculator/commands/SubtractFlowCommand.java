@@ -23,6 +23,7 @@ package unikl.disco.calculator.commands;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.network.ArrivalNotAvailableException;
 import unikl.disco.calculator.network.Vertex;
+import unikl.disco.misc.NetworkActionException;
 
 /**
  * Computes the left-over-service at the given vertex
@@ -49,8 +50,8 @@ public class SubtractFlowCommand implements Command {
     public void execute() {
         try {
             snc.getCurrentNetwork().computeLeftoverService(vertexID);
-        } catch (ArrivalNotAvailableException ex) {
-            ex.printStackTrace();
+        } catch (ArrivalNotAvailableException e) {
+            throw new NetworkActionException("Error while computing leftover service of vertex " + snc.getCurrentNetwork().getVertex(vertexID).getAlias() + ": " + e.getMessage());
         }
     }
 

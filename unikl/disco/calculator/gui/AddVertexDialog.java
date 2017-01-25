@@ -30,6 +30,7 @@ import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.commands.AddVertexCommand;
 import unikl.disco.calculator.commands.Command;
 import unikl.disco.calculator.symbolic_math.ServiceType;
+import unikl.disco.misc.NetworkActionException;
 
 /**
  * A dialog to get input from the user in order to add a vertex to a network.
@@ -80,11 +81,13 @@ public class AddVertexDialog {
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             SNC snc = SNC.getInstance();
-            double rate = Double.parseDouble(rateField.getText());
-            Command cmd = new AddVertexCommand(aliasField.getText(), rate, -1, snc);
+            double serviceRate = Double.parseDouble(rateField.getText());
+            Command cmd = new AddVertexCommand(aliasField.getText(), serviceRate, -1, snc);
+            try {
             snc.invokeCommand(cmd);
-            // Just for debugging
-            //System.out.println(aliasField.getText());
+            } catch(NetworkActionException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 }

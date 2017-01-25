@@ -58,21 +58,15 @@ public abstract class AbstractOptimizer implements Optimizer {
      */
     protected double maxTheta;
 
-    /**
-     * The network the optimizer is associated with
-     */
-    protected Network nw;
-
-    /**
+     /**
      * Sets the basic parameters
      * @param input Bound to-be-optimized
      * @param boundtype Leftover, will be removed in future versions
      * @param nw The corresponding network the optimizer is associated with
      */
-    public AbstractOptimizer(Optimizable input, AbstractAnalysis.Boundtype boundtype, Network nw){
+    public AbstractOptimizer(Optimizable input, AbstractAnalysis.Boundtype boundtype){
 		this.bound = input;
 		this.boundtype = boundtype;
-                this.nw = nw;
 	}
 
     /**

@@ -36,7 +36,7 @@ import unikl.disco.calculator.symbolic_math.Arrival;
 import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
 
 /**
- *
+ * WARNING: Do not use this class!
  * @author Sebastian Henningsen
  */
 public class AddFlowDialog {
