@@ -1,4 +1,4 @@
- /*
+/*
  *  (c) 2013 Michael A. Beck, disco | Distributed Computer Systems Lab
  *                                  University of Kaiserslautern, Germany
  *         All Rights Reserved.
@@ -27,9 +27,11 @@ import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 import unikl.disco.calculator.SNC;
+import unikl.disco.misc.FileOperationException;
 
 /**
  * A static factory containing all menu actions.
+ *
  * @author Sebastian Henningsen
  * @author Michael Beck
  */
@@ -48,7 +50,11 @@ public class MenuActions {
             JFileChooser chooser = new JFileChooser();
             int opened = chooser.showOpenDialog(null);
             if (opened == JFileChooser.APPROVE_OPTION) {
-                SNC.getInstance().loadNetwork(chooser.getSelectedFile());
+                try {
+                    SNC.getInstance().loadNetwork(chooser.getSelectedFile());
+                } catch (FileOperationException e) {
+                    System.out.println(e.getLine().equals("") ? "Error while loading network: " + e.getMessage() : "Error while loading in line: \"" + e.getLine() + "\". " + e.getMessage());
+                }
             }
         }
 
@@ -67,8 +73,12 @@ public class MenuActions {
             JFileChooser chooser = new JFileChooser();
             int saved = chooser.showSaveDialog(null);
             if (saved == JFileChooser.APPROVE_OPTION) {
-                SNC.getInstance().saveNetwork(chooser.getSelectedFile());
-                System.out.println("Save Network");
+                try {
+                    SNC.getInstance().saveNetwork(chooser.getSelectedFile());
+                } catch (FileOperationException e) {
+                    System.out.println("Error while saving network: " + e.getMessage());
+
+                }
             }
         }
 

@@ -106,21 +106,6 @@ public class SNC {
                 main.createGUI();
             }
         };
-        //snc.ConvolutionTest();
-        /*snc.loadNetwork(new File("/home/sebastian/ladder.txt"));
-        Network nw = snc.getCurrentNetwork();
-        Analyzer ladderAna = new LadderAnalysis(nw, nw.getVertices(), nw.getFlows(), 1, 2, AbstractAnalysis.Boundtype.BACKLOG);
-        ladderAna.analyze();
-        System.out.println("Vertices:");
-        for (Vertex v : nw.getVertices().values()) {
-            System.out.println(v.getAlias());
-        }
-        System.out.println("Flows:");
-        for (Flow f : nw.getFlows().values()) {
-            System.out.println(f.getAlias() + "Route - " + f.getVerticeIDs());
-        }
-
-        System.exit(0);*/
         EventQueue.invokeLater(runnable);
 
     }
@@ -176,17 +161,15 @@ public class SNC {
      * @param file The file to which the network should be saved.
      */
     public void saveNetwork(File file) {
-        try {
-            getCurrentNetwork().save(file);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        getCurrentNetwork().save(file);
+
     }
 
     /**
      * Load a {@link Network} from the file specified by the parameter. Since,
      * at the moment, only one network can be opened at a time, the currently
-     * accessed network is overwritten.
+     * accessed network is overwritten. Throws a FileOperationException when an
+     * error upon load occurs
      *
      * @param file The file in which the network is saved.
      */
@@ -230,39 +213,12 @@ public class SNC {
         }
         this.saveNetwork(file);
         Network nwCopy = Network.load(file, false);
-        /*Map<Integer, Vertex> givenVertices = new HashMap<>();
-        for (Entry<Integer, Vertex> entry : nw.getVertices().entrySet()) {
-            givenVertices.put(entry.getKey(), entry.getValue().copy());
-        }
-
-        Map<Integer, Flow> givenFlows = new HashMap<>();
-        for (Entry<Integer, Flow> entry : nw.getFlows().entrySet()) {
-            givenFlows.put(entry.getKey(), entry.getValue().copy());
-        }
-
-        int resetFlowID = nw.getFLOW_ID();
-        int resetHoelderID = nw.getHOELDER_ID();
-        int resetVertexID = nw.getVERTEX_ID();*/
-        /*System.out.println("Vertices: ");
-        for(Vertex v : nwCopy.getVertices().values()) {
-            System.out.println(v.getAlias());
-        }
-        System.out.println("Flows: ");
-        for(Flow f : nwCopy.getFlows().values()) {
-            System.out.println(f.getAlias());
-        }*/
         Analyzer analyzer = AnalysisFactory.getAnalyzer(anaType, nwCopy, nwCopy.getVertices(), nwCopy.getFlows(), flow.getID(), vertex.getID(), boundtype);
         try {
             bound = analyzer.analyze();
         } catch (ArrivalNotAvailableException | DeadlockException | BadInitializationException e) {
             e.printStackTrace();
         }
-
-        //Resets the network
-        /*nw.resetFLOW_ID(resetFlowID);
-        nw.resetHOELDER_ID(resetHoelderID);
-        nw.resetVERTEX_ID(resetVertexID);*/
-
         return bound;
     }
 

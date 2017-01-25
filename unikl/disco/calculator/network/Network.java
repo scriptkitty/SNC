@@ -51,6 +51,7 @@ import unikl.disco.calculator.symbolic_math.functions.ConstantFunction;
 import unikl.disco.calculator.symbolic_math.functions.EBBSigma;
 import unikl.disco.calculator.symbolic_math.functions.ExponentialSigma;
 import unikl.disco.calculator.symbolic_math.functions.StationaryTBSigma;
+import unikl.disco.misc.FileOperationException;
 
 /**
  * This class provides several methods to construct and change a network
@@ -656,11 +657,11 @@ public class Network implements Serializable {
      * flows (HashMap<Integer, Flow>) hoelders (HashMap<Integer, Hoelder>)
      *
      * @param profile_path
+     * @param redirectListeners
      * @return
      */
     public static Network load(File profile_path, boolean redirectListeners) {
         //will read profile.txt line by line
-        BufferedReader br = null;
         Network nw = new Network();
         // Kind of a hack
         if (redirectListeners) {
@@ -670,9 +671,8 @@ public class Network implements Serializable {
                 nw.addListener(l);
             }
         }
-        try {
+        try (BufferedReader br = new BufferedReader(new FileReader(profile_path))) {
             String sCurrentLine;
-            br = new BufferedReader(new FileReader(profile_path));
 
             //reads all lines
             while ((sCurrentLine = br.readLine()) != null) {
@@ -681,8 +681,9 @@ public class Network implements Serializable {
                     try {
                         nw.handleVertexLine(sCurrentLine);
                     } catch (BadInitializationException | NumberFormatException e) {
-                        System.out.println("Bad Initialization in line " + sCurrentLine + ". Parameter for Constant Rate server must be a non-negative number.");
-                        e.printStackTrace();
+                        nw.clearListeners(redirectListeners);
+                        //"Parameter for constant rate server must be a non-negative number."
+                        throw new FileOperationException(e.getMessage(), sCurrentLine);
                     }
                 }
 
@@ -690,9 +691,9 @@ public class Network implements Serializable {
                 if (sCurrentLine.startsWith("F")) {
                     try {
                         nw.handleFlowLine(sCurrentLine);
-                    } catch (NumberFormatException | BadInitializationException | ArrivalNotAvailableException e) {
-                        System.out.println("Error at line " + sCurrentLine + ":");
-                        e.printStackTrace();
+                    } catch (BadInitializationException | ArrivalNotAvailableException | FileOperationException e) {
+                        nw.clearListeners(redirectListeners);
+                        throw new FileOperationException(e.getMessage(), sCurrentLine);
                     }
                 }
             }
@@ -706,12 +707,23 @@ public class Network implements Serializable {
             }
             br.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            // Will be automatically closed due to try-with-resources
+            // Rewrap the exception and propagate it upwards
+            throw new FileOperationException(e);
         }
         return nw;
     }
 
-    private int handleVertexLine(String line) throws BadInitializationException, NumberFormatException {
+    private void clearListeners(boolean redirectListeners) {
+        if (redirectListeners) {
+            List<NetworkListener> oldListeners = SNC.getInstance().getCurrentNetwork().getListeners();
+            for (NetworkListener l : oldListeners) {
+                l.clear();
+            }
+        }
+    }
+
+    private int handleVertexLine(String line) throws BadInitializationException {
         // Removes the first character, we do not need that anymore anyway
         line = line.substring(1).trim();
         String[] lineParts = line.split(",");
@@ -734,7 +746,7 @@ public class Network implements Serializable {
             String[] entry = lineParts[i + pathOffset].trim().split(":");
             Vertex v = this.getVertexByName(entry[0].trim());
             if (v == null) {
-                throw new IllegalArgumentException("Could not find Vertex " + entry[0].trim());
+                throw new FileOperationException("Could not find Vertex " + entry[0].trim(), line);
             }
             route.add(this.getVertexByName(entry[0].trim()).getID());
             priorities.add(Integer.parseInt(entry[1].trim()));
@@ -776,11 +788,10 @@ public class Network implements Serializable {
             }
 
         } else {
-            throw new IllegalArgumentException("No arrival with type " + arrivalType + " known.");
+            throw new FileOperationException("No arrival with type " + arrivalType + " known.", line);
         }
         int flowID = this.addFlow(arrival, route, priorities, flowName);
         this.getFlow(flowID).getInitialArrival().getArrivaldependencies().clear();
-
     }
 
     /**
@@ -788,68 +799,69 @@ public class Network implements Serializable {
      * simple ObjectOutputStream. The order of saved objects (and its
      * corresponding type) is: vertices (HashMap<Integer, Vertex>
      * flows (HashMap<Integer, Flow>) hoelders (HashMap<Integer, Hoelder>)
+     * Throws a runtime FileOperationException if an error occurs
      *
      * @param file
      */
-    public void save(File file) throws IOException {
+    public void save(File file) {
         if (this.getHOELDER_ID() > 1) {
-            throw new IllegalArgumentException("Currently not possible to store networks with Hölder IDs");
-        }
-        BufferedWriter bw = null;
-        try {
-            bw = new BufferedWriter(new FileWriter(file));
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return;
+            throw new FileOperationException("Currently not possible to store networks with Hölder IDs");
         }
 
-        // Write out the nodes
-        for (Vertex v : this.getVertices().values()) {
-            bw.write("I " + v.getAlias() + ", " + "FIFO" + ", " + "CR" + ", " + v.getService().getRho().toString().substring(1));
-            bw.newLine();
-        }
-        bw.write("EOI");
-        bw.newLine();
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 
-        for (Flow f : this.getFlows().values()) {
-            List<Integer> route = f.getVerticeIDs();
-            List<Integer> priorities = f.getPriorities();
-            StringBuilder outRoute = new StringBuilder();
-            for (int i = 0; i < route.size(); i++) {
-                outRoute.append(this.getVertices().get(route.get(i)).getAlias());
-                outRoute.append(":");
-                outRoute.append(priorities.get(i));
-                if (i < route.size() - 1) {
-                    outRoute.append(", ");
-                }
+            // Write out the nodes
+            for (Vertex v : this.getVertices().values()) {
+                bw.write("I " + v.getAlias() + ", " + "FIFO" + ", " + "CR" + ", " + v.getService().getRho().toString().substring(1));
+                bw.newLine();
             }
-            Arrival initArrival = f.getInitialArrival();
-            // Until we use a parser for symbolic functions: Find out what kind of Arrival this is
-            // Since the initial arrival stems from a text file there are only 5 options to choose from
-            SymbolicFunction rho = initArrival.getRho();
-            SymbolicFunction sigma = initArrival.getSigma();
-            String arrivalParameters = "";
-            if (rho instanceof ConstantFunction && sigma instanceof ConstantFunction) {
-                arrivalParameters = "CONSTANT, " + rho.toString();
-                // Constant Arrival
-            } else if (rho instanceof ConstantFunction && sigma instanceof EBBSigma) {
-                arrivalParameters = "EBB, " + rho.toString() + ", " + sigma.toString().substring(4, sigma.toString().length() - 1);
-            } else if (rho instanceof ConstantFunction && sigma instanceof StationaryTBSigma) {
-                arrivalParameters = "STATIONARYTB, " + rho.toString() + ", " + sigma.toString().substring(7, sigma.toString().length() - 1);
-                if (sigma.getmaxTheta() != Double.POSITIVE_INFINITY) {
-                    arrivalParameters += ", " + sigma.getmaxTheta();
-                }
-            } else if (rho instanceof ExponentialSigma && sigma instanceof ConstantFunction) {
-                arrivalParameters = "EXPONENTIAL, " + rho.toString().substring(8, rho.toString().length() - 1);
-            } else {
-                throw new IllegalArgumentException("Save Network: No matching arrival types found for flow " + f.getAlias());
-            }
-            bw.write("F " + f.getAlias() + ", " + route.size() + ", " + outRoute + ", " + arrivalParameters);
+            bw.write("EOI");
             bw.newLine();
+
+            for (Flow f : this.getFlows().values()) {
+                List<Integer> route = f.getVerticeIDs();
+                List<Integer> priorities = f.getPriorities();
+                StringBuilder outRoute = new StringBuilder();
+                for (int i = 0; i < route.size(); i++) {
+                    outRoute.append(this.getVertices().get(route.get(i)).getAlias());
+                    outRoute.append(":");
+                    outRoute.append(priorities.get(i));
+                    if (i < route.size() - 1) {
+                        outRoute.append(", ");
+                    }
+                }
+                Arrival initArrival = f.getInitialArrival();
+                // Until we use a parser for symbolic functions: Find out what kind of Arrival this is
+                // Since the initial arrival stems from a text file there are only 5 options to choose from
+                SymbolicFunction rho = initArrival.getRho();
+                SymbolicFunction sigma = initArrival.getSigma();
+                String arrivalParameters = "";
+                if (rho instanceof ConstantFunction && sigma instanceof ConstantFunction) {
+                    arrivalParameters = "CONSTANT, " + rho.toString();
+                    // Constant Arrival
+                } else if (rho instanceof ConstantFunction && sigma instanceof EBBSigma) {
+                    arrivalParameters = "EBB, " + rho.toString() + ", " + sigma.toString().substring(4, sigma.toString().length() - 1);
+                } else if (rho instanceof ConstantFunction && sigma instanceof StationaryTBSigma) {
+                    arrivalParameters = "STATIONARYTB, " + rho.toString() + ", " + sigma.toString().substring(7, sigma.toString().length() - 1);
+                    if (sigma.getmaxTheta() != Double.POSITIVE_INFINITY) {
+                        arrivalParameters += ", " + sigma.getmaxTheta();
+                    }
+                } else if (rho instanceof ExponentialSigma && sigma instanceof ConstantFunction) {
+                    arrivalParameters = "EXPONENTIAL, " + rho.toString().substring(8, rho.toString().length() - 1);
+                } else {
+                    throw new FileOperationException("Save Network: No matching arrival types found for flow " + f.getAlias());
+                }
+                bw.write("F " + f.getAlias() + ", " + route.size() + ", " + outRoute + ", " + arrivalParameters);
+                bw.newLine();
+            }
+            bw.write("EOF");
+            bw.newLine();
+            bw.close();
+        } catch (IOException e) {
+            // Since we are using try-with-resources, the file will be closed automatically
+            // when an exception occurs.
+            throw new FileOperationException(e);
         }
-        bw.write("EOF");
-        bw.newLine();
-        bw.close();
     }
 
     /**
