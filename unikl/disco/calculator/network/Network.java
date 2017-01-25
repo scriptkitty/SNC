@@ -353,19 +353,22 @@ public class Network implements Serializable {
 
         //Adds the flow into the flow list
         Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
+        // Check whether every vertex exists
+        for (int i = 0; i < route.size(); i++) {
+            if (vertices.get(i) == null) {
+                throw new NetworkActionException("Error while adding flow " + alias + ". No node with ID " + i);
+            }
+        }
+        //Initializes the first arrival at the first vertex
+        Vertex first_vertex = vertices.get(route.get(0));
+        first_vertex.learnArrival(FLOW_ID, initial_arrival);
         flows.put(FLOW_ID, flow);
-
         //Writes the flow in its corresponding vertices
         for (int i = 0; i < route.size(); i++) {
             Vertex vertex;
             vertex = vertices.get(route.get(i));
             vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
         }
-
-        Vertex first_vertex = vertices.get(route.get(0));
-
-        //Initializes the first arrival at the first vertex
-        first_vertex.learnArrival(FLOW_ID, initial_arrival);
 
         //Increments the flow count
         incrementFLOW_ID();
@@ -377,43 +380,6 @@ public class Network implements Serializable {
         return flow.getID();
     }
 
-    /**
-     * Adds a flow with all its arrivals, priorities and vertices to the network
-     *
-     * @param arrivals the arrivals at the vertices. Normally only te initial
-     * arrival is needed and hence all other arrivals will be overwritten by the
-     * analysis.
-     * @param route
-     * @param priorities the priorities of the flow at the corresponding
-     * vertices
-     * @param alias the alias of the new flow
-     * @throws ArrivalNotAvailableException
-     */
-    /*public void addFlow(List<Arrival> arrivals, List<Integer> route,
-            List<Integer> priorities, String alias) throws ArrivalNotAvailableException {
-
-        Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
-
-        //Adds the flow into the flow list
-        flows.put(FLOW_ID, flow);
-
-        //Writes the flow in its corresponding vertices
-        for (int i = 0; i < route.size(); i++) {
-            Vertex vertex;
-            vertex = vertices.get(route.get(i));
-            vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
-            vertex.learnArrival(FLOW_ID, arrivals.get(i));
-        }
-
-        //Increments the flow count
-        incrementFLOW_ID();
-
-        // Notify the listeners
-        for (NetworkListener l : listeners) {
-            l.flowAdded(flow);
-
-        }
-    }*/
     /**
      * Appends a node to an already existing flow. The arrival at this appended
      * node is non established.

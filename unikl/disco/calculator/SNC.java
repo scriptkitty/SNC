@@ -137,8 +137,8 @@ public class SNC {
 
     /**
      * Executes the given {@link Command} and adds it to the
-     * {@link UndoRedoStack}
-     * Throws NetworkActionException upon error.
+     * {@link UndoRedoStack} Throws NetworkActionException upon error.
+     *
      * @param c The command to be invoked.
      */
     public void invokeCommand(Command c) {
@@ -176,7 +176,8 @@ public class SNC {
      * @param file The file in which the network is saved.
      */
     public void loadNetwork(File file) {
-        networks.set(currentNetworkPosition, Network.load(file, true));
+        Network nw = Network.load(file, true);
+        networks.set(currentNetworkPosition, nw);
     }
 
     /**
