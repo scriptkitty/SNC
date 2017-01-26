@@ -355,13 +355,13 @@ public class Network implements Serializable {
         Flow flow = new Flow(FLOW_ID, route, arrivals, priorities, alias, this);
         // Check whether every vertex exists
         for (int i = 0; i < route.size(); i++) {
-            if (vertices.get(i) == null) {
+            if (vertices.get(route.get(i)) == null) {
                 throw new NetworkActionException("Error while adding flow " + alias + ". No node with ID " + i);
             }
         }
         //Initializes the first arrival at the first vertex
         Vertex first_vertex = vertices.get(route.get(0));
-        first_vertex.learnArrival(FLOW_ID, initial_arrival);
+
         flows.put(FLOW_ID, flow);
         //Writes the flow in its corresponding vertices
         for (int i = 0; i < route.size(); i++) {
@@ -369,7 +369,7 @@ public class Network implements Serializable {
             vertex = vertices.get(route.get(i));
             vertex.addUnknownArrival(priorities.get(i), FLOW_ID);
         }
-
+        first_vertex.learnArrival(FLOW_ID, initial_arrival);
         //Increments the flow count
         incrementFLOW_ID();
 
