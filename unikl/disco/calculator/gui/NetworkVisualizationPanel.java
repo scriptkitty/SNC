@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Objects;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import org.apache.commons.collections15.Transformer;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.network.Flow;
 import unikl.disco.calculator.network.Network;
@@ -57,8 +58,11 @@ public class NetworkVisualizationPanel {
     private Layout<GraphItem, GraphItem> layout;
     VisualizationViewer<GraphItem, GraphItem> bvs;
     private Dimension size;
+    private Dimension graphSize;
     private List<GraphItem> vertices;
     private List<GraphItem> flows;
+    private final double attractionMultiplier = 0.5;
+    private final double repulsionMultiplier = 1;
 
     /**
      * Creates the panel.
@@ -71,15 +75,28 @@ public class NetworkVisualizationPanel {
         visualizationPanel = new ScrollPane();
         visualizationPanel.setPreferredSize(size);
         this.size = size;
+        graphSize = new Dimension((int)size.getWidth()-50, (int)size.getHeight()-50);
         graph = new SparseMultigraph();
         layout = new FRLayout<>(graph);
+        ((FRLayout) layout).setAttractionMultiplier(attractionMultiplier);
+        ((FRLayout) layout).setRepulsionMultiplier(repulsionMultiplier);
         layout.setSize(size);
+
         bvs = new VisualizationViewer<>(layout);
         bvs.setPreferredSize(size);
-        //bvs.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<GraphItem>());
-        //bvs.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<GraphItem>());
+        bvs.getRenderContext().setVertexLabelTransformer(new Transformer<GraphItem, String>() {
+            @Override
+            public String transform(GraphItem i) {
+                return i.toString();
+            }
+        });
+        bvs.getRenderContext().setEdgeLabelTransformer(new Transformer<GraphItem, String>() {
+            @Override
+            public String transform(GraphItem i) {
+                return i.toString();
+            }
+        });
         bvs.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
-        //bvs.getRenderContext().setVertexIncludePredicate(new VisibilityPredicate<>());
 
         visualizationPanel.add(bvs);
         SNC.getInstance().registerNetworkListener(new NetworkChangeListener());
@@ -97,14 +114,15 @@ public class NetworkVisualizationPanel {
     private class NetworkChangeListener implements NetworkListener {
 
         private void updateLayout() {
-            layout = new FRLayout<>(graph);
-            bvs.setGraphLayout(layout);
+            bvs.getGraphLayout().setGraph(graph);
+            //layout = new FRLayout<>(graph);
+            //bvs.setGraphLayout(layout);
             bvs.repaint();
         }
 
         @Override
         public void vertexAdded(Vertex newVertex) {
-            GraphItem gi = new GraphItem(newVertex.getID(), newVertex.getAlias(), true);
+            GraphItem gi = new GraphItem(newVertex.getID(), newVertex.getAlias());
             graph.addVertex(gi);
             vertices.add(gi);
             updateLayout();
@@ -112,7 +130,7 @@ public class NetworkVisualizationPanel {
 
         @Override
         public void vertexRemoved(Vertex removedVertex) {
-            GraphItem gi = new GraphItem(removedVertex.getID(), removedVertex.getAlias(), true);
+            GraphItem gi = new GraphItem(removedVertex.getID(), removedVertex.getAlias());
             vertices.remove(gi);
             graph.removeVertex(gi);
             // TODO: Handle flows. Is this already covered by flowChanged()?
@@ -130,14 +148,14 @@ public class NetworkVisualizationPanel {
                 while (it.hasNext()) {
                     newID = it.next();
                     System.out.println(oldId + " " + newID);
-                    GraphItem gi = new GraphItem(newFlow.getID() + i, newFlow.getAlias(), true);
+                    GraphItem gi = new GraphItem(newFlow.getID() + i, newFlow.getAlias());
                     flows.add(gi);
                     graph.addEdge(gi, getVertexbyID(oldId), getVertexbyID(newID), EdgeType.DIRECTED);
                     oldId = newID;
                     i++;
                 }
             } else {
-                GraphItem gi = new GraphItem(newFlow.getID(), newFlow.getAlias(), true);
+                GraphItem gi = new GraphItem(newFlow.getID(), newFlow.getAlias());
                 flows.add(gi);
                 graph.addEdge(gi, getVertexbyID(oldId), getVertexbyID(oldId), EdgeType.DIRECTED);
             }
@@ -216,14 +234,12 @@ class GraphItem {
 
     private final int id;
     private final String alias;
-    private boolean visibility;
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 53 * hash + this.id;
-        hash = 53 * hash + Objects.hashCode(this.alias);
-        hash = 53 * hash + (this.visibility ? 1 : 0);
+        int hash = 3;
+        hash = 79 * hash + this.id;
+        hash = 79 * hash + Objects.hashCode(this.alias);
         return hash;
     }
 
@@ -242,19 +258,15 @@ class GraphItem {
         if (this.id != other.id) {
             return false;
         }
-        if (this.visibility != other.visibility) {
-            return false;
-        }
         if (!Objects.equals(this.alias, other.alias)) {
             return false;
         }
         return true;
     }
 
-    public GraphItem(int id, String alias, boolean visibility) {
+    public GraphItem(int id, String alias) {
         this.id = id;
         this.alias = alias;
-        this.visibility = visibility;
     }
 
     @Override
@@ -270,9 +282,6 @@ class GraphItem {
         return alias;
     }
 
-    public boolean isVisible() {
-        return visibility;
-    }
 }
 
 /*class VisibilityPredicate<V extends GraphItem, E extends GraphItem> implements Predicate<Context<Graph<V, E>, V>> {
