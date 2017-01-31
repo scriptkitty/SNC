@@ -20,8 +20,8 @@
  */
 package unikl.disco.calculator.commands;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import unikl.disco.calculator.SNC;
+import unikl.disco.misc.NotImplementedException;
 
 /**
  * Remove a vertex ({@link Vertex}) from a network.
@@ -51,7 +51,7 @@ public class RemoveVertexCommand implements Command {
 
     @Override
     public void undo() {
-	throw new NotImplementedException();
+	throw new NotImplementedException("Undo Operation for RemoveVertexCommand not implemented yet.");
     }
     
 }

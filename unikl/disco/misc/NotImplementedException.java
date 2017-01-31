@@ -1,4 +1,4 @@
- /*
+/*
  *  (c) 2013 Michael A. Beck, disco | Distributed Computer Systems Lab
  *                                  University of Kaiserslautern, Germany
  *         All Rights Reserved.
@@ -18,40 +18,16 @@
  *  extensions to this software.
  *
  */
-package unikl.disco.calculator.commands;
-
-import unikl.disco.calculator.SNC;
-import unikl.disco.misc.NotImplementedException;
+package unikl.disco.misc;
 
 /**
- * Removes a flow ({@link Flow}) from a network.
+ *
  * @author Sebastian Henningsen
  */
-public class RemoveFlowCommand implements Command {
-    int networkID;
-    SNC snc;
-    int flowID;
+public class NotImplementedException extends RuntimeException {
+    private String message;
     
-    /**
-     * Constructs a new Command to remove a flow from a network.
-     * @param flowID The ID of the flow
-     * @param networkID The ID of the network the flow belongs to
-     * @param snc The overall controller
-     */
-    public RemoveFlowCommand(int flowID, int networkID, SNC snc) {
-        this.networkID = networkID;
-        this.snc = snc;
-	this.flowID = flowID;
+    public NotImplementedException(String message) {
+        this.message = message;
     }
-    
-    @Override
-    public void execute() {
-	snc.getCurrentNetwork().removeFlow(snc.getCurrentNetwork().getFlow(flowID));
-    }
-
-    @Override
-    public void undo() {
-	throw new NotImplementedException("Undo Operation for RemoveFlowCommand is not implemented yet.");
-    }
-    
 }
