@@ -12,13 +12,17 @@ We appreciate any contribution, so feel free to fork the code, post a pull reque
 Getting Started
 ===
 
-For running the DISCO SNC you need at least a Java 7 JRE, both official and openjdk should be fine.
+For running the DISCO SNC you need a Java 8 JRE, both official and openjdk should be fine.
 There are multiple options to get started with the calculator:
 
-* Download the binary executable
+* Download the [JAR] with all necessary libraries (https://github.com/scriptkitty/SNC/blob/master/snc.jar)
 * Download the source code of the latest [release](https://github.com/scriptkitty/SNC/releases)
 * Clone the newest commit of the master branch, if you are feeling adventurous
 
+In order to execute the .jar file, just open a command line window and enter
+```bash
+java -jar snc.jar
+```
 If you choose to work with the source code, note that you have to add the external libraries to avoid compilation errors.
 When using an IDE such as Netbeans/Eclipse this can be done easily:
 
