@@ -1,7 +1,7 @@
 DISCO Stochastic Network Calculator (SNC)
 ===
 
-The Disco Stochastic Network Calculator is a Java tool for the stochastic worst case performance analysis of networks, see http://disco.informatik.uni-kl.de/content/Stochastic_Network_Calculator for a detailed description and historic versions.
+The Disco Stochastic Network Calculator is a Java tool for the stochastic worst case performance analysis of networks, see http://disco.informatik.uni-kl.de/index.php/projects/disco-snc for a detailed description and historic versions.
 The newest release is version 2.0, which can be found under the according [tag](https://github.com/scriptkitty/SNC/releases/tag/v2.0)
 
 Note that this software is still under development, so feel free to contact us, if you encounter any bugs.
