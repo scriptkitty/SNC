@@ -20,6 +20,9 @@
  */
 package unikl.disco.calculator.gui;
 
+import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
@@ -47,6 +50,9 @@ public class ControlPanel {
      */
     public ControlPanel() {
         controllerPanel = new JPanel();
+        
+        FlowLayout layout = new FlowLayout();
+		controllerPanel.setLayout(layout);
 
         addVertexButton = new JButton();
         addVertexButton.setAction(new ControlPanelActions.AddNodeAction("Add Node"));
@@ -79,6 +85,9 @@ public class ControlPanel {
         convoluteButton = new JButton();
         convoluteButton.setAction(new ControlPanelActions.ConvoluteAction("Convolute Vertices"));
         controllerPanel.add(convoluteButton);
+        
+        
+        
     }
 
     /**

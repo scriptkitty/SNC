@@ -302,7 +302,7 @@ public class SNC {
     }
 
     // Temp:
-    private void ConvolutionTest() {
+/*    private void ConvolutionTest() {
         System.out.println("Convolution Test:");
         Network nw = getCurrentNetwork();
         Command addV1 = new AddVertexCommand("V1", -2.0, -1, SNC.getInstance());
@@ -332,5 +332,5 @@ public class SNC {
             System.out.print(entry.getKey() + " " + entry.getValue().getAlias() + " ");
         }
 
-    }
+    }*/
 }

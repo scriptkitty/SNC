@@ -47,8 +47,9 @@ public class ControlPanelActions {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            AddVertexDialog dialog = new AddVertexDialog();
-            dialog.display();
+            Network nw = SNC.getInstance().getCurrentNetwork();
+            VertexEditor dialog = new VertexEditor("Add Vertex", nw, SNC.getInstance());
+            dialog.showVertexEditor();
         }
     }
 

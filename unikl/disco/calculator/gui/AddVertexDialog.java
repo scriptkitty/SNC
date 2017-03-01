@@ -29,11 +29,13 @@ import javax.swing.JTextField;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.commands.AddVertexCommand;
 import unikl.disco.calculator.commands.Command;
+import unikl.disco.calculator.symbolic_math.ServiceFactory;
 import unikl.disco.calculator.symbolic_math.ServiceType;
 import unikl.disco.misc.NetworkActionException;
 
 /**
  * A dialog to get input from the user in order to add a vertex to a network.
+ * WARNING: This class is outdated. Do not use.
  * @author Sebastian Henningsen
  * @author Michael Beck
  */
@@ -82,7 +84,7 @@ public class AddVertexDialog {
         if (result == JOptionPane.OK_OPTION) {
             SNC snc = SNC.getInstance();
             double serviceRate = Double.parseDouble(rateField.getText());
-            Command cmd = new AddVertexCommand(aliasField.getText(), serviceRate, -1, snc);
+            Command cmd = new AddVertexCommand(aliasField.getText(), ServiceFactory.buildConstantRate(serviceRate), -1, snc);
             try {
             snc.invokeCommand(cmd);
             } catch(NetworkActionException e) {

@@ -666,7 +666,7 @@ public class Network implements Serializable {
         String[] lineParts = line.split(",");
         String vertex_name = lineParts[0].trim();
         Double service_rate = Double.parseDouble(lineParts[3].trim());
-        return this.addVertex(ServiceFactory.buildConstantRate(-service_rate), vertex_name).getID();
+        return this.addVertex(ServiceFactory.buildConstantRate(service_rate), vertex_name).getID();
     }
 
     private void handleFlowLine(String line) throws NumberFormatException, BadInitializationException, ArrivalNotAvailableException {

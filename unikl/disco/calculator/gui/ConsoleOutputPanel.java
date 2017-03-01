@@ -44,6 +44,7 @@ public class ConsoleOutputPanel {
     public ConsoleOutputPanel() {
         textArea = new JTextArea();
         textArea.setEditable(false);
+        textArea.setLineWrap(true);
         scrollPane = new JScrollPane(textArea);
         
     }

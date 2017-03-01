@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import unikl.disco.calculator.SNC;
 import unikl.disco.calculator.commands.AddVertexCommand;
 import unikl.disco.calculator.commands.Command;
+import unikl.disco.calculator.symbolic_math.ServiceFactory;
 import unikl.disco.calculator.symbolic_math.ServiceType;
 
 /**
@@ -81,7 +82,7 @@ public class SubtractFlowDialog {
         if (result == JOptionPane.OK_OPTION) {
             SNC snc = SNC.getInstance();
             double rate = Double.parseDouble(rateField.getText());
-            Command cmd = new AddVertexCommand(aliasField.getText(), -1*rate, -1, snc);
+            Command cmd = new AddVertexCommand(aliasField.getText(), ServiceFactory.buildConstantRate(rate), -1, snc);
             snc.invokeCommand(cmd);
 
         }

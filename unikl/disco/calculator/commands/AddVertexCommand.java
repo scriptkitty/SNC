@@ -36,7 +36,7 @@ import unikl.disco.misc.NetworkActionException;
  */
 public class AddVertexCommand implements Command {
     private final String alias;
-    double rate;
+    Service service;
     int networkID;
     SNC snc;
     boolean success;
@@ -45,14 +45,13 @@ public class AddVertexCommand implements Command {
     /**
      * Creates a new Command to add a vertex
      * @param alias The name of the vertex
-     * @param rate The service rate the vertex offers (Because only constant rate
-     * service is possible at the moment
+     * @param service The service the vertex offers 
      * @param networkID The network the vertex belongs to
      * @param snc The overall controller
      */
-    public AddVertexCommand(String alias, double rate, int networkID, SNC snc) {
+    public AddVertexCommand(String alias, Service service, int networkID, SNC snc) {
         this.alias = alias != null ? alias : "";
-        this.rate = rate;
+        this.service = service;
         this.networkID = networkID;
         this.snc = snc;
         this.success = false;
@@ -62,11 +61,8 @@ public class AddVertexCommand implements Command {
     @Override
     public void execute() {
 	Network nw = snc.getCurrentNetwork();
-        try {
-            vertexID = nw.addVertex(ServiceFactory.buildConstantRate(-rate), alias).getID();
-        } catch (BadInitializationException ex) {
-            throw new NetworkActionException(ex);
-        }
+        
+    vertexID = nw.addVertex(service, alias).getID();
 	// Why is this?
 	snc.getCurrentNetwork().getVertex(vertexID).getService().getServicedependencies().clear();
 

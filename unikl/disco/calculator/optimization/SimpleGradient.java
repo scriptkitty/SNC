@@ -75,7 +75,8 @@ public class SimpleGradient extends AbstractOptimizer {
             
             // Initializes parameters
             maxTheta = bound.getMaximumTheta();
-            System.out.println("Max Theta: " + maxTheta);
+            //Debugging
+            //System.out.println("Max Theta: " + maxTheta);
             double theta = thetagranularity;
             int changedHoelder = Integer.MAX_VALUE;
             boolean improved = true;
@@ -197,7 +198,7 @@ public class SimpleGradient extends AbstractOptimizer {
                         break;
                 }
         }
-        System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+optValue);
+        //System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+optValue);
 
         return optValue; 
         }
@@ -531,7 +532,8 @@ public class SimpleGradient extends AbstractOptimizer {
 			allparameters.get(allparameters.size()).setPValue(0);
 			allparameters.remove(allparameters.size());
 		}
-		System.out.println("allparameters:"+ allparameters.toString());
+		//debugging
+		//System.out.println("allparameters:"+ allparameters.toString());
 		for(Map.Entry<Integer, Hoelder> entry : allparameters.entrySet()){
 			entry.getValue().setPValue(2);
 		}
@@ -686,7 +688,7 @@ public class SimpleGradient extends AbstractOptimizer {
 						improved = false;
 						break;
 					}
-					System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+backlogvalue);
+					//System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+backlogvalue);
 				}
 				
 				result = backlogvalue;
@@ -826,7 +828,7 @@ public class SimpleGradient extends AbstractOptimizer {
 						improved = false;
 						break;
 					}
-					System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+delayvalue);
+					//System.out.println("Theta: "+theta+" Hoelder: "+allparameters.toString()+" Bound: "+delayvalue);
 				}
 				
 				result = delayvalue;

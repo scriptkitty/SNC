@@ -29,7 +29,7 @@ public enum ServiceType {
     /**
      *
      */
-    CONSTANT {
+    CONSTANT_RATE {
         @Override
         public String toString() {
             return "Constant Rate Service";

@@ -60,10 +60,14 @@ public class SimpleOptimizer extends AbstractOptimizer {
         @Override
         public double minimize(double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
             
-        	if(bound.getMaximumTheta() == Double.POSITIVE_INFINITY){
-        		throw new ThetaOutOfBoundException("DEADLOCK: There is no maximal theta given for this optimization (check arrival models). Try Gradient Heuristic.");
-        	}
-        	else{
+        	//TODO: Something's wrong here. When I uncomment the below I get a DEADLOCK-Warning for simple networks, in which it should not occur.
+        	//Yet, when I comment the lines the optimization still terminates (it shouldn't, if the result of bound.getMaximumTheta() is INFINITY) 
+        	//, however with a negative result. It seems like the current
+        	//code tries out a theta which lies beyond the maximally allowed theta(?)
+        	//if(bound.getMaximumTheta() == Double.POSITIVE_INFINITY){
+        	//	throw new ThetaOutOfBoundException("DEADLOCK: There is no maximal theta given for this optimization (check arrival models). Try Gradient Heuristic.");
+        	//}
+        	//else{
         	bound.prepare();
             // Initilializes the list of Hoelder-Parameters
             Map<Integer, Hoelder> allparameters = bound.getHoelderParameters();
@@ -78,7 +82,8 @@ public class SimpleOptimizer extends AbstractOptimizer {
             
             //Initializes further values
             maxTheta = bound.getMaximumTheta();
-            System.out.println("Max Theta: " + maxTheta);
+            //Debugging
+            //System.out.println("Max Theta: " + maxTheta);
             double theta = thetagranularity;
 
             boolean breakCondition = false;
@@ -143,7 +148,7 @@ public class SimpleOptimizer extends AbstractOptimizer {
             }
             return optValue;
         	}
-        }
+//        }
         
 	@Override
 	public double ReverseBound(Arrival input, Boundtype boundtype, double violation_probability, double thetagranularity, double hoeldergranularity) throws ThetaOutOfBoundException, ParameterMismatchException, ServerOverloadException {
@@ -389,8 +394,8 @@ public class SimpleOptimizer extends AbstractOptimizer {
 		
 		//Initializes further values
 		double max_theta = input.getThetastar();
-		
-		System.out.println("max-theta: "+max_theta);
+		//Debugging
+		//System.out.println("max-theta: "+max_theta);
 		
 		boolean break_condition = false;
 		
@@ -409,8 +414,8 @@ public class SimpleOptimizer extends AbstractOptimizer {
 				while(thetastar < max_theta){
 					try{
 						double newvalue = input.evaluate(thetastar, 0, 0);
-						
-						if(newvalue < backlogvalue) System.out.println(" theta: "+thetastar+" max-theta: "+ max_theta +" bound: "+newvalue);
+						//Debugging
+						//if(newvalue < backlogvalue) System.out.println(" theta: "+thetastar+" max-theta: "+ max_theta +" bound: "+newvalue);
 						
 						backlogvalue = Math.min(backlogvalue, newvalue);
 						thetastar = thetastar+thetagranularity;
@@ -434,8 +439,8 @@ public class SimpleOptimizer extends AbstractOptimizer {
 						try{
 							double newvalue = input.evaluate(thetastar, 0, 0);
 
-							
-							if(newvalue < backlogvalue) System.out.println("Hoelder: "+hoelderlist.toString()+" theta: "+thetastar+" max-theta: "+ max_theta +" bound: "+newvalue);
+							//Debugging
+							//if(newvalue < backlogvalue) System.out.println("Hoelder: "+hoelderlist.toString()+" theta: "+thetastar+" max-theta: "+ max_theta +" bound: "+newvalue);
 							
 							
 							backlogvalue = Math.min(backlogvalue, newvalue);
@@ -463,8 +468,8 @@ public class SimpleOptimizer extends AbstractOptimizer {
 						try{
 							double newvalue = input.evaluate(thetastar, 0, 0);
 							
-							
-							if(newvalue < backlogvalue) System.out.println("Hoelder: "+hoelderlist.toString()+" theta: "+thetastar+" max-theta: "+ max_theta +" bound: "+newvalue);
+							//debugging
+							//if(newvalue < backlogvalue) System.out.println("Hoelder: "+hoelderlist.toString()+" theta: "+thetastar+" max-theta: "+ max_theta +" bound: "+newvalue);
 							
 							
 							backlogvalue = Math.min(backlogvalue, newvalue);
