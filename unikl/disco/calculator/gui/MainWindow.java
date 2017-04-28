@@ -86,7 +86,7 @@ public class MainWindow {
         consolePanel.redirectErr(Color.RED);
         rightHorizontalSplitPane.setBottomComponent(consolePanel.getPanel());
 
-        visPanel = new NetworkVisualizationPanel(new Dimension(650, 650));
+        visPanel = new NetworkVisualizationPanel(new Dimension(350, 350));
         rightHorizontalSplitPane.setTopComponent(visPanel.getPanel());
 
         controllerPanel = new ControlPanel();

@@ -26,7 +26,10 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.Dimension;
@@ -51,12 +54,12 @@ import unikl.disco.calculator.network.Vertex;
  */
 public class NetworkVisualizationPanel {
 
-    private final ScrollPane visualizationPanel;
+    //private final JScrollPane visualizationPanel;
+    private GraphZoomScrollPane visualizationPanel;
     private Graph<GraphItem, GraphItem> graph;
     private Layout<GraphItem, GraphItem> layout;
     VisualizationViewer<GraphItem, GraphItem> bvs;
     private Dimension size;
-    private Dimension graphSize;
     private List<GraphItem> vertices;
     private List<GraphItem> flows;
     private final double attractionMultiplier = 0.5;
@@ -70,16 +73,13 @@ public class NetworkVisualizationPanel {
     public NetworkVisualizationPanel(Dimension size) {
         vertices = new LinkedList<>();
         flows = new LinkedList<>();
-        visualizationPanel = new ScrollPane();
-        visualizationPanel.setPreferredSize(size);
         this.size = size;
-        graphSize = new Dimension((int)size.getWidth()-50, (int)size.getHeight()-50);
         graph = new SparseMultigraph();
+
         layout = new FRLayout<>(graph);
         ((FRLayout) layout).setAttractionMultiplier(attractionMultiplier);
         ((FRLayout) layout).setRepulsionMultiplier(repulsionMultiplier);
         layout.setSize(size);
-
         bvs = new VisualizationViewer<>(layout);
         bvs.setPreferredSize(size);
         bvs.getRenderContext().setVertexLabelTransformer(new Transformer<GraphItem, String>() {
@@ -95,17 +95,22 @@ public class NetworkVisualizationPanel {
             }
         });
         bvs.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+        visualizationPanel = new GraphZoomScrollPane(bvs);
+        visualizationPanel.setPreferredSize(size);
 
-        visualizationPanel.add(bvs);
+        final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        bvs.setGraphMouse(graphMouse);
+
+        //visualizationPanel.add(bvs);
         SNC.getInstance().registerNetworkListener(new NetworkChangeListener());
     }
 
     /**
-     * Returns the JPanel on which everything is displayed.
+     * Returns the Panel on which everything is displayed.
      *
      * @return
      */
-    public ScrollPane getPanel() {
+    public JPanel getPanel() {
         return visualizationPanel;
     }
 
